@@ -316,6 +316,21 @@ export const SPECIES = {
       { level: 1, skill: "gantekiotoshi" },
     ],
   },
+  takarabox: {
+    id: "takarabox",
+    name: "タカラボックス",
+    genus: "ばけばこ",
+    color: "#c48a2c",
+    base: { hp: 40, atk: 10, def: 20, spd: 5 },
+    growth: { hp: 6, atk: 1.8, def: 3.0, spd: 0.8 },
+    exp: 40,
+    recruitEase: 0.05,
+    rare: true,
+    learnset: [
+      { level: 1, skill: "gantekiotoshi" },
+      { level: 5, skill: "hibiwareGeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

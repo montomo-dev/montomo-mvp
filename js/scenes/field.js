@@ -169,11 +169,10 @@ export class FieldScene {
         if (!this.game.treasureState[treasureKey]) {
           this.game.treasureState[treasureKey] = true;
           if (treasure.trap && this.game.party.length > 0) {
-            const speciesId = rollWildSpecies();
             const [minLevel, maxLevel] = this.stage.wildLevels;
             const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
-            this.pendingEnemy = createMonster(speciesId, level);
-            this.showToast("わな！ モンスターが とびだした！");
+            this.pendingEnemy = createMonster("takarabox", level);
+            this.showToast("たからばこは タカラボックスだった！");
             this.flash = 0.45;
           } else {
             this.game.money += treasure.money;
@@ -398,13 +397,36 @@ export class FieldScene {
       const treasureKey = `${this.stageId}:${treasure.id}`;
       if (this.game.treasureState[treasureKey]) continue;
 
-      const px = treasure.x * TILE + 20;
-      const py = treasure.y * TILE + 20;
-      ctx.fillStyle = "#ffd700";
-      ctx.font = 'bold 28px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("宝", px, py);
+      const px = treasure.x * TILE;
+      const py = treasure.y * TILE;
+      const bob = Math.sin(this.time * 2 + treasure.x) * 1;
+      const y = py + bob;
+
+      ctx.fillStyle = "rgba(0,0,0,0.25)";
+      ctx.beginPath();
+      ctx.ellipse(px + 20, py + 34, 12, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#8a5a2a";
+      ctx.fillRect(px + 8, y + 18, 24, 14);
+      ctx.fillStyle = "#6b4520";
+      ctx.fillRect(px + 8, y + 30, 24, 2);
+
+      ctx.fillStyle = "#a86e30";
+      ctx.beginPath();
+      ctx.moveTo(px + 8, y + 18);
+      ctx.quadraticCurveTo(px + 20, y + 8, px + 32, y + 18);
+      ctx.lineTo(px + 32, y + 22);
+      ctx.lineTo(px + 8, y + 22);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#f0c040";
+      ctx.fillRect(px + 8, y + 21, 24, 1.5);
+      ctx.fillRect(px + 19, y + 12, 2, 6);
+
+      ctx.fillStyle = "#fff0a0";
+      ctx.fillRect(px + 19.5, y + 13, 1, 2);
     }
   }
 
@@ -414,13 +436,37 @@ export class FieldScene {
       const itemKey = `${this.stageId}:${item.id}`;
       if (this.game.groundItemState[itemKey]) continue;
 
-      const px = item.x * TILE + 20;
-      const py = item.y * TILE + 20;
-      ctx.fillStyle = "#88dd88";
-      ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("落", px, py);
+      const px = item.x * TILE;
+      const py = item.y * TILE;
+      const bob = Math.sin(this.time * 3 + item.x * 0.5) * 1.5;
+      const y = py + bob;
+
+      ctx.fillStyle = "rgba(0,0,0,0.25)";
+      ctx.beginPath();
+      ctx.ellipse(px + 20, py + 32, 8, 2.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#c9c9d6";
+      ctx.fillRect(px + 17, y + 12, 6, 3);
+
+      ctx.fillStyle = "#e04a4a";
+      ctx.beginPath();
+      ctx.moveTo(px + 15, y + 15);
+      ctx.lineTo(px + 25, y + 15);
+      ctx.lineTo(px + 25, y + 22);
+      ctx.quadraticCurveTo(px + 25, y + 30, px + 20, y + 30);
+      ctx.quadraticCurveTo(px + 15, y + 30, px + 15, y + 22);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#ff8080";
+      ctx.fillRect(px + 17, y + 18, 2, 5);
+
+      const sparkle = 0.5 + 0.5 * Math.sin(this.time * 4 + item.y);
+      ctx.fillStyle = `rgba(255,255,255,${sparkle})`;
+      ctx.beginPath();
+      ctx.arc(px + 28, y + 14, 1.5, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 }
