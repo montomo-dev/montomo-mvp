@@ -2,12 +2,12 @@ import { SPECIES } from "../data/monsters.js";
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 
-const COLS = 3;
-const CELL_W = 186;
-const CELL_H = 80;
-const GAP = 10;
+const COLS = 4;
+const CELL_W = 136;
+const CELL_H = 78;
+const GAP = 8;
 const ORIGIN_X = 30;
-const ORIGIN_Y = 80;
+const ORIGIN_Y = 78;
 
 function dexEntries() {
   return Object.values(SPECIES).filter((s) => !s.boss);
@@ -72,35 +72,35 @@ export class PokedexScene {
       if (!isSeen) {
         ctx.fillStyle = "#3a3a52";
         ctx.beginPath();
-        ctx.arc(x + 34, y + 46, 22, 0, Math.PI * 2);
+        ctx.arc(x + 26, y + 40, 18, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#f0ead8";
         ctx.font = FONT_BOLD;
         ctx.textAlign = "center";
-        ctx.fillText("？", x + 34, y + 54);
+        ctx.fillText("？", x + 26, y + 47);
         ctx.textAlign = "left";
         ctx.fillStyle = "#8a8aa0";
-        ctx.font = FONT;
-        ctx.fillText("？？？？？", x + 64, y + 34);
-        ctx.fillText("みはっけん", x + 64, y + 56);
+        ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+        ctx.fillText("？？？？", x + 50, y + 30);
+        ctx.fillText("みはっけん", x + 50, y + 50);
         return;
       }
 
       if (!isCaught) ctx.filter = "grayscale(0.85) brightness(0.9)";
-      drawMonster(ctx, species.id, x + 34, y + 50, 0.34, this.time, 0);
+      drawMonster(ctx, species.id, x + 26, y + 42, 0.28, this.time, 0);
       ctx.filter = "none";
 
       ctx.fillStyle = "#3a3a52";
-      ctx.font = FONT_BOLD;
-      ctx.fillText(species.name, x + 64, y + 26);
-      ctx.font = FONT;
-      ctx.fillText(species.genus, x + 64, y + 44);
+      ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.fillText(species.name, x + 50, y + 20);
+      ctx.font = '11px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.fillText(species.genus, x + 50, y + 36);
       if (!isCaught) {
         ctx.fillStyle = "#a8a8c0";
-        ctx.fillText("みつけただけ", x + 64, y + 64);
+        ctx.fillText("みつけただけ", x + 50, y + 54);
       } else {
         ctx.fillStyle = "#4a8f4a";
-        ctx.fillText("なかまにした！", x + 64, y + 64);
+        ctx.fillText("なかまにした！", x + 50, y + 54);
       }
     });
 

@@ -17,4 +17,10 @@ export const SKILLS = {
   raimeidan: { name: "らいめいだん", power: 1.85, accuracy: 80 },
   hoshikake: { name: "ほしかけ", power: 1.5, accuracy: 95 },
   tsukinooto: { name: "つきのね", power: 1.95, accuracy: 85 },
+  hotarubi: { name: "ほたるび", power: 1.4, accuracy: 95 },
+  andonflash: { name: "あんどんフラッシュ", power: 1.9, accuracy: 75 },
+  kouratackle: { name: "こうらタックル", power: 1.4, accuracy: 90 },
+  hibiwareGeki: { name: "ひびわれげき", power: 2.0, accuracy: 75 },
+  mitarashihane: { name: "みたらしはねる", power: 1.3, accuracy: 100 },
+  dangospin: { name: "だんごスピン", power: 1.75, accuracy: 85 },
 };

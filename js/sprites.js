@@ -600,6 +600,92 @@ function paintNushi(ctx) {
   starSpark(ctx, 32, -29, 4.5, "#fff4a3");
 }
 
+function paintHonbori(ctx) {
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = "#ffd88a";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, -2, 34, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  glossOval(ctx, -22, -6, 7, 11, "#e0863a", "#a8621f", "#6b3f10", 2.5);
+  glossOval(ctx, 22, -6, 7, 11, "#e0863a", "#a8621f", "#6b3f10", 2.5);
+
+  glossOval(ctx, 0, -32, 12, 5, "#6b3f10", "#4a2b0a", "#2b2b33", 2);
+  glossOval(ctx, 0, 30, 13, 5, "#6b3f10", "#4a2b0a", "#2b2b33", 2);
+
+  glossOval(ctx, 0, 0, 27, 30, "#ffc46a", "#e0863a", "#6b3f10", 6);
+  ctx.strokeStyle = "rgba(107, 63, 16, 0.55)";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  for (const y of [-14, 0, 14]) {
+    ctx.beginPath();
+    ctx.moveTo(-24, y);
+    ctx.quadraticCurveTo(0, y + 6, 24, y);
+    ctx.stroke();
+  }
+  shine(ctx, -12, -16, 11, 6);
+
+  glossOval(ctx, 0, 12, 14, 10, "#fff2d6", "#ffe0a8", "#6b3f10", 2.5);
+  eye(ctx, -10, -4, 8);
+  eye(ctx, 10, -4, 8);
+  tri(ctx, -4, 6, 4, 6, 0, 12, "#a8621f", null);
+  blush(ctx, -20, 6);
+  blush(ctx, 20, 6);
+}
+
+function paintTsubogame(ctx) {
+  glossOval(ctx, -18, 22, 8, 6, "#e2c99a", "#a88a5c", "#5c4a30", 2.5);
+  glossOval(ctx, 18, 22, 8, 6, "#e2c99a", "#a88a5c", "#5c4a30", 2.5);
+  glossOval(ctx, -22, 6, 7, 9, "#e2c99a", "#a88a5c", "#5c4a30", 2.5);
+  glossOval(ctx, 22, 6, 7, 9, "#e2c99a", "#a88a5c", "#5c4a30", 2.5);
+  tri(ctx, -6, 26, 6, 26, 0, 34, "#a88a5c", "#5c4a30", 2);
+
+  glossCircle(ctx, 0, -22, 12, "#e2c99a", "#a88a5c", "#5c4a30", 2.5);
+  eye(ctx, -5, -23, 6);
+  eye(ctx, 5, -23, 6);
+  smile(ctx, 0, -17, 3.5);
+
+  glossOval(ctx, 0, 4, 30, 26, "#8fc7ae", "#5a8f7a", "#2f5745", 6);
+  ctx.strokeStyle = "rgba(47, 87, 69, 0.5)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-20, -6); ctx.quadraticCurveTo(-6, 4, -14, 16);
+  ctx.moveTo(18, -8); ctx.quadraticCurveTo(8, 0, 16, 14);
+  ctx.stroke();
+  shine(ctx, -13, -8, 12, 7);
+  glossOval(ctx, 0, 8, 14, 10, "#dff2e8", "#bfe4d4", "#2f5745", 2.5);
+  blush(ctx, -21, 8);
+  blush(ctx, 21, 8);
+}
+
+function paintSandango(ctx) {
+  ctx.strokeStyle = "#a8865c";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 33);
+  ctx.lineTo(0, 44);
+  ctx.stroke();
+
+  glossCircle(ctx, 0, 20, 15, "#f6a6a0", "#d97a72", "#8a4a44", 3);
+  glossCircle(ctx, 0, 1, 14, "#fff6e4", "#ead9b8", "#8a7550", 3);
+  shine(ctx, -14, 16, 6, 3.5);
+  shine(ctx, -13, -3, 6, 3.5);
+
+  glossOval(ctx, -13, -18, 6, 9, "#8fce6a", "#5fa03e", "#345c22", 2.2);
+  glossOval(ctx, 13, -18, 6, 9, "#8fce6a", "#5fa03e", "#345c22", 2.2);
+  glossCircle(ctx, 0, -20, 14, "#a8dd82", "#7ac457", "#345c22", 3);
+  shine(ctx, -6, -24, 6, 3.5);
+  eye(ctx, -6, -21, 6);
+  eye(ctx, 6, -21, 6);
+  smile(ctx, 0, -16, 3.5);
+  blush(ctx, -13, -17);
+  blush(ctx, 13, -17);
+}
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
@@ -612,6 +698,9 @@ const PAINTERS = {
   pyokotan: paintPyokotan,
   pachikoro: paintPachikoro,
   tsukinone: paintTsukinone,
+  honbori: paintHonbori,
+  tsubogame: paintTsubogame,
+  sandango: paintSandango,
   nushi: paintNushi,
 };
 
