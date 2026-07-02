@@ -1,0 +1,69 @@
+import { Input } from "./input.js";
+import { createMonster, SPECIES, ensureUidAbove } from "./data/monsters.js";
+import { FieldScene } from "./scenes/field.js";
+import { TitleScene } from "./scenes/title.js";
+import { saveGame } from "./systems/save.js";
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+function buildParty(save) {
+  if (save && Array.isArray(save.party)) {
+    const restored = save.party.filter((m) => m && SPECIES[m.speciesId]);
+    if (restored.length > 0) {
+      let maxUid = 0;
+      for (const m of restored) {
+        if (typeof m.uid === "number" && m.uid > maxUid) maxUid = m.uid;
+      }
+      ensureUidAbove(maxUid);
+      return restored;
+    }
+  }
+  return [createMonster("mofuri", 3)];
+}
+
+const game = {
+  canvas,
+  ctx,
+  input: new Input(),
+  party: [],
+  scene: null,
+  field: null,
+  changeScene(scene) {
+    this.scene = scene;
+  },
+  save() {
+    if (!this.field) return false;
+    return saveGame(this);
+  },
+  startAdventure(save) {
+    this.flags = { bossDefeated: !!(save && save.flags && save.flags.bossDefeated) };
+    this.party = buildParty(save);
+    this.field = new FieldScene(this);
+    if (save && save.field) {
+      if (Number.isInteger(save.field.x) && Number.isInteger(save.field.y)) {
+        this.field.player = { x: save.field.x, y: save.field.y };
+      }
+      if (typeof save.field.facing === "string") this.field.facing = save.field.facing;
+    }
+    this.changeScene(this.field);
+    this.save();
+  },
+};
+
+game.changeScene(new TitleScene(game));
+window.__game = game;
+
+// フィールドに出ている間だけ、ページを閉じる直前に保存
+window.addEventListener("beforeunload", () => game.save());
+
+let last = 0;
+function loop(t) {
+  const dt = Math.min((t - last) / 1000, 0.05);
+  last = t;
+  game.scene.update(dt);
+  game.scene.draw(ctx);
+  game.input.endFrame();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
