@@ -133,6 +133,19 @@ export class FieldScene {
     }
   }
 
+  currentTileMessage() {
+    const tile = this.tileAt(this.player.x, this.player.y);
+    if (tile === T_BUSH) return "くさむら: であいに ちゅうい";
+    if (tile === T_SPRING) return "いずみ: HP ぜんかいふく";
+    if (tile === T_RANCH) return "まきば: なかまの いれかえ";
+    if (tile === T_BOSS) {
+      return this.game.flags && this.game.flags.bossDefeated
+        ? "おくのもり: しずかな きはい"
+        : "おくのもり: ヌシが いる";
+    }
+    return "もりのみち: なかまを そだてよう";
+  }
+
   draw(ctx) {
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
@@ -216,14 +229,36 @@ export class FieldScene {
     drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, this.time);
     drawPlayer(ctx, playerPx, playerPy, this.facing, this.time);
 
+    const leader = this.game.party[0];
+    if (leader) {
+      panel(ctx, 12, 12, 224, 74);
+      ctx.fillStyle = "#3a3a52";
+      ctx.font = FONT_BOLD;
+      ctx.textAlign = "left";
+      ctx.fillText(`${leader.name}  Lv.${leader.level}`, 26, 38);
+      hpBar(ctx, 26, 48, 136, 12, leader.hp / leader.maxHp);
+      ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.fillText(`HP ${leader.hp}/${leader.maxHp}`, 26, 74);
+      ctx.fillText(`なかま ${this.game.party.length}たい`, 174, 56);
+    }
+
+    panel(ctx, 396, 12, 232, 74);
+    ctx.fillStyle = "#3a3a52";
+    ctx.font = FONT_BOLD;
+    ctx.textAlign = "left";
+    ctx.fillText("ぼうけんメモ", 412, 38);
+    ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(`みつけた ${this.game.dex.seen.length} / なかま ${this.game.dex.caught.length}`, 412, 58);
+    ctx.fillText(this.currentTileMessage(), 412, 78);
+
     if (this.toast) {
       ctx.save();
       ctx.globalAlpha = Math.min(1, this.toast.timer);
-      panel(ctx, 90, 16, 460, 44);
+      panel(ctx, 90, 96, 460, 44);
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "center";
-      ctx.fillText(this.toast.text, 320, 44);
+      ctx.fillText(this.toast.text, 320, 124);
       ctx.restore();
       ctx.textAlign = "left";
     }
