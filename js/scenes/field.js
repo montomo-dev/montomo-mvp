@@ -3,39 +3,26 @@ import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
 import { PokedexScene } from "./pokedex.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
+import { AREAS } from "../data/areas.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
 import { panel, FONT_BOLD } from "../ui.js";
 
 const TILE = 40;
 const ENCOUNTER_RATE = 0.12;
-const START = { x: 8, y: 10 };
 
 const T_BUSH = 1;
 const T_TREE = 2;
 const T_SPRING = 3;
 const T_BOSS = 4;
 const T_RANCH = 5;
-
-const LAYOUT = [
-  "2222222222222222",
-  "2400000000000302",
-  "2001110000011002",
-  "2001110000011002",
-  "2000000000011002",
-  "2002200000000002",
-  "2002200111000002",
-  "2000000111000002",
-  "2001100000000022",
-  "2001100050220002",
-  "2000000000220002",
-  "2222222222222222",
-];
+const T_EXIT = 6;
 
 export class FieldScene {
-  constructor(game) {
+  constructor(game, areaId = "forest", entryPos = null) {
     this.game = game;
-    this.map = LAYOUT.map((row) => [...row].map(Number));
-    this.player = { ...START };
+    this.area = AREAS[areaId];
+    this.map = this.area.layout.map((row) => [...row].map(Number));
+    this.player = { ...(entryPos || this.area.start) };
     this.facing = "down";
     this.moveCooldown = 0;
     this.time = 0;
@@ -46,7 +33,7 @@ export class FieldScene {
   }
 
   resetPosition() {
-    this.player = { ...START };
+    this.player = { ...this.area.start };
     this.facing = "down";
   }
 
@@ -125,54 +112,100 @@ export class FieldScene {
       this.game.changeScene(new RanchScene(this.game, this));
       return;
     }
+    if (tile === T_EXIT) {
+      const exit = this.area.exits[`${this.player.x},${this.player.y}`];
+      if (!exit) return;
+      const next = new FieldScene(this.game, exit.to, exit.entry);
+      next.showToast(`${AREAS[exit.to].name} に はいった`);
+      this.game.field = next;
+      this.game.changeScene(next);
+      this.game.save();
+      return;
+    }
     if (tile === T_BUSH && Math.random() < ENCOUNTER_RATE) {
-      const speciesId = rollWildSpecies();
-      const level = 1 + Math.floor(Math.random() * 3);
+      const [lo, hi] = this.area.levelRange;
+      const speciesId = rollWildSpecies(this.area.wildSpecies);
+      const level = lo + Math.floor(Math.random() * (hi - lo + 1));
       this.pendingEnemy = createMonster(speciesId, level);
       this.flash = 0.45;
     }
   }
 
   draw(ctx) {
+    const theme = this.area.theme;
+    const bg = theme === "cave" ? "#4a4658" : "#a9d977";
+    const bgDot = theme === "cave" ? "#5c5870" : "#98cc66";
+
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         const px = x * TILE;
         const py = y * TILE;
-        ctx.fillStyle = "#a9d977";
+        ctx.fillStyle = bg;
         ctx.fillRect(px, py, TILE, TILE);
         if ((x * 7 + y * 13) % 5 === 0) {
-          ctx.fillStyle = "#98cc66";
+          ctx.fillStyle = bgDot;
           ctx.fillRect(px + 8, py + 26, 4, 4);
           ctx.fillRect(px + 26, py + 10, 4, 4);
         }
         const tile = this.map[y][x];
         if (tile === T_BUSH) {
-          ctx.fillStyle = "#7bbb4d";
-          ctx.beginPath();
-          ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
-          ctx.fill();
-          ctx.strokeStyle = "#5fa03e";
-          ctx.lineWidth = 2.5;
-          ctx.lineCap = "round";
-          for (const ox of [10, 20, 30]) {
+          if (theme === "cave") {
+            ctx.fillStyle = "#38344a";
             ctx.beginPath();
-            ctx.moveTo(px + ox, py + 30);
-            ctx.quadraticCurveTo(px + ox - 3, py + 18, px + ox - 6, py + 12);
-            ctx.moveTo(px + ox, py + 30);
-            ctx.quadraticCurveTo(px + ox + 3, py + 18, px + ox + 6, py + 12);
-            ctx.stroke();
+            ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
+            ctx.fill();
+            const glow = 0.5 + Math.sin(this.time * 3 + x + y) * 0.3;
+            for (const [ox, oy] of [[12, 27], [20, 21], [28, 27]]) {
+              ctx.fillStyle = `rgba(150, 220, 255, ${glow})`;
+              ctx.beginPath();
+              ctx.ellipse(px + ox, py + oy, 5, 6.5, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "#7a7492";
+              ctx.fillRect(px + ox - 1, py + oy + 4, 2, 6);
+            }
+          } else {
+            ctx.fillStyle = "#7bbb4d";
+            ctx.beginPath();
+            ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
+            ctx.fill();
+            ctx.strokeStyle = "#5fa03e";
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = "round";
+            for (const ox of [10, 20, 30]) {
+              ctx.beginPath();
+              ctx.moveTo(px + ox, py + 30);
+              ctx.quadraticCurveTo(px + ox - 3, py + 18, px + ox - 6, py + 12);
+              ctx.moveTo(px + ox, py + 30);
+              ctx.quadraticCurveTo(px + ox + 3, py + 18, px + ox + 6, py + 12);
+              ctx.stroke();
+            }
           }
         } else if (tile === T_TREE) {
-          ctx.fillStyle = "#8a5a35";
-          ctx.fillRect(px + 15, py + 20, 10, 14);
-          ctx.fillStyle = "#4e8f43";
-          ctx.beginPath();
-          ctx.arc(px + 20, py + 14, 15, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = "#66a858";
-          ctx.beginPath();
-          ctx.arc(px + 15, py + 10, 6, 0, Math.PI * 2);
-          ctx.fill();
+          if (theme === "cave") {
+            ctx.fillStyle = "#6b6478";
+            ctx.beginPath();
+            ctx.moveTo(px + 7, py + 37);
+            ctx.lineTo(px + 13, py + 6);
+            ctx.lineTo(px + 20, py + 20);
+            ctx.lineTo(px + 27, py + 3);
+            ctx.lineTo(px + 33, py + 37);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#3f3b4d";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = "#8a5a35";
+            ctx.fillRect(px + 15, py + 20, 10, 14);
+            ctx.fillStyle = "#4e8f43";
+            ctx.beginPath();
+            ctx.arc(px + 20, py + 14, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#66a858";
+            ctx.beginPath();
+            ctx.arc(px + 15, py + 10, 6, 0, Math.PI * 2);
+            ctx.fill();
+          }
         } else if (tile === T_SPRING) {
           ctx.fillStyle = "#6db8e8";
           ctx.beginPath();
@@ -207,6 +240,19 @@ export class FieldScene {
           ctx.fillRect(px + 27, py + 8, 5, 28);
           ctx.fillRect(px + 4, py + 6, 32, 6);
           ctx.fillRect(px + 7, py + 15, 26, 4);
+        } else if (tile === T_EXIT) {
+          ctx.fillStyle = "#2b2838";
+          ctx.beginPath();
+          ctx.ellipse(px + 20, py + 24, 14, 16, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#8a7a5a";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          const glow = 0.4 + Math.sin(this.time * 2) * 0.2;
+          ctx.fillStyle = `rgba(255, 230, 150, ${glow})`;
+          ctx.beginPath();
+          ctx.ellipse(px + 20, py + 24, 7, 9, 0, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
     }
@@ -215,6 +261,13 @@ export class FieldScene {
     const playerPy = this.player.y * TILE + 20;
     drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, this.time);
     drawPlayer(ctx, playerPx, playerPy, this.facing, this.time);
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    ctx.fillRect(0, 456, 160, 24);
+    ctx.fillStyle = "#f0ead8";
+    ctx.font = FONT_BOLD;
+    ctx.textAlign = "left";
+    ctx.fillText(this.area.name, 8, 473);
 
     if (this.toast) {
       ctx.save();

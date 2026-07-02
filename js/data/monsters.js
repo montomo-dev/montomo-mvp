@@ -177,9 +177,9 @@ export const WILD_SPECIES = ["dogura", "hibachi", "fuwarisu", "pyokotan", "pachi
 export const RARE_SPECIES = "tsukinone";
 export const RARE_ENCOUNTER_RATE = 0.05;
 
-export function rollWildSpecies(random = Math.random) {
+export function rollWildSpecies(pool = WILD_SPECIES, random = Math.random) {
   if (random() < RARE_ENCOUNTER_RATE) return RARE_SPECIES;
-  return WILD_SPECIES[Math.floor(random() * WILD_SPECIES.length)];
+  return pool[Math.floor(random() * pool.length)];
 }
 
 let uidCounter = 1;
