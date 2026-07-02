@@ -142,6 +142,48 @@ export const SPECIES = {
       { level: 6, skill: "raimeidan" },
     ],
   },
+  orihiko: {
+    id: "orihiko",
+    name: "オリヒコ",
+    genus: "おりがみひこうき",
+    color: "#f3e6cf",
+    base: { hp: 19, atk: 9, def: 4, spd: 15 },
+    growth: { hp: 4.1, atk: 2.4, def: 1.0, spd: 2.7 },
+    exp: 13,
+    recruitEase: 0.24,
+    learnset: [
+      { level: 3, skill: "soyokazecutter" },
+      { level: 6, skill: "tatsumakifeather" },
+    ],
+  },
+  kiboko: {
+    id: "kiboko",
+    name: "キボコ",
+    genus: "きぼりこけし",
+    color: "#a87446",
+    base: { hp: 33, atk: 11, def: 13, spd: 5 },
+    growth: { hp: 6.4, atk: 2.0, def: 2.7, spd: 1.1 },
+    exp: 14,
+    recruitEase: 0.17,
+    learnset: [
+      { level: 3, skill: "moguradrill" },
+      { level: 6, skill: "jinarashipress" },
+    ],
+  },
+  tsuboco: {
+    id: "tsuboco",
+    name: "ツボコ",
+    genus: "せとものつぼ",
+    color: "#c98c63",
+    base: { hp: 29, atk: 12, def: 10, spd: 8 },
+    growth: { hp: 5.7, atk: 2.2, def: 2.1, spd: 1.7 },
+    exp: 15,
+    recruitEase: 0.2,
+    learnset: [
+      { level: 3, skill: "bubblesplash" },
+      { level: 6, skill: "shibukikick" },
+    ],
+  },
   tsukinone: {
     id: "tsukinone",
     name: "ツキノネ",
@@ -216,7 +258,19 @@ export const SPECIES = {
   },
 };
 
-export const WILD_SPECIES = ["dogura", "hibachi", "fuwarisu", "pyokotan", "pachikoro", "honbori", "tsubogame", "sandango"];
+export const WILD_SPECIES = [
+  "dogura",
+  "hibachi",
+  "fuwarisu",
+  "pyokotan",
+  "pachikoro",
+  "honbori",
+  "tsubogame",
+  "sandango",
+  "orihiko",
+  "kiboko",
+  "tsuboco",
+];
 export const RARE_SPECIES = "tsukinone";
 export const RARE_ENCOUNTER_RATE = 0.05;
 

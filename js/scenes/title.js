@@ -98,15 +98,18 @@ export class TitleScene {
     ctx.font = FONT_BOLD;
     ctx.fillStyle = "#4f7c39";
     ctx.fillText("であう → たたかう → さそう → そだてる", 320, 302);
+    ctx.fillStyle = "#5c7d58";
+    ctx.font = FONT;
+    ctx.fillText("あたらしい なかま: オリヒコ・キボコ・ツボコ", 320, 322);
 
     if (this.notice) {
       ctx.fillStyle = "#2e7d32";
       ctx.font = FONT_BOLD;
-      ctx.fillText(this.notice, 320, 326);
+      ctx.fillText(this.notice, 320, 344);
     }
 
     this.options.forEach((opt, i) => {
-      const y = 358 + i * 40;
+      const y = 364 + i * 38;
       ctx.font = FONT_BOLD;
       ctx.fillStyle = this.cursor === i ? "#e8842e" : "#3a3a52";
       ctx.fillText(opt, 320, y);
@@ -118,7 +121,7 @@ export class TitleScene {
 
     ctx.font = FONT;
     ctx.fillStyle = "#5a5a70";
-    ctx.fillText("↑↓: えらぶ ／ Z: けってい", 320, 456);
+    ctx.fillText("↑↓: えらぶ ／ Z: けってい", 320, 454);
     ctx.fillText("くさむらで モンスターと であい、HPを へらして さそおう", 320, 478);
 
     if (this.confirm) {

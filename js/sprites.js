@@ -450,6 +450,129 @@ function paintPachikoro(ctx) {
   blush(ctx, 19, 1);
 }
 
+function paintOrihiko(ctx) {
+  ctx.save();
+  ctx.rotate(-0.08);
+  ctx.beginPath();
+  ctx.moveTo(-28, 4);
+  ctx.lineTo(-4, -30);
+  ctx.lineTo(24, -8);
+  ctx.lineTo(10, 30);
+  ctx.lineTo(-18, 20);
+  ctx.closePath();
+  ctx.fillStyle = "#f2e4c8";
+  ctx.strokeStyle = "#4f4333";
+  ctx.lineWidth = 5;
+  ctx.lineJoin = "round";
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#d9c19b";
+  ctx.beginPath();
+  ctx.moveTo(-8, -18);
+  ctx.lineTo(8, -8);
+  ctx.lineTo(-2, 12);
+  ctx.lineTo(-18, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "#b98a5a";
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(-6, -26);
+  ctx.lineTo(8, -6);
+  ctx.moveTo(-19, 4);
+  ctx.lineTo(10, 13);
+  ctx.stroke();
+
+  ctx.restore();
+  eye(ctx, -5, -5, 7.5);
+  eye(ctx, 10, -2, 7.5);
+  smile(ctx, 2, 10, 4);
+  blush(ctx, -18, 6);
+  blush(ctx, 20, 8);
+  starSpark(ctx, 19, -20, 4.5, "#fff2c0");
+}
+
+function paintKiboko(ctx) {
+  ctx.fillStyle = "#9f6d45";
+  ctx.strokeStyle = "#5c3f28";
+  ctx.lineWidth = 5;
+  ctx.lineJoin = "round";
+
+  ctx.beginPath();
+  ctx.roundRect(-18, -28, 36, 56, 12);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.roundRect(-22, -36, 44, 20, 8);
+  ctx.fillStyle = "#b27c50";
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#d8ab7b";
+  ctx.beginPath();
+  ctx.roundRect(-10, -10, 20, 22, 6);
+  ctx.fill();
+  ctx.strokeStyle = "#5c3f28";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = "#7b522f";
+  ctx.fillRect(-12, -28, 4, 10);
+  ctx.fillRect(8, -28, 4, 10);
+  ctx.beginPath();
+  ctx.arc(-12, -30, 3, 0, Math.PI * 2);
+  ctx.arc(12, -30, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#6d4a2a";
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(-14, -18); ctx.lineTo(14, -18);
+  ctx.moveTo(-14, -6); ctx.lineTo(14, -6);
+  ctx.moveTo(-14, 6); ctx.lineTo(14, 6);
+  ctx.stroke();
+
+  shine(ctx, -10, -20, 9, 5);
+  eye(ctx, -7, -6, 6.8);
+  eye(ctx, 7, -6, 6.8);
+  smile(ctx, 0, 6, 3.8);
+  blush(ctx, -16, 8);
+  blush(ctx, 16, 8);
+}
+
+function paintTsuboco(ctx) {
+  ctx.save();
+  ctx.translate(0, 2);
+  glossOval(ctx, 0, 0, 28, 24, "#d9a57b", "#b36d46", "#6a4029", 5);
+  ctx.fillStyle = "#eed1a8";
+  ctx.strokeStyle = "#6a4029";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(-18, -30, 36, 14, 7);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#8d5737";
+  ctx.fillRect(-6, -36, 12, 6);
+  ctx.fillRect(-12, 22, 6, 8);
+  ctx.fillRect(6, 22, 6, 8);
+  ctx.strokeStyle = "#6a4029";
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(-10, -12); ctx.lineTo(-2, -2); ctx.lineTo(-12, 8);
+  ctx.moveTo(12, -8); ctx.lineTo(4, 0); ctx.lineTo(14, 10);
+  ctx.stroke();
+  ctx.restore();
+  shine(ctx, -12, -12, 11, 6);
+  eye(ctx, -8, -4, 7);
+  eye(ctx, 8, -4, 7);
+  smile(ctx, 0, 6, 4.2);
+  blush(ctx, -18, 4);
+  blush(ctx, 18, 4);
+}
+
 function paintTsukinone(ctx) {
   ctx.save();
   ctx.translate(-15, -30);
@@ -684,6 +807,121 @@ function paintSandango(ctx) {
   smile(ctx, 0, -16, 3.5);
   blush(ctx, -13, -17);
   blush(ctx, 13, -17);
+
+function gear(ctx, x, y, r, teeth, fill, line) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  for (let i = 0; i < teeth; i++) {
+    const a = (Math.PI * 2 * i) / teeth;
+    const a2 = a + Math.PI / teeth;
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.lineTo(Math.cos(a) * r * 1.22, Math.sin(a) * r * 1.22);
+    ctx.lineTo(Math.cos(a2) * r * 1.22, Math.sin(a2) * r * 1.22);
+    ctx.lineTo(Math.cos(a2) * r, Math.sin(a2) * r);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, 0, 0, r * 0.4, line, null);
+  ctx.restore();
+}
+
+// --- 別スタイルのキャラ群（フラット/輪郭強め）: 見た目のみ。ステータス等はシステム側で設定 ---
+function paintObako(ctx) {
+  // ゆうれい系: 半透明・下がゆらめく・ツヤ無しのフラット。
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = "#ece8ff";
+  ctx.strokeStyle = "#5f4f96";
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(0, 0, 26, Math.PI, Math.PI * 2);
+  ctx.lineTo(26, 12);
+  ctx.quadraticCurveTo(19, 26, 13, 14);
+  ctx.quadraticCurveTo(6, 26, 0, 14);
+  ctx.quadraticCurveTo(-6, 26, -13, 14);
+  ctx.quadraticCurveTo(-19, 26, -26, 12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  oval(ctx, -9, -5, 4.5, 7, "#5f4f96", null);
+  oval(ctx, 9, -5, 4.5, 7, "#5f4f96", null);
+  circle(ctx, -10.5, -8, 1.6, "#ffffff", null);
+  circle(ctx, 7.5, -8, 1.6, "#ffffff", null);
+  circle(ctx, 0, 7, 3, "#5f4f96", null);
+  ctx.globalAlpha = 0.55;
+  circle(ctx, -31, -18, 3, "#ece8ff", "#5f4f96", 1.5);
+  circle(ctx, 31, -21, 2.4, "#ece8ff", "#5f4f96", 1.5);
+  ctx.globalAlpha = 1;
+}
+
+function paintKurista(ctx) {
+  // 結晶系: 角ばったファセット、フラットなセル塗り。
+  const body = "#8fe3f2";
+  const dark = "#3f9bc0";
+  const line = "#1f5e78";
+  ctx.fillStyle = body;
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, -32);
+  ctx.lineTo(24, -10);
+  ctx.lineTo(18, 26);
+  ctx.lineTo(-18, 26);
+  ctx.lineTo(-24, -10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  tri(ctx, 0, -32, 24, -10, 0, -6, dark, line, 2);
+  tri(ctx, 0, -6, 18, 26, -18, 26, dark, line, 2);
+  tri(ctx, -30, -20, -24, -8, -34, -8, body, line, 2);
+  tri(ctx, 30, -22, 24, -10, 34, -10, body, line, 2);
+  ctx.fillStyle = "#12303c";
+  ctx.beginPath(); ctx.moveTo(-13, 1); ctx.lineTo(-4, -2); ctx.lineTo(-8, 7); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(13, 1); ctx.lineTo(4, -2); ctx.lineTo(8, 7); ctx.closePath(); ctx.fill();
+  smile(ctx, 0, 12, 4);
+  starSpark(ctx, 9, -16, 5, "#eafbff");
+}
+
+function paintHagumon(ctx) {
+  // ぜんまい仕掛けの虫: 金属・歯車のメカ系。
+  const metal = "#cabd8f";
+  const dark = "#8a7a4e";
+  const line = "#4b3f22";
+  gear(ctx, 0, -4, 18, 8, "#b7a56f", line);
+  oval(ctx, 0, 10, 20, 15, metal, line, 4);
+  oval(ctx, 0, 10, 11, 8, dark, line, 2);
+  circle(ctx, 0, -20, 11, metal, line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-6, -28); ctx.lineTo(-11, -38);
+  ctx.moveTo(6, -28); ctx.lineTo(11, -38);
+  ctx.stroke();
+  circle(ctx, -12, -40, 3, metal, line, 2);
+  circle(ctx, 12, -40, 3, metal, line, 2);
+  circle(ctx, -4, -20, 3.2, "#2b2b33", null);
+  circle(ctx, 4, -20, 3.2, "#2b2b33", null);
+  circle(ctx, -3, -21, 1.1, "#ffffff", null);
+  circle(ctx, 5, -21, 1.1, "#ffffff", null);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-16, 8); ctx.lineTo(-27, 14);
+  ctx.moveTo(-16, 15); ctx.lineTo(-27, 21);
+  ctx.moveTo(16, 8); ctx.lineTo(27, 14);
+  ctx.moveTo(16, 15); ctx.lineTo(27, 21);
+  ctx.stroke();
 }
 
 const PAINTERS = {
@@ -697,11 +935,17 @@ const PAINTERS = {
   tenfuwarisu: paintTenfuwarisu,
   pyokotan: paintPyokotan,
   pachikoro: paintPachikoro,
+  orihiko: paintOrihiko,
+  kiboko: paintKiboko,
+  tsuboco: paintTsuboco,
   tsukinone: paintTsukinone,
   honbori: paintHonbori,
   tsubogame: paintTsubogame,
   sandango: paintSandango,
   nushi: paintNushi,
+  obako: paintObako,
+  kurista: paintKurista,
+  hagumon: paintHagumon,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
