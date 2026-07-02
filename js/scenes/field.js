@@ -3,26 +3,22 @@ import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
 import { PokedexScene } from "./pokedex.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
-import { AREAS } from "../data/areas.js";
+import { getStage, START_STAGE_ID, TILE_TYPES } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
-import { panel, FONT_BOLD } from "../ui.js";
+import { panel, hpBar, FONT_BOLD } from "../ui.js";
 
 const TILE = 40;
-const ENCOUNTER_RATE = 0.12;
-
-const T_BUSH = 1;
-const T_TREE = 2;
-const T_SPRING = 3;
-const T_BOSS = 4;
-const T_RANCH = 5;
-const T_EXIT = 6;
+const T_BUSH = TILE_TYPES.BUSH;
+const T_TREE = TILE_TYPES.TREE;
+const T_SPRING = TILE_TYPES.SPRING;
+const T_BOSS = TILE_TYPES.BOSS;
+const T_RANCH = TILE_TYPES.RANCH;
+const T_NEXT = TILE_TYPES.NEXT;
+const T_PREV = TILE_TYPES.PREV;
 
 export class FieldScene {
-  constructor(game, areaId = "forest", entryPos = null) {
+  constructor(game, stageId = START_STAGE_ID) {
     this.game = game;
-    this.area = AREAS[areaId];
-    this.map = this.area.layout.map((row) => [...row].map(Number));
-    this.player = { ...(entryPos || this.area.start) };
     this.facing = "down";
     this.moveCooldown = 0;
     this.time = 0;
@@ -30,15 +26,30 @@ export class FieldScene {
     this.flash = 0;
     this.pendingEnemy = null;
     this.pendingBoss = false;
+    this.setStage(stageId, "start", false);
   }
 
   resetPosition() {
-    this.player = { ...this.area.start };
+    this.setStage(START_STAGE_ID, "start", false);
     this.facing = "down";
   }
 
   showToast(text) {
     this.toast = { text, timer: 2.4 };
+  }
+
+  setStage(stageId, spawnKey = "start", keepFacing = true) {
+    this.stage = getStage(stageId);
+    this.stageId = this.stage.id;
+    this.map = this.stage.layout.map((row) => [...row].map(Number));
+    const spawn = this.stage.spawns[spawnKey] || this.stage.spawns.start;
+    this.player = { ...spawn };
+    if (!keepFacing) this.facing = "down";
+  }
+
+  moveStage(stageId, spawnKey, message) {
+    this.setStage(stageId, spawnKey);
+    this.showToast(message);
   }
 
   tileAt(x, y) {
@@ -112,100 +123,81 @@ export class FieldScene {
       this.game.changeScene(new RanchScene(this.game, this));
       return;
     }
-    if (tile === T_EXIT) {
-      const exit = this.area.exits[`${this.player.x},${this.player.y}`];
-      if (!exit) return;
-      const next = new FieldScene(this.game, exit.to, exit.entry);
-      next.showToast(`${AREAS[exit.to].name} に はいった`);
-      this.game.field = next;
-      this.game.changeScene(next);
-      this.game.save();
+    if (tile === T_NEXT && this.stage.nextStage) {
+      const nextStage = getStage(this.stage.nextStage);
+      this.moveStage(nextStage.id, "fromPrev", `${nextStage.shortName} に すすんだ！`);
       return;
     }
-    if (tile === T_BUSH && Math.random() < ENCOUNTER_RATE) {
-      const [lo, hi] = this.area.levelRange;
-      const speciesId = rollWildSpecies(this.area.wildSpecies);
-      const level = lo + Math.floor(Math.random() * (hi - lo + 1));
+    if (tile === T_PREV && this.stage.prevStage) {
+      const prevStage = getStage(this.stage.prevStage);
+      this.moveStage(prevStage.id, "fromNext", `${prevStage.shortName} に もどった`);
+      return;
+    }
+    if (tile === T_BUSH && Math.random() < this.stage.encounterRate) {
+      const speciesId = rollWildSpecies();
+      const [minLevel, maxLevel] = this.stage.wildLevels;
+      const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
       this.pendingEnemy = createMonster(speciesId, level);
       this.flash = 0.45;
     }
   }
 
-  draw(ctx) {
-    const theme = this.area.theme;
-    const bg = theme === "cave" ? "#4a4658" : "#a9d977";
-    const bgDot = theme === "cave" ? "#5c5870" : "#98cc66";
+  currentTileMessage() {
+    const tile = this.tileAt(this.player.x, this.player.y);
+    if (tile === T_BUSH) return "くさむら: であいに ちゅうい";
+    if (tile === T_SPRING) return "いずみ: HP ぜんかいふく";
+    if (tile === T_RANCH) return "まきば: なかまの いれかえ";
+    if (tile === T_NEXT && this.stage.nextStage) return `${getStage(this.stage.nextStage).shortName}: つぎへ すすむ`;
+    if (tile === T_PREV && this.stage.prevStage) return `${getStage(this.stage.prevStage).shortName}: ひとつ もどる`;
+    if (tile === T_BOSS) {
+      return this.game.flags && this.game.flags.bossDefeated
+        ? "おくのもり: しずかな きはい"
+        : "おくのもり: ヌシが いる";
+    }
+    return `${this.stage.name}: なかまを そだてよう`;
+  }
 
+  draw(ctx) {
+    const palette = this.stage.palette;
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         const px = x * TILE;
         const py = y * TILE;
-        ctx.fillStyle = bg;
+        ctx.fillStyle = palette.ground;
         ctx.fillRect(px, py, TILE, TILE);
         if ((x * 7 + y * 13) % 5 === 0) {
-          ctx.fillStyle = bgDot;
+          ctx.fillStyle = palette.accent;
           ctx.fillRect(px + 8, py + 26, 4, 4);
           ctx.fillRect(px + 26, py + 10, 4, 4);
         }
         const tile = this.map[y][x];
         if (tile === T_BUSH) {
-          if (theme === "cave") {
-            ctx.fillStyle = "#38344a";
+          ctx.fillStyle = palette.bushFill;
+          ctx.beginPath();
+          ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
+          ctx.fill();
+          ctx.strokeStyle = palette.bushStroke;
+          ctx.lineWidth = 2.5;
+          ctx.lineCap = "round";
+          for (const ox of [10, 20, 30]) {
             ctx.beginPath();
-            ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
-            ctx.fill();
-            const glow = 0.5 + Math.sin(this.time * 3 + x + y) * 0.3;
-            for (const [ox, oy] of [[12, 27], [20, 21], [28, 27]]) {
-              ctx.fillStyle = `rgba(150, 220, 255, ${glow})`;
-              ctx.beginPath();
-              ctx.ellipse(px + ox, py + oy, 5, 6.5, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = "#7a7492";
-              ctx.fillRect(px + ox - 1, py + oy + 4, 2, 6);
-            }
-          } else {
-            ctx.fillStyle = "#7bbb4d";
-            ctx.beginPath();
-            ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
-            ctx.fill();
-            ctx.strokeStyle = "#5fa03e";
-            ctx.lineWidth = 2.5;
-            ctx.lineCap = "round";
-            for (const ox of [10, 20, 30]) {
-              ctx.beginPath();
-              ctx.moveTo(px + ox, py + 30);
-              ctx.quadraticCurveTo(px + ox - 3, py + 18, px + ox - 6, py + 12);
-              ctx.moveTo(px + ox, py + 30);
-              ctx.quadraticCurveTo(px + ox + 3, py + 18, px + ox + 6, py + 12);
-              ctx.stroke();
-            }
+            ctx.moveTo(px + ox, py + 30);
+            ctx.quadraticCurveTo(px + ox - 3, py + 18, px + ox - 6, py + 12);
+            ctx.moveTo(px + ox, py + 30);
+            ctx.quadraticCurveTo(px + ox + 3, py + 18, px + ox + 6, py + 12);
+            ctx.stroke();
           }
         } else if (tile === T_TREE) {
-          if (theme === "cave") {
-            ctx.fillStyle = "#6b6478";
-            ctx.beginPath();
-            ctx.moveTo(px + 7, py + 37);
-            ctx.lineTo(px + 13, py + 6);
-            ctx.lineTo(px + 20, py + 20);
-            ctx.lineTo(px + 27, py + 3);
-            ctx.lineTo(px + 33, py + 37);
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = "#3f3b4d";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          } else {
-            ctx.fillStyle = "#8a5a35";
-            ctx.fillRect(px + 15, py + 20, 10, 14);
-            ctx.fillStyle = "#4e8f43";
-            ctx.beginPath();
-            ctx.arc(px + 20, py + 14, 15, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = "#66a858";
-            ctx.beginPath();
-            ctx.arc(px + 15, py + 10, 6, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          ctx.fillStyle = "#8a5a35";
+          ctx.fillRect(px + 15, py + 20, 10, 14);
+          ctx.fillStyle = palette.treeLeaf;
+          ctx.beginPath();
+          ctx.arc(px + 20, py + 14, 15, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = palette.treeFruit;
+          ctx.beginPath();
+          ctx.arc(px + 15, py + 10, 6, 0, Math.PI * 2);
+          ctx.fill();
         } else if (tile === T_SPRING) {
           ctx.fillStyle = "#6db8e8";
           ctx.beginPath();
@@ -233,6 +225,27 @@ export class FieldScene {
           ctx.fillStyle = "#6b4e2e";
           ctx.fillRect(px + 6, py + 14, 4, 22);
           ctx.fillRect(px + TILE - 10, py + 14, 4, 22);
+        } else if (tile === T_NEXT || tile === T_PREV) {
+          const gateColor = tile === T_NEXT ? "#5d8ce3" : "#c9814d";
+          const clothColor = tile === T_NEXT ? "#dce9ff" : "#ffe0c4";
+          ctx.fillStyle = "#86603b";
+          ctx.fillRect(px + 8, py + 10, 5, 24);
+          ctx.fillRect(px + 27, py + 10, 5, 24);
+          ctx.fillStyle = gateColor;
+          ctx.fillRect(px + 8, py + 8, 24, 5);
+          ctx.fillStyle = clothColor;
+          ctx.beginPath();
+          if (tile === T_NEXT) {
+            ctx.moveTo(px + 15, py + 17);
+            ctx.lineTo(px + 27, py + 20);
+            ctx.lineTo(px + 15, py + 23);
+          } else {
+            ctx.moveTo(px + 25, py + 17);
+            ctx.lineTo(px + 13, py + 20);
+            ctx.lineTo(px + 25, py + 23);
+          }
+          ctx.closePath();
+          ctx.fill();
         } else if (tile === T_BOSS) {
           const defeated = this.game.flags && this.game.flags.bossDefeated;
           ctx.fillStyle = defeated ? "#9a9a9a" : "#d64545";
@@ -240,19 +253,6 @@ export class FieldScene {
           ctx.fillRect(px + 27, py + 8, 5, 28);
           ctx.fillRect(px + 4, py + 6, 32, 6);
           ctx.fillRect(px + 7, py + 15, 26, 4);
-        } else if (tile === T_EXIT) {
-          ctx.fillStyle = "#2b2838";
-          ctx.beginPath();
-          ctx.ellipse(px + 20, py + 24, 14, 16, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = "#8a7a5a";
-          ctx.lineWidth = 3;
-          ctx.stroke();
-          const glow = 0.4 + Math.sin(this.time * 2) * 0.2;
-          ctx.fillStyle = `rgba(255, 230, 150, ${glow})`;
-          ctx.beginPath();
-          ctx.ellipse(px + 20, py + 24, 7, 9, 0, 0, Math.PI * 2);
-          ctx.fill();
         }
       }
     }
@@ -262,21 +262,36 @@ export class FieldScene {
     drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, this.time);
     drawPlayer(ctx, playerPx, playerPy, this.facing, this.time);
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-    ctx.fillRect(0, 456, 160, 24);
-    ctx.fillStyle = "#f0ead8";
+    const leader = this.game.party[0];
+    if (leader) {
+      panel(ctx, 12, 12, 224, 74);
+      ctx.fillStyle = "#3a3a52";
+      ctx.font = FONT_BOLD;
+      ctx.textAlign = "left";
+      ctx.fillText(`${this.stage.shortName}  ${leader.name} Lv.${leader.level}`, 26, 38);
+      hpBar(ctx, 26, 48, 136, 12, leader.hp / leader.maxHp);
+      ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.fillText(`HP ${leader.hp}/${leader.maxHp}`, 26, 74);
+      ctx.fillText(`なかま ${this.game.party.length}たい`, 174, 56);
+    }
+
+    panel(ctx, 396, 12, 232, 74);
+    ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
-    ctx.fillText(this.area.name, 8, 473);
+    ctx.fillText(this.stage.name, 412, 38);
+    ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(`みつけた ${this.game.dex.seen.length} / なかま ${this.game.dex.caught.length}`, 412, 58);
+    ctx.fillText(this.currentTileMessage(), 412, 78);
 
     if (this.toast) {
       ctx.save();
       ctx.globalAlpha = Math.min(1, this.toast.timer);
-      panel(ctx, 90, 16, 460, 44);
+      panel(ctx, 90, 96, 460, 44);
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "center";
-      ctx.fillText(this.toast.text, 320, 44);
+      ctx.fillText(this.toast.text, 320, 124);
       ctx.restore();
       ctx.textAlign = "left";
     }

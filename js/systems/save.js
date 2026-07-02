@@ -9,7 +9,12 @@ export function saveGame(game) {
       ranch: game.ranch || [],
       dex: game.dex || { seen: [], caught: [] },
       field: game.field
-        ? { x: game.field.player.x, y: game.field.player.y, facing: game.field.facing, area: game.field.area.id }
+        ? {
+            stageId: game.field.stageId,
+            x: game.field.player.x,
+            y: game.field.player.y,
+            facing: game.field.facing,
+          }
         : null,
       flags: game.flags || {},
     };

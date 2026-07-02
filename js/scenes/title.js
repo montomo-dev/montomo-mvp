@@ -85,23 +85,28 @@ export class TitleScene {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 640, 480);
 
-    drawMonster(ctx, "mofuri", 320, 150, 2.2, this.time);
+    drawMonster(ctx, "mofuri", 214, 146, 1.55, this.time);
+    drawMonster(ctx, "hibachi", 320, 132, 1.75, this.time + 1.3);
+    drawMonster(ctx, "fuwarisu", 430, 148, 1.5, this.time + 2.2);
 
     ctx.textAlign = "center";
     ctx.fillStyle = "#3a3a52";
     ctx.font = 'bold 46px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText("モンとも", 320, 250);
+    ctx.fillText("モンとも", 320, 236);
     ctx.font = FONT;
-    ctx.fillText("〜 なかまと そだてる ぼうけん 〜", 320, 284);
+    ctx.fillText("〜 なかまと そだてる ぼうけん 〜", 320, 270);
+    ctx.font = FONT_BOLD;
+    ctx.fillStyle = "#4f7c39";
+    ctx.fillText("であう → たたかう → さそう → そだてる", 320, 302);
 
     if (this.notice) {
       ctx.fillStyle = "#2e7d32";
       ctx.font = FONT_BOLD;
-      ctx.fillText(this.notice, 320, 308);
+      ctx.fillText(this.notice, 320, 326);
     }
 
     this.options.forEach((opt, i) => {
-      const y = 340 + i * 40;
+      const y = 358 + i * 40;
       ctx.font = FONT_BOLD;
       ctx.fillStyle = this.cursor === i ? "#e8842e" : "#3a3a52";
       ctx.fillText(opt, 320, y);
@@ -113,7 +118,8 @@ export class TitleScene {
 
     ctx.font = FONT;
     ctx.fillStyle = "#5a5a70";
-    ctx.fillText("↑↓: えらぶ ／ Z: けってい", 320, 470);
+    ctx.fillText("↑↓: えらぶ ／ Z: けってい", 320, 456);
+    ctx.fillText("くさむらで モンスターと であい、HPを へらして さそおう", 320, 478);
 
     if (this.confirm) {
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
