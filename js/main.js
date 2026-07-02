@@ -9,6 +9,18 @@ import { markCaught } from "./systems/dex.js";
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+function setupTouchControls(input) {
+  document.querySelectorAll("#touch-controls [data-action]").forEach((btn) => {
+    const action = btn.dataset.action;
+    const start = (e) => { e.preventDefault(); input.press(action); };
+    const end = (e) => { e.preventDefault(); input.release(action); };
+    btn.addEventListener("pointerdown", start);
+    btn.addEventListener("pointerup", end);
+    btn.addEventListener("pointercancel", end);
+    btn.addEventListener("pointerleave", end);
+  });
+}
+
 function buildParty(save) {
   if (save && Array.isArray(save.party)) {
     const restored = save.party.filter((m) => m && SPECIES[m.speciesId]);
@@ -75,6 +87,7 @@ const game = {
 
 game.changeScene(new TitleScene(game));
 window.__game = game;
+setupTouchControls(game.input);
 
 // フィールドに出ている間だけ、ページを閉じる直前に保存
 window.addEventListener("beforeunload", () => game.save());

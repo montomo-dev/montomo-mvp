@@ -5,9 +5,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   background: #2a2d43;
   color: #f0ead8;
   font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  touch-action: manipulation;
 }
 
 h1 {
@@ -21,6 +23,8 @@ canvas {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   background: #000;
   display: block;
+  max-width: 96vw;
+  height: auto;
 }
 
 #game-wrap {
@@ -48,4 +52,97 @@ canvas {
 .hint {
   font-size: 0.85rem;
   opacity: 0.8;
+  text-align: center;
+  padding: 0 12px;
+}
+
+#touch-controls {
+  display: none;
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  box-sizing: border-box;
+  padding: 4px 16px 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (pointer: coarse) {
+  #touch-controls {
+    display: flex;
+  }
+  .kbd-only {
+    display: none;
+  }
+}
+
+#touch-controls button {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  font-family: inherit;
+  font-weight: bold;
+  color: #3a3a52;
+  background: #f0ead8;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+}
+
+#touch-controls button:active {
+  background: #ffd75e;
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+#dpad {
+  position: relative;
+  width: 148px;
+  height: 148px;
+  flex-shrink: 0;
+}
+
+.dpad-btn {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  font-size: 20px;
+  border-radius: 10px;
+}
+
+.dpad-up { top: 0; left: 48px; }
+.dpad-down { top: 96px; left: 48px; }
+.dpad-left { top: 48px; left: 0; }
+.dpad-right { top: 48px; left: 96px; }
+
+#ok-cancel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.round-btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  font-size: 22px;
+}
+
+.ok-btn { background: #ffd75e; }
+
+#misc-buttons {
+  position: absolute;
+  bottom: 118px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.misc-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0.85;
 }

@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>モンとも（MVP）</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -11,8 +12,27 @@
   <canvas id="game" width="640" height="480"></canvas>
   <input id="name-input" maxlength="8" autocomplete="off" />
 </div>
-<p class="hint">矢印キー: いどう・えらぶ ／ Z or Enter: けってい ／ X or Esc: キャンセル・パーティ画面 ／ S: セーブ ／ D: 図鑑 ／ N: なまえ</p>
-<p class="hint">ぼうけんは じどうで セーブされます（S キーで しゅどうセーブも できます）</p>
+<p class="hint kbd-only">矢印キー: いどう・えらぶ ／ Z or Enter: けってい ／ X or Esc: キャンセル・パーティ画面 ／ S: セーブ ／ D: 図鑑 ／ N: なまえ</p>
+<p class="hint">ぼうけんは じどうで セーブされます</p>
+
+<div id="touch-controls">
+  <div id="dpad">
+    <button class="dpad-btn dpad-up" data-action="up" aria-label="うえ">▲</button>
+    <button class="dpad-btn dpad-left" data-action="left" aria-label="ひだり">◀</button>
+    <button class="dpad-btn dpad-right" data-action="right" aria-label="みぎ">▶</button>
+    <button class="dpad-btn dpad-down" data-action="down" aria-label="した">▼</button>
+  </div>
+  <div id="ok-cancel">
+    <button class="round-btn cancel-btn" data-action="cancel" aria-label="キャンセル">X</button>
+    <button class="round-btn ok-btn" data-action="ok" aria-label="けってい">Z</button>
+  </div>
+  <div id="misc-buttons">
+    <button class="misc-btn" data-action="save" aria-label="セーブ">S</button>
+    <button class="misc-btn" data-action="dex" aria-label="図鑑">D</button>
+    <button class="misc-btn" data-action="rename" aria-label="なまえ">N</button>
+  </div>
+</div>
+
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

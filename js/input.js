@@ -41,4 +41,14 @@ export class Input {
   endFrame() {
     this.pressed.clear();
   }
+
+  // タッチボタンなど、キーボード以外の入力元から呼ぶ
+  press(key) {
+    if (!this.held.has(key)) this.pressed.add(key);
+    this.held.add(key);
+  }
+
+  release(key) {
+    this.held.delete(key);
+  }
 }
