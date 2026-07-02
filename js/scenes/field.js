@@ -140,6 +140,7 @@ export class FieldScene {
       return;
     }
     if (tile === T_BUSH && Math.random() < this.stage.encounterRate) {
+      if (this.game.party.length === 0) return;
       const speciesId = rollWildSpecies();
       const [minLevel, maxLevel] = this.stage.wildLevels;
       const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));

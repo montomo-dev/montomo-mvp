@@ -87,6 +87,9 @@ export class PartyScene {
       this.game.changeScene(this.prev);
       return;
     }
+    if (count === 0) {
+      return;
+    }
     if (input.wasPressed("up")) this.cursor = (this.cursor + count - 1) % count;
     if (input.wasPressed("down")) this.cursor = (this.cursor + 1) % count;
     if (this.mode === "list") {
@@ -118,8 +121,8 @@ export class PartyScene {
   }
 
   askRelease() {
-    if (this.game.party.length <= 1) {
-      this.message = "さいごの なかまは にがせないよ。";
+    if (this.game.party.length === 0) {
+      this.message = "なかまが いないよ。";
       return;
     }
     this.confirm = { index: this.cursor, yes: false, monster: this.game.party[this.cursor] };
