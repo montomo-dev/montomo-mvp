@@ -1,0 +1,9 @@
+plugins: []
+
+include:
+  - .nojekyll
+
+exclude:
+  - node_modules/
+  - .git/
+  - README.md
