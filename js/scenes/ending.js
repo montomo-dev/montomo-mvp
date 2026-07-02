@@ -1,12 +1,14 @@
 import { drawMonster } from "../sprites.js";
 import { FONT, FONT_BOLD } from "../ui.js";
 import { TitleScene } from "./title.js";
+import { FieldScene } from "./field.js";
 
 export class EndingScene {
-  constructor(game) {
+  constructor(game, opts = {}) {
     this.game = game;
     this.time = 0;
     this.canReturn = false;
+    this.nextStageId = opts.nextStageId || null;
   }
 
   update(dt) {
@@ -14,7 +16,14 @@ export class EndingScene {
     if (this.time > 1.2) this.canReturn = true;
     const input = this.game.input;
     if (this.canReturn && (input.wasPressed("ok") || input.wasPressed("cancel"))) {
-      this.game.changeScene(new TitleScene(this.game));
+      if (this.nextStageId) {
+        const field = new FieldScene(this.game, this.nextStageId);
+        this.game.field = field;
+        this.game.save();
+        this.game.changeScene(field);
+      } else {
+        this.game.changeScene(new TitleScene(this.game));
+      }
     }
   }
 
@@ -60,7 +69,8 @@ export class EndingScene {
     if (this.canReturn && Math.sin(this.time * 4) > 0) {
       ctx.fillStyle = "#f0ead8";
       ctx.font = FONT;
-      ctx.fillText("Z: タイトルへ もどる", 320, 448);
+      const hint = this.nextStageId ? "Z: つづきの ぼうけんへ" : "Z: タイトルへ もどる";
+      ctx.fillText(hint, 320, 448);
     }
     ctx.textAlign = "left";
   }
