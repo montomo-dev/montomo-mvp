@@ -327,6 +327,42 @@ export const STAGES = {
     groundItems: [{ id: "i8", itemId: "defSeed", x: 12, y: 5 }],
     rareSpecies: [{ speciesId: "tsukinone", level: 25 }],
   },
+  sea_stage1: {
+    id: "sea_stage1",
+    shortName: "umi1",
+    name: "なぎさのいりぐち",
+    encounterRate: 0.16,
+    wildLevels: [25, 28],
+    wildSpecies: ["kaigaran", "awairuka"],
+    prevStage: "reverse_stage3",
+    spawns: {
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#3aa0c9",
+      accent: "#4ab0d9",
+      bushFill: "#2a8ab0",
+      bushStroke: "#6ad0e8",
+      treeLeaf: "#1a7a9a",
+      treeFruit: "#e8d060",
+    },
+    layout: [
+      "2222222222222222",
+      "2000111100000002",
+      "2000111100011002",
+      "2000000000011002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000111002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t9", money: 700, x: 8, y: 6, trap: true }],
+    groundItems: [{ id: "i9", itemId: "premiumBait", x: 11, y: 4 }],
+  },
 };
 
 export function getStage(stageId) {

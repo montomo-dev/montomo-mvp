@@ -975,6 +975,59 @@ function paintNejiko(ctx) {
   blush(ctx, 18, 7);
 }
 
+function paintKaigaran(ctx) {
+  // 貝殻を背負ったヤドカリ。渦巻き模様の殻と、ちょこんと出た小さなはさみが特徴。
+  glossOval(ctx, -24, 10, 8, 12, "#f0c896", "#e2965a", "#a85f2c", 3);
+  glossOval(ctx, 24, 10, 8, 12, "#f0c896", "#e2965a", "#a85f2c", 3);
+  tri(ctx, -28, 4, -20, -2, -22, 10, "#f0c896", "#a85f2c", 2);
+  tri(ctx, 28, 4, 20, -2, 22, 10, "#f0c896", "#a85f2c", 2);
+
+  glossOval(ctx, 0, 6, 26, 24, "#f2a565", "#c97a3a", "#7a4620", 6);
+  ctx.strokeStyle = "rgba(122, 70, 32, 0.55)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, -14);
+  ctx.quadraticCurveTo(14, -8, 12, 4);
+  ctx.quadraticCurveTo(10, 14, 0, 14);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 6, 6, 0, Math.PI * 1.5);
+  ctx.stroke();
+  shine(ctx, -12, -6, 12, 7);
+
+  glossOval(ctx, 0, 18, 15, 10, "#ffe6c2", "#f2c48a", "#7a4620", 2.5);
+  eye(ctx, -9, 4, 7);
+  eye(ctx, 9, 4, 7);
+  smile(ctx, 0, 15, 3.6);
+  blush(ctx, -19, 12);
+  blush(ctx, 19, 12);
+}
+
+function paintAwairuka(ctx) {
+  // あわを吹きながら跳ねるイルカ。すべらかな体と、背びれ・尾びれが目印。
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  for (const [bx, by, r] of [[-30, -18, 4], [-24, -28, 3], [26, -22, 3.5], [32, -12, 2.6]]) {
+    circle(ctx, bx, by, r, "#eaf9ff", "#8fd0ee", 1.5);
+  }
+  ctx.restore();
+
+  glossOval(ctx, 0, -30, 8, 12, "#8fd8ec", "#3f9ec2", "#1f5e78", 3);
+
+  glossOval(ctx, 0, 4, 28, 22, "#8fd8ec", "#5ab6d9", "#1f5e78", 6);
+  glossOval(ctx, -30, 10, 11, 7, "#8fd8ec", "#5ab6d9", "#1f5e78", 3);
+  glossOval(ctx, 30, 10, 11, 7, "#8fd8ec", "#5ab6d9", "#1f5e78", 3);
+  tri(ctx, -8, 24, 8, 24, 0, 36, "#5ab6d9", "#1f5e78", 2);
+
+  shine(ctx, -12, -6, 12, 7);
+  glossOval(ctx, 0, 14, 15, 10, "#eaf9ff", "#c3ecff", "#1f5e78", 2.5);
+  eye(ctx, -9, 0, 7);
+  eye(ctx, 9, 0, 7);
+  smile(ctx, 0, 11, 4);
+  blush(ctx, -18, 8);
+  blush(ctx, 18, 8);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1296,6 +1349,8 @@ const PAINTERS = {
   hoshimogu: paintHoshimogu,
   fuyudama: paintFuyudama,
   nejiko: paintNejiko,
+  kaigaran: paintKaigaran,
+  awairuka: paintAwairuka,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

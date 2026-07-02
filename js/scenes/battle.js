@@ -49,6 +49,11 @@ export class BattleScene {
     if (this.after === "ending") {
       if (this.stageId === "stage3") {
         this.game.changeScene(new ChoiceScene(this.game));
+      } else if (this.stageId === "reverse_stage3") {
+        this.game.changeScene(new EndingScene(this.game, {
+          nextStageId: "sea_stage1",
+          subtitle: "ウラノヌシを のりこえ、きみと なかまは さらに つよく なった。",
+        }));
       } else {
         this.game.changeScene(new EndingScene(this.game));
       }

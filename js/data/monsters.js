@@ -403,6 +403,35 @@ export const SPECIES = {
       { level: 6, skill: "raimeidan" },
     ],
   },
+  kaigaran: {
+    id: "kaigaran",
+    name: "カイガラン",
+    genus: "からひきやどかり",
+    color: "#e2965a",
+    base: { hp: 34, atk: 12, def: 16, spd: 6 },
+    growth: { hp: 6.6, atk: 2.2, def: 2.8, spd: 1.1 },
+    exp: 24,
+    recruitEase: 0.14,
+    learnset: [
+      { level: 1, skill: "kouratackle" },
+      { level: 6, skill: "hibiwareGeki" },
+    ],
+  },
+  awairuka: {
+    id: "awairuka",
+    name: "アワイルカ",
+    genus: "あわふきいるか",
+    color: "#5ab6d9",
+    pigment: "blue",
+    base: { hp: 28, atk: 13, def: 8, spd: 19 },
+    growth: { hp: 5.2, atk: 2.5, def: 1.5, spd: 3.0 },
+    exp: 26,
+    recruitEase: 0.11,
+    learnset: [
+      { level: 1, skill: "bubblesplash" },
+      { level: 6, skill: "senpugeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

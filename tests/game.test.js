@@ -204,3 +204,21 @@ test("rollWildSpeciesはpool未指定時に従来のWILD_SPECIESを使う(後方
   }
   assert.ok(seen.size > 1, "デフォルトpoolの多様性が失われている");
 });
+
+test("sea_stage1はreverse_stage3の先にあり、専用モンスターのみ出現する", () => {
+  const sea = STAGES.sea_stage1;
+  assert.ok(sea, "sea_stage1 が STAGES に存在しない");
+  assert.equal(sea.prevStage, "reverse_stage3");
+  assert.deepEqual(sea.wildSpecies, ["kaigaran", "awairuka"]);
+  for (const id of sea.wildSpecies) {
+    assert.ok(SPECIES[id], `sea_stage1 の wildSpecies '${id}' が SPECIES に存在しない`);
+  }
+});
+
+test("reverse_stage3にはnextStageを設定しない（ボス再訪時の選択画面誤表示を防ぐ）", () => {
+  // field.js は stage.nextStage が設定されたクリア済みボスタイル再訪時に
+  // ChoiceScene（stage3→reverse_stage1固定の選択画面）を再表示する仕様のため、
+  // reverse_stage3 に nextStage を設定すると誤って古い選択肢が出てしまう。
+  // sea_stage1 への接続はボス撃破直後のEndingScene(nextStageId)のみで行う。
+  assert.equal(STAGES.reverse_stage3.nextStage, undefined);
+});

@@ -9,6 +9,7 @@ export class EndingScene {
     this.time = 0;
     this.canReturn = false;
     this.nextStageId = opts.nextStageId || null;
+    this.subtitle = opts.subtitle || "もりの ヌシを のりこえ、きみと なかまは でんせつに なった。";
   }
 
   update(dt) {
@@ -49,7 +50,7 @@ export class EndingScene {
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT_BOLD;
-    ctx.fillText("もりの ヌシを のりこえ、きみと なかまは でんせつに なった。", 320, 124);
+    ctx.fillText(this.subtitle, 320, 124);
 
     const party = this.game.party.slice(0, 4);
     const startX = 320 - (party.length - 1) * 55;
