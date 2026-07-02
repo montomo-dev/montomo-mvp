@@ -259,7 +259,11 @@ export class BattleScene {
     const baitBonus = this.pendingBaitBonus || 0;
     this.pendingBaitBonus = 0;
     const chance = Math.min(0.9, species.recruitEase + hpBonus + baitBonus);
-    const messages = [`${this.ally.name} は ${this.enemy.name} を なかまに さそった！`];
+    const percentage = Math.round(chance * 100);
+    const messages = [
+      `${this.ally.name} は ${this.enemy.name} を なかまに さそった！`,
+      `せいこうりつ ${percentage}%`,
+    ];
     if (Math.random() < chance) {
       this.enemy.hp = this.enemy.maxHp;
       this.game.party.push(this.enemy);

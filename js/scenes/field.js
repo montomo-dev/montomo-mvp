@@ -168,8 +168,17 @@ export class FieldScene {
         const treasureKey = `${this.stageId}:${treasure.id}`;
         if (!this.game.treasureState[treasureKey]) {
           this.game.treasureState[treasureKey] = true;
-          this.game.money += treasure.money;
-          this.showToast(`お金を ${treasure.money} えた！`);
+          if (treasure.trap) {
+            const speciesId = rollWildSpecies();
+            const [minLevel, maxLevel] = this.stage.wildLevels;
+            const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
+            this.pendingEnemy = createMonster(speciesId, level);
+            this.showToast("わな！ モンスターが とびだした！");
+            this.flash = 0.45;
+          } else {
+            this.game.money += treasure.money;
+            this.showToast(`お金を ${treasure.money} えた！`);
+          }
           this.game.save();
         }
         return;
