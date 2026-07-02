@@ -1,5 +1,6 @@
 import { Input } from "./input.js";
 import { createMonster, SPECIES, ensureUidAbove } from "./data/monsters.js";
+import { START_STAGE_ID, STAGES } from "./data/stages.js";
 import { FieldScene } from "./scenes/field.js";
 import { TitleScene } from "./scenes/title.js";
 import { saveGame } from "./systems/save.js";
@@ -56,7 +57,11 @@ const game = {
       markCaught(this, m.speciesId);
     }
     ensureUidAbove(maxUid);
-    this.field = new FieldScene(this);
+    const stageId =
+      save && save.field && typeof save.field.stageId === "string" && STAGES[save.field.stageId]
+        ? save.field.stageId
+        : START_STAGE_ID;
+    this.field = new FieldScene(this, stageId);
     if (save && save.field) {
       if (Number.isInteger(save.field.x) && Number.isInteger(save.field.y)) {
         this.field.player = { x: save.field.x, y: save.field.y };

@@ -1,0 +1,123 @@
+export const TILE_TYPES = {
+  PLAIN: 0,
+  BUSH: 1,
+  TREE: 2,
+  SPRING: 3,
+  BOSS: 4,
+  RANCH: 5,
+  NEXT: 6,
+  PREV: 7,
+};
+
+export const START_STAGE_ID = "stage1";
+
+export const STAGES = {
+  stage1: {
+    id: "stage1",
+    shortName: "stage1",
+    name: "はじまりのはら",
+    encounterRate: 0.12,
+    wildLevels: [1, 3],
+    nextStage: "stage2",
+    spawns: {
+      start: { x: 2, y: 10 },
+      fromNext: { x: 13, y: 1 },
+    },
+    palette: {
+      ground: "#a9d977",
+      accent: "#98cc66",
+      bushFill: "#7bbb4d",
+      bushStroke: "#5fa03e",
+      treeLeaf: "#4e8f43",
+      treeFruit: "#66a858",
+    },
+    layout: [
+      "2222222222222222",
+      "2500000000000362",
+      "2001110000011002",
+      "2001110000011002",
+      "2000000000011002",
+      "2002200000000002",
+      "2002200111000002",
+      "2000000111000002",
+      "2001100000000022",
+      "2001100000220002",
+      "2000000000000002",
+      "2222222222222222",
+    ],
+  },
+  stage2: {
+    id: "stage2",
+    shortName: "stage2",
+    name: "こだまのしげみ",
+    encounterRate: 0.15,
+    wildLevels: [3, 6],
+    prevStage: "stage1",
+    nextStage: "stage3",
+    spawns: {
+      fromPrev: { x: 2, y: 1 },
+      fromNext: { x: 13, y: 1 },
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#8ec26b",
+      accent: "#79ae57",
+      bushFill: "#5d9842",
+      bushStroke: "#447630",
+      treeLeaf: "#346b34",
+      treeFruit: "#4f8e46",
+    },
+    layout: [
+      "2222222222222222",
+      "2700111100000062",
+      "2000111100111002",
+      "2000000000111002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000000002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+  },
+  stage3: {
+    id: "stage3",
+    shortName: "stage3",
+    name: "ヌシのひろば",
+    encounterRate: 0.18,
+    wildLevels: [6, 9],
+    prevStage: "stage2",
+    spawns: {
+      fromPrev: { x: 2, y: 1 },
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#89b96b",
+      accent: "#719c55",
+      bushFill: "#587b3d",
+      bushStroke: "#3c5628",
+      treeLeaf: "#2f552b",
+      treeFruit: "#56783d",
+    },
+    layout: [
+      "2222222222222222",
+      "2700011110000002",
+      "2000011110011002",
+      "2000000000011002",
+      "2001110000011002",
+      "2001110000000002",
+      "2000000000230002",
+      "2000220000001102",
+      "2000220111001102",
+      "2000000111000002",
+      "2000000000000402",
+      "2222222222222222",
+    ],
+  },
+};
+
+export function getStage(stageId) {
+  return STAGES[stageId] || STAGES[START_STAGE_ID];
+}

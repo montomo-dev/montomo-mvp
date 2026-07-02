@@ -23,6 +23,8 @@
   モンスターの名前、色、成長、仲間になりやすさを定義しています。数値調整はまずここです。
 - `js/data/skills.js`
   スキル名、威力、命中率を管理しています。
+- `js/data/stages.js`
+  `stage1` から `stage3` までのマップ定義、出現レベル、移動先を管理しています。
 - `js/sprites.js`
   モンスターとプレイヤーの見た目を Canvas で描いています。見た目を変えたいときの中心です。
 - `js/scenes/title.js`
@@ -57,7 +59,7 @@
 - バトルのテンポを変えたい
   `js/scenes/battle.js`
 - マップや草むらの位置を変えたい
-  `js/scenes/field.js`
+  `js/data/stages.js` と `js/scenes/field.js`
 - 成長曲線を変えたい
   `js/systems/growth.js`
 

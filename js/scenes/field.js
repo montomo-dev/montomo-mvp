@@ -3,39 +3,22 @@ import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
 import { PokedexScene } from "./pokedex.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
+import { getStage, START_STAGE_ID, TILE_TYPES } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
-import { panel, FONT_BOLD } from "../ui.js";
+import { panel, hpBar, FONT_BOLD } from "../ui.js";
 
 const TILE = 40;
-const ENCOUNTER_RATE = 0.12;
-const START = { x: 8, y: 10 };
-
-const T_BUSH = 1;
-const T_TREE = 2;
-const T_SPRING = 3;
-const T_BOSS = 4;
-const T_RANCH = 5;
-
-const LAYOUT = [
-  "2222222222222222",
-  "2400000000000302",
-  "2001110000011002",
-  "2001110000011002",
-  "2000000000011002",
-  "2002200000000002",
-  "2002200111000002",
-  "2000000111000002",
-  "2001100000000022",
-  "2001100050220002",
-  "2000000000220002",
-  "2222222222222222",
-];
+const T_BUSH = TILE_TYPES.BUSH;
+const T_TREE = TILE_TYPES.TREE;
+const T_SPRING = TILE_TYPES.SPRING;
+const T_BOSS = TILE_TYPES.BOSS;
+const T_RANCH = TILE_TYPES.RANCH;
+const T_NEXT = TILE_TYPES.NEXT;
+const T_PREV = TILE_TYPES.PREV;
 
 export class FieldScene {
-  constructor(game) {
+  constructor(game, stageId = START_STAGE_ID) {
     this.game = game;
-    this.map = LAYOUT.map((row) => [...row].map(Number));
-    this.player = { ...START };
     this.facing = "down";
     this.moveCooldown = 0;
     this.time = 0;
@@ -43,15 +26,30 @@ export class FieldScene {
     this.flash = 0;
     this.pendingEnemy = null;
     this.pendingBoss = false;
+    this.setStage(stageId, "start", false);
   }
 
   resetPosition() {
-    this.player = { ...START };
+    this.setStage(START_STAGE_ID, "start", false);
     this.facing = "down";
   }
 
   showToast(text) {
     this.toast = { text, timer: 2.4 };
+  }
+
+  setStage(stageId, spawnKey = "start", keepFacing = true) {
+    this.stage = getStage(stageId);
+    this.stageId = this.stage.id;
+    this.map = this.stage.layout.map((row) => [...row].map(Number));
+    const spawn = this.stage.spawns[spawnKey] || this.stage.spawns.start;
+    this.player = { ...spawn };
+    if (!keepFacing) this.facing = "down";
+  }
+
+  moveStage(stageId, spawnKey, message) {
+    this.setStage(stageId, spawnKey);
+    this.showToast(message);
   }
 
   tileAt(x, y) {
@@ -125,9 +123,20 @@ export class FieldScene {
       this.game.changeScene(new RanchScene(this.game, this));
       return;
     }
-    if (tile === T_BUSH && Math.random() < ENCOUNTER_RATE) {
+    if (tile === T_NEXT && this.stage.nextStage) {
+      const nextStage = getStage(this.stage.nextStage);
+      this.moveStage(nextStage.id, "fromPrev", `${nextStage.shortName} に すすんだ！`);
+      return;
+    }
+    if (tile === T_PREV && this.stage.prevStage) {
+      const prevStage = getStage(this.stage.prevStage);
+      this.moveStage(prevStage.id, "fromNext", `${prevStage.shortName} に もどった`);
+      return;
+    }
+    if (tile === T_BUSH && Math.random() < this.stage.encounterRate) {
       const speciesId = rollWildSpecies();
-      const level = 1 + Math.floor(Math.random() * 3);
+      const [minLevel, maxLevel] = this.stage.wildLevels;
+      const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
       this.pendingEnemy = createMonster(speciesId, level);
       this.flash = 0.45;
     }
@@ -138,33 +147,36 @@ export class FieldScene {
     if (tile === T_BUSH) return "くさむら: であいに ちゅうい";
     if (tile === T_SPRING) return "いずみ: HP ぜんかいふく";
     if (tile === T_RANCH) return "まきば: なかまの いれかえ";
+    if (tile === T_NEXT && this.stage.nextStage) return `${getStage(this.stage.nextStage).shortName}: つぎへ すすむ`;
+    if (tile === T_PREV && this.stage.prevStage) return `${getStage(this.stage.prevStage).shortName}: ひとつ もどる`;
     if (tile === T_BOSS) {
       return this.game.flags && this.game.flags.bossDefeated
         ? "おくのもり: しずかな きはい"
         : "おくのもり: ヌシが いる";
     }
-    return "もりのみち: なかまを そだてよう";
+    return `${this.stage.name}: なかまを そだてよう`;
   }
 
   draw(ctx) {
+    const palette = this.stage.palette;
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
         const px = x * TILE;
         const py = y * TILE;
-        ctx.fillStyle = "#a9d977";
+        ctx.fillStyle = palette.ground;
         ctx.fillRect(px, py, TILE, TILE);
         if ((x * 7 + y * 13) % 5 === 0) {
-          ctx.fillStyle = "#98cc66";
+          ctx.fillStyle = palette.accent;
           ctx.fillRect(px + 8, py + 26, 4, 4);
           ctx.fillRect(px + 26, py + 10, 4, 4);
         }
         const tile = this.map[y][x];
         if (tile === T_BUSH) {
-          ctx.fillStyle = "#7bbb4d";
+          ctx.fillStyle = palette.bushFill;
           ctx.beginPath();
           ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
           ctx.fill();
-          ctx.strokeStyle = "#5fa03e";
+          ctx.strokeStyle = palette.bushStroke;
           ctx.lineWidth = 2.5;
           ctx.lineCap = "round";
           for (const ox of [10, 20, 30]) {
@@ -178,11 +190,11 @@ export class FieldScene {
         } else if (tile === T_TREE) {
           ctx.fillStyle = "#8a5a35";
           ctx.fillRect(px + 15, py + 20, 10, 14);
-          ctx.fillStyle = "#4e8f43";
+          ctx.fillStyle = palette.treeLeaf;
           ctx.beginPath();
           ctx.arc(px + 20, py + 14, 15, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = "#66a858";
+          ctx.fillStyle = palette.treeFruit;
           ctx.beginPath();
           ctx.arc(px + 15, py + 10, 6, 0, Math.PI * 2);
           ctx.fill();
@@ -213,6 +225,27 @@ export class FieldScene {
           ctx.fillStyle = "#6b4e2e";
           ctx.fillRect(px + 6, py + 14, 4, 22);
           ctx.fillRect(px + TILE - 10, py + 14, 4, 22);
+        } else if (tile === T_NEXT || tile === T_PREV) {
+          const gateColor = tile === T_NEXT ? "#5d8ce3" : "#c9814d";
+          const clothColor = tile === T_NEXT ? "#dce9ff" : "#ffe0c4";
+          ctx.fillStyle = "#86603b";
+          ctx.fillRect(px + 8, py + 10, 5, 24);
+          ctx.fillRect(px + 27, py + 10, 5, 24);
+          ctx.fillStyle = gateColor;
+          ctx.fillRect(px + 8, py + 8, 24, 5);
+          ctx.fillStyle = clothColor;
+          ctx.beginPath();
+          if (tile === T_NEXT) {
+            ctx.moveTo(px + 15, py + 17);
+            ctx.lineTo(px + 27, py + 20);
+            ctx.lineTo(px + 15, py + 23);
+          } else {
+            ctx.moveTo(px + 25, py + 17);
+            ctx.lineTo(px + 13, py + 20);
+            ctx.lineTo(px + 25, py + 23);
+          }
+          ctx.closePath();
+          ctx.fill();
         } else if (tile === T_BOSS) {
           const defeated = this.game.flags && this.game.flags.bossDefeated;
           ctx.fillStyle = defeated ? "#9a9a9a" : "#d64545";
@@ -235,7 +268,7 @@ export class FieldScene {
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "left";
-      ctx.fillText(`${leader.name}  Lv.${leader.level}`, 26, 38);
+      ctx.fillText(`${this.stage.shortName}  ${leader.name} Lv.${leader.level}`, 26, 38);
       hpBar(ctx, 26, 48, 136, 12, leader.hp / leader.maxHp);
       ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
       ctx.fillText(`HP ${leader.hp}/${leader.maxHp}`, 26, 74);
@@ -246,7 +279,7 @@ export class FieldScene {
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
-    ctx.fillText("ぼうけんメモ", 412, 38);
+    ctx.fillText(this.stage.name, 412, 38);
     ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.fillText(`みつけた ${this.game.dex.seen.length} / なかま ${this.game.dex.caught.length}`, 412, 58);
     ctx.fillText(this.currentTileMessage(), 412, 78);
