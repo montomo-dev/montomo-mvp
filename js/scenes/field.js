@@ -3,6 +3,7 @@ import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
 import { PokedexScene } from "./pokedex.js";
 import { ShopScene } from "./shop.js";
+import { ChoiceScene } from "./choice.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
 import { getStage, START_STAGE_ID, TILE_TYPES } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
@@ -117,7 +118,11 @@ export class FieldScene {
       const stageClearedFlags = this.game.flags?.stageClearedFlags || {};
 
       if (stageClearedFlags[this.stageId]) {
-        this.showToast("しずかな けはいが ただよっている…");
+        if (this.stage.nextStage) {
+          this.game.changeScene(new ChoiceScene(this.game));
+        } else {
+          this.showToast("しずかな けはいが ただよっている…");
+        }
         return;
       }
       this.pendingEnemy = createMonster(bossId, bossLevel);
