@@ -170,3 +170,37 @@ test("NEXTタイルは出現位置(spawn.start)から十分離れている（即
     });
   }
 });
+
+test("ステージ別 wildSpecies は全て monsters.js に実在する", () => {
+  for (const [id, stage] of Object.entries(STAGES)) {
+    for (const speciesId of stage.wildSpecies || []) {
+      assert.ok(SPECIES[speciesId], `${id} の wildSpecies '${speciesId}' が SPECIES に存在しない`);
+    }
+  }
+});
+
+test("裏面ステージには専用のwildSpeciesが設定され、表面とは別枠になっている", () => {
+  const reverseOnly = ["pukurin", "kageuri", "hoshimogu", "fuyudama", "nejiko"];
+  for (const id of ["reverse_stage1", "reverse_stage2", "reverse_cave", "reverse_stage3"]) {
+    const pool = STAGES[id].wildSpecies;
+    assert.ok(pool && pool.length > 0, `${id} に wildSpecies が設定されていない`);
+    for (const speciesId of pool) {
+      assert.ok(reverseOnly.includes(speciesId), `${id} の '${speciesId}' は裏面専用モンスターの想定外`);
+    }
+  }
+  // 表面ステージは従来のグローバル出現プールのまま(wildSpecies未設定)であること
+  for (const id of ["stage1", "stage2", "cave", "stage3"]) {
+    assert.equal(STAGES[id].wildSpecies, undefined, `${id} は表面ステージなので wildSpecies を設定すべきでない`);
+  }
+});
+
+test("rollWildSpeciesはpool未指定時に従来のWILD_SPECIESを使う(後方互換)", () => {
+  const seen = new Set();
+  for (let i = 0; i < 30; i++) {
+    seen.add(rollWildSpecies(undefined, () => 0.3 + i * 0.02));
+  }
+  for (const id of seen) {
+    assert.ok(SPECIES[id], `デフォルトpoolから出た '${id}' が SPECIES に存在しない`);
+  }
+  assert.ok(seen.size > 1, "デフォルトpoolの多様性が失われている");
+});

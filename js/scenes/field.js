@@ -150,7 +150,7 @@ export class FieldScene {
     }
     if (tile === T_BUSH && this.game.party.length > 0) {
       if (Math.random() < this.stage.encounterRate) {
-        const speciesId = rollWildSpecies();
+        const speciesId = rollWildSpecies(this.stage.wildSpecies);
         const [minLevel, maxLevel] = this.stage.wildLevels;
         const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
         this.pendingEnemy = createMonster(speciesId, level);

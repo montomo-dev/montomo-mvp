@@ -174,6 +174,7 @@ export const STAGES = {
     name: "ウラのはじまり",
     encounterRate: 0.16,
     wildLevels: [15, 18],
+    wildSpecies: ["pukurin", "hoshimogu"],
     prevStage: "stage3",
     nextStage: "reverse_stage2",
     spawns: {
@@ -212,6 +213,7 @@ export const STAGES = {
     name: "ウラのしげみ",
     encounterRate: 0.17,
     wildLevels: [18, 20],
+    wildSpecies: ["kageuri", "nejiko"],
     prevStage: "reverse_stage1",
     nextStage: "reverse_cave",
     spawns: {
@@ -251,6 +253,7 @@ export const STAGES = {
     name: "ウラのどうくつ",
     encounterRate: 0.18,
     wildLevels: [20, 22],
+    wildSpecies: ["fuyudama", "kageuri"],
     prevStage: "reverse_stage2",
     nextStage: "reverse_stage3",
     spawns: {
@@ -290,6 +293,7 @@ export const STAGES = {
     name: "ウラのヌシのひろば",
     encounterRate: 0.18,
     wildLevels: [22, 25],
+    wildSpecies: ["pukurin", "kageuri", "hoshimogu", "fuyudama", "nejiko"],
     prevStage: "reverse_cave",
     spawns: {
       fromPrev: { x: 2, y: 1 },

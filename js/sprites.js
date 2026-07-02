@@ -809,6 +809,172 @@ function paintSandango(ctx) {
   blush(ctx, 13, -17);
 }
 
+function paintPukurin(ctx) {
+  // 水風船クラゲ。半透明のぷるぷるボディに、下から伸びる短い触手。
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  glossOval(ctx, 0, 2, 28, 26, "#cdeeff", "#7ec9e8", "#3a7ea3", 5.5);
+  ctx.restore();
+
+  ctx.strokeStyle = "#3a7ea3";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.globalAlpha = 0.75;
+  ctx.beginPath();
+  ctx.moveTo(-14, 22); ctx.quadraticCurveTo(-18, 32, -13, 40);
+  ctx.moveTo(-3, 25); ctx.quadraticCurveTo(-5, 36, -1, 42);
+  ctx.moveTo(9, 24); ctx.quadraticCurveTo(12, 34, 8, 41);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  glossOval(ctx, 0, 8, 15, 11, "#eaf9ff", "#c3ecff", "#3a7ea3", 2.5);
+  circle(ctx, -14, -8, 4, "rgba(255,255,255,0.55)", null);
+  circle(ctx, 10, 4, 3, "rgba(255,255,255,0.4)", null);
+  shine(ctx, -12, -10, 12, 7);
+  eye(ctx, -9, -4, 7.5);
+  eye(ctx, 9, -4, 7.5);
+  smile(ctx, 0, 7, 4);
+  blush(ctx, -18, 6);
+  blush(ctx, 18, 6);
+}
+
+function paintKageuri(ctx) {
+  // 影に潜む瓜。濃い紫のつやめく実に、蔓のしっぽとつり目が特徴。
+  ctx.strokeStyle = "#2b2440";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, -30); ctx.quadraticCurveTo(8, -40, 4, -46);
+  ctx.stroke();
+  glossOval(ctx, 6, -46, 4, 3, "#7ed85c", "#4a9838", "#2b2440", 1.5);
+
+  glossOval(ctx, 0, 4, 27, 30, "#7a68a8", "#4a3a70", "#241c38", 6);
+  ctx.strokeStyle = "rgba(36, 28, 56, 0.5)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-20, -10); ctx.quadraticCurveTo(-4, 2, -16, 22);
+  ctx.moveTo(20, -12); ctx.quadraticCurveTo(4, 0, 15, 20);
+  ctx.stroke();
+  shine(ctx, -13, -12, 12, 7);
+
+  ctx.fillStyle = "#e8d0ff";
+  ctx.strokeStyle = "#241c38";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(-10, -4, 6.5, 4.5, -0.25, 0, Math.PI * 2);
+  ctx.ellipse(10, -4, 6.5, 4.5, 0.25, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -9, -3, 2.6, "#241c38", null);
+  circle(ctx, 11, -3, 2.6, "#241c38", null);
+  smile(ctx, 0, 10, 4);
+  blush(ctx, -19, 8);
+  blush(ctx, 19, 8);
+}
+
+function paintHoshimogu(ctx) {
+  // 星屑をまとうモグラ。額の星模様と、周りに浮かぶ光の粒。
+  starSpark(ctx, -30, -18, 3.5, "#e6ddff");
+  starSpark(ctx, 30, -14, 3, "#e6ddff");
+  starSpark(ctx, -22, 24, 2.6, "#e6ddff");
+
+  glossOval(ctx, -22, 24, 8, 6, "#39304f", "#241c38", "#140f21", 2.2);
+  glossOval(ctx, 22, 24, 8, 6, "#39304f", "#241c38", "#140f21", 2.2);
+
+  glossOval(ctx, 0, 2, 28, 27, "#5d4f80", "#392f52", "#1c1730", 6);
+  ctx.fillStyle = "#e6ddff";
+  ctx.strokeStyle = "#1c1730";
+  ctx.lineWidth = 1.6;
+  tri(ctx, -4, -18, 4, -18, 0, -9, "#e6ddff", "#1c1730", 1.4);
+  shine(ctx, -13, -10, 12, 7);
+
+  glossOval(ctx, 0, 14, 15, 11, "#efe9ff", "#cfc2f0", "#1c1730", 2.5);
+  eye(ctx, -9, -3, 7);
+  eye(ctx, 9, -3, 7);
+  ctx.fillStyle = "#2b2440";
+  tri(ctx, -4, 4, 4, 4, 0, 9, "#8a7ab0", null);
+  smile(ctx, 0, 12, 3.6);
+  blush(ctx, -18, 8);
+  blush(ctx, 18, 8);
+}
+
+function paintFuyudama(ctx) {
+  // まんまるな雪玉の精霊。小さなつららと、ひんやりした表情。
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  ctx.strokeStyle = "#bfe3f7";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, 33, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  glossCircle(ctx, 0, 2, 29, "#ffffff", "#cdeeff", "#8fbcd8", 6);
+
+  ctx.fillStyle = "#bfe3f7";
+  ctx.strokeStyle = "#6fa0c0";
+  ctx.lineWidth = 1.6;
+  for (const [ix, iy] of [[-16, 26], [0, 30], [16, 26]]) {
+    ctx.beginPath();
+    ctx.moveTo(ix - 3, iy);
+    ctx.lineTo(ix + 3, iy);
+    ctx.lineTo(ix, iy + 9);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  shine(ctx, -13, -12, 13, 8);
+  glossOval(ctx, 0, 12, 14, 9, "#f2fbff", "#dcf1fb", "#8fbcd8", 2.2);
+  eye(ctx, -9, -2, 7.5);
+  eye(ctx, 9, -2, 7.5);
+  smile(ctx, 0, 9, 3.8);
+  ctx.globalAlpha = 0.45;
+  circle(ctx, -18, 6, 4.5, "#8fd0ee", null);
+  circle(ctx, 18, 6, 4.5, "#8fd0ee", null);
+  ctx.globalAlpha = 1;
+}
+
+function paintNejiko(ctx) {
+  // ぜんまい仕掛けの猫。背中の大きなネジと金属の耳が目印。
+  ctx.save();
+  ctx.translate(0, -30);
+  ctx.rotate(0.15);
+  ctx.fillStyle = "#a88a52";
+  ctx.strokeStyle = "#5c4a26";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.roundRect(-4, -12, 8, 12, 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, 0, -14, 5, "#c9a45a", "#5c4a26", 2.2);
+  ctx.restore();
+
+  tri(ctx, -22, -30, -12, -18, -26, -16, "#c9a45a", "#5c4a26", 2.2);
+  tri(ctx, 22, -30, 12, -18, 26, -16, "#c9a45a", "#5c4a26", 2.2);
+  tri(ctx, -20, -27, -14, -19, -21, -17, "#7a5f30", null);
+  tri(ctx, 20, -27, 14, -19, 21, -17, "#7a5f30", null);
+
+  glossCircle(ctx, 0, 0, 27, "#e6c37a", "#c9a45a", "#5c4a26", 6);
+  ctx.strokeStyle = "rgba(92, 74, 38, 0.5)";
+  ctx.lineWidth = 1.6;
+  for (const y of [-10, 0, 10]) {
+    ctx.beginPath();
+    ctx.moveTo(-22, y);
+    ctx.lineTo(22, y);
+    ctx.stroke();
+  }
+  shine(ctx, -12, -12, 12, 7);
+
+  glossOval(ctx, 0, 13, 14, 10, "#fff4d9", "#f0dba8", "#5c4a26", 2.5);
+  eye(ctx, -9, -3, 7.5);
+  eye(ctx, 9, -3, 7.5);
+  tri(ctx, -4, 4, 4, 4, 0, 8, "#a8621f", null);
+  smile(ctx, 0, 11, 3.8);
+  blush(ctx, -18, 7);
+  blush(ctx, 18, 7);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1125,6 +1291,11 @@ const PAINTERS = {
   obako: paintObako,
   kurista: paintKurista,
   hagumon: paintHagumon,
+  pukurin: paintPukurin,
+  kageuri: paintKageuri,
+  hoshimogu: paintHoshimogu,
+  fuyudama: paintFuyudama,
+  nejiko: paintNejiko,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
