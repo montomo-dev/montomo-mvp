@@ -147,6 +147,12 @@ export class BattleScene {
       const messages = [`${item.name}を なげた！`, `${this.enemy.name}が きょうみを しめしている…`];
       this.enemyAct(messages);
       this.finishTurn(messages);
+    } else if (item.kind === "stat_boost") {
+      this.ally[item.stat] += item.value;
+      const label = item.stat === "atk" ? "こうげき" : item.stat === "def" ? "ぼうぎょ" : item.stat === "spd" ? "すばやさ" : item.stat;
+      const messages = [`${this.ally.name} に ${item.name}を つかった！`, `${label}が ${item.value} あがった！`];
+      this.enemyAct(messages);
+      this.finishTurn(messages);
     }
   }
 

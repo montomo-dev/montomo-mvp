@@ -2,9 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createMonster, rollWildSpecies } from "../js/data/monsters.js";
-import { getStage } from "../js/data/stages.js";
+import { getStage, STAGES } from "../js/data/stages.js";
 import { breedMonsters } from "../js/systems/breeding.js";
 import { depositToRanch } from "../js/systems/party.js";
+import { ITEMS } from "../js/data/items.js";
 
 test("レア枠は乱数5%未満でツキノネになる", () => {
   assert.equal(rollWildSpecies(undefined, () => 0.049), "tsukinone");
@@ -76,4 +77,33 @@ test("最後の1体も牧場に預けられる", () => {
   assert.equal(depositToRanch(party, ranch, 0), true);
   assert.equal(party.length, 0);
   assert.equal(ranch.length, 1);
+});
+
+test("新アイテム3種類が items.js に存在する", () => {
+  assert.ok(ITEMS.atkSeed);
+  assert.equal(ITEMS.atkSeed.kind, "stat_boost");
+  assert.equal(ITEMS.atkSeed.stat, "atk");
+  assert.ok(ITEMS.defSeed);
+  assert.equal(ITEMS.defSeed.stat, "def");
+  assert.ok(ITEMS.premiumBait);
+  assert.equal(ITEMS.premiumBait.kind, "bait");
+  assert.ok(ITEMS.premiumBait.value > ITEMS.bait.value);
+});
+
+test("落ちものは全ステージで有効なアイテムを指している", () => {
+  for (const [id, stage] of Object.entries(STAGES)) {
+    for (const item of stage.groundItems || []) {
+      assert.ok(ITEMS[item.itemId], `${id} の ${item.id} の itemId '${item.itemId}' が items.js に存在しない`);
+    }
+  }
+});
+
+test("落ちものは種類が2種類以上に多様化されている", () => {
+  const kinds = new Set();
+  for (const stage of Object.values(STAGES)) {
+    for (const item of stage.groundItems || []) {
+      kinds.add(item.itemId);
+    }
+  }
+  assert.ok(kinds.size >= 2, `アイテム種類=${kinds.size}種 期待2種以上`);
 });

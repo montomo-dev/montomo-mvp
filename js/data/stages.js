@@ -86,7 +86,7 @@ export const STAGES = {
       "2222222222222222",
     ],
     treasures: [{ id: "t2", money: 200, x: 6, y: 6, trap: false }],
-    groundItems: [{ id: "i2", itemId: "potion", x: 8, y: 8 }],
+    groundItems: [{ id: "i2", itemId: "bait", x: 8, y: 8 }],
     rareSpecies: [{ speciesId: "honbori", level: 10 }],
   },
   cave: {
@@ -165,7 +165,7 @@ export const STAGES = {
     bossId: "nushi",
     bossLevel: 15,
     treasures: [{ id: "t4", money: 300, x: 5, y: 6, trap: true }],
-    groundItems: [{ id: "i4", itemId: "potion", x: 13, y: 4 }],
+    groundItems: [{ id: "i4", itemId: "atkSeed", x: 13, y: 4 }],
     rareSpecies: [{ speciesId: "tsukinone", level: 14 }],
   },
   reverse_stage1: {
@@ -203,7 +203,7 @@ export const STAGES = {
       "2222222222222222",
     ],
     treasures: [{ id: "t5", money: 400, x: 8, y: 6, trap: true }],
-    groundItems: [{ id: "i5", itemId: "potion", x: 11, y: 4 }],
+    groundItems: [{ id: "i5", itemId: "defSeed", x: 11, y: 4 }],
     rareSpecies: [{ speciesId: "honbori", level: 16 }],
   },
   reverse_stage2: {
@@ -242,7 +242,7 @@ export const STAGES = {
       "2222222222222222",
     ],
     treasures: [{ id: "t6", money: 450, x: 7, y: 7, trap: true }],
-    groundItems: [{ id: "i6", itemId: "potion", x: 9, y: 4 }],
+    groundItems: [{ id: "i6", itemId: "premiumBait", x: 9, y: 4 }],
     rareSpecies: [{ speciesId: "tsukinone", level: 18 }],
   },
   reverse_cave: {
@@ -281,7 +281,7 @@ export const STAGES = {
       "2222222222222222",
     ],
     treasures: [{ id: "t7", money: 500, x: 8, y: 7, trap: true }],
-    groundItems: [{ id: "i7", itemId: "potion", x: 10, y: 8 }],
+    groundItems: [{ id: "i7", itemId: "atkSeed", x: 10, y: 8 }],
     rareSpecies: [{ speciesId: "honbori", level: 20 }],
   },
   reverse_stage3: {
@@ -320,7 +320,7 @@ export const STAGES = {
     bossId: "reverseNushi",
     bossLevel: 30,
     treasures: [{ id: "t8", money: 600, x: 6, y: 7, trap: true }],
-    groundItems: [{ id: "i8", itemId: "potion", x: 12, y: 5 }],
+    groundItems: [{ id: "i8", itemId: "defSeed", x: 12, y: 5 }],
     rareSpecies: [{ speciesId: "tsukinone", level: 25 }],
   },
 };
