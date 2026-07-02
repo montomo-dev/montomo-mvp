@@ -20,6 +20,29 @@ canvas {
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   background: #000;
+  display: block;
+}
+
+#game-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+#name-input {
+  position: absolute;
+  display: none;
+  box-sizing: border-box;
+  border: 2px solid #3a3a52;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 18px;
+  font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  background: #fffdf5;
+  color: #3a3a52;
+}
+
+#name-input.visible {
+  display: block;
 }
 
 .hint {

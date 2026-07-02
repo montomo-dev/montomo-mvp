@@ -7,6 +7,7 @@ const KEYMAP = {
   Enter: "ok",
   KeyS: "save",
   KeyD: "dex",
+  KeyN: "rename",
   KeyX: "cancel",
   Escape: "cancel",
 };
@@ -16,6 +17,7 @@ export class Input {
     this.held = new Set();
     this.pressed = new Set();
     window.addEventListener("keydown", (e) => {
+      if (document.activeElement && document.activeElement.tagName === "INPUT") return;
       const key = KEYMAP[e.code];
       if (!key) return;
       e.preventDefault();

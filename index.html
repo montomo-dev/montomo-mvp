@@ -7,8 +7,11 @@
 </head>
 <body>
 <h1>モンとも（MVP）</h1>
-<canvas id="game" width="640" height="480"></canvas>
-<p class="hint">矢印キー: いどう・えらぶ ／ Z or Enter: けってい ／ X or Esc: キャンセル・パーティ画面 ／ S: セーブ ／ D: 図鑑</p>
+<div id="game-wrap">
+  <canvas id="game" width="640" height="480"></canvas>
+  <input id="name-input" maxlength="8" autocomplete="off" />
+</div>
+<p class="hint">矢印キー: いどう・えらぶ ／ Z or Enter: けってい ／ X or Esc: キャンセル・パーティ画面 ／ S: セーブ ／ D: 図鑑 ／ N: なまえ</p>
 <p class="hint">ぼうけんは じどうで セーブされます（S キーで しゅどうセーブも できます）</p>
 <script type="module" src="js/main.js"></script>
 </body>

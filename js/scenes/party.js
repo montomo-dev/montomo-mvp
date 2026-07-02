@@ -7,6 +7,8 @@ import { markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 
+const nameInput = document.getElementById("name-input");
+
 export class PartyScene {
   constructor(game, prevScene) {
     this.game = game;
@@ -17,10 +19,46 @@ export class PartyScene {
     this.firstParent = null;
     this.message = null;
     this.confirm = null;
+    this.renaming = null;
+  }
+
+  startRename(index) {
+    const monster = this.game.party[index];
+    this.renaming = monster;
+    const canvas = this.game.canvas;
+    const scale = canvas.getBoundingClientRect().width / canvas.width;
+    const y = 64 + index * 92;
+    nameInput.style.left = `${130 * scale}px`;
+    nameInput.style.top = `${(y + 8) * scale}px`;
+    nameInput.style.width = `${160 * scale}px`;
+    nameInput.value = monster.name;
+    nameInput.classList.add("visible");
+    nameInput.focus();
+    nameInput.select();
+
+    const finish = (commit) => {
+      nameInput.removeEventListener("keydown", onKeyDown);
+      nameInput.removeEventListener("blur", onBlur);
+      nameInput.classList.remove("visible");
+      if (commit) {
+        const trimmed = nameInput.value.trim();
+        monster.name = trimmed.length > 0 ? trimmed : SPECIES[monster.speciesId].name;
+        this.game.save();
+      }
+      this.renaming = null;
+    };
+    const onKeyDown = (e) => {
+      if (e.code === "Enter") { e.preventDefault(); finish(true); }
+      else if (e.code === "Escape") { e.preventDefault(); finish(false); }
+    };
+    const onBlur = () => finish(true);
+    nameInput.addEventListener("keydown", onKeyDown);
+    nameInput.addEventListener("blur", onBlur);
   }
 
   update(dt) {
     this.time += dt;
+    if (this.renaming) return;
     const input = this.game.input;
     const count = this.game.party.length;
 
@@ -54,6 +92,7 @@ export class PartyScene {
     if (this.mode === "list") {
       if (input.wasPressed("right")) this.startBreeding();
       if (input.wasPressed("left")) this.askRelease();
+      if (input.wasPressed("rename")) { this.startRename(this.cursor); return; }
       if (input.wasPressed("ok") && this.cursor > 0) {
         moveToFront(this.game.party, this.cursor);
         this.cursor = 0;
@@ -178,7 +217,7 @@ export class PartyScene {
       ? this.firstParent
         ? "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる"
         : "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる"
-      : "↑↓: えらぶ ／ Z: せんとう ／ →: 配合 ／ ←: にがす ／ X: もどる";
+      : "↑↓: えらぶ ／ Z: せんとう ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ X: もどる";
     ctx.fillText(hint, 30, 462);
 
     if (this.message) {
