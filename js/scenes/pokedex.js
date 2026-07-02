@@ -3,6 +3,8 @@ import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 
 const COLS = 4;
+const ROWS = 4;
+const PAGE_SIZE = COLS * ROWS;
 const CELL_W = 136;
 const CELL_H = 78;
 const GAP = 8;
@@ -20,6 +22,19 @@ export class PokedexScene {
     this.cursor = 0;
     this.time = 0;
     this.entries = dexEntries();
+  }
+
+  get totalPages() {
+    return Math.max(1, Math.ceil(this.entries.length / PAGE_SIZE));
+  }
+
+  get page() {
+    return Math.floor(this.cursor / PAGE_SIZE);
+  }
+
+  pageEntries() {
+    const start = this.page * PAGE_SIZE;
+    return this.entries.slice(start, start + PAGE_SIZE);
   }
 
   update(dt) {
@@ -51,14 +66,20 @@ export class PokedexScene {
       `みつけた ${seen.length}/${this.entries.length}　なかまにした ${caught.length}/${this.entries.length}`,
       210, 44
     );
+    if (this.totalPages > 1) {
+      ctx.textAlign = "right";
+      ctx.fillText(`${this.page + 1} / ${this.totalPages} ページ`, 610, 44);
+      ctx.textAlign = "left";
+    }
 
-    this.entries.forEach((species, i) => {
+    this.pageEntries().forEach((species, i) => {
       const col = i % COLS;
       const row = Math.floor(i / COLS);
       const x = ORIGIN_X + col * (CELL_W + GAP);
       const y = ORIGIN_Y + row * (CELL_H + GAP);
+      const globalIndex = this.page * PAGE_SIZE + i;
       panel(ctx, x, y, CELL_W, CELL_H);
-      if (this.cursor === i) {
+      if (this.cursor === globalIndex) {
         ctx.beginPath();
         ctx.roundRect(x, y, CELL_W, CELL_H, 10);
         ctx.strokeStyle = "#ffd75e";
@@ -106,6 +127,6 @@ export class PokedexScene {
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
-    ctx.fillText("↑↓←→: えらぶ ／ X: もどる", 30, 462);
+    ctx.fillText("↑↓←→: えらぶ・ページ送り ／ X: もどる", 30, 462);
   }
 }

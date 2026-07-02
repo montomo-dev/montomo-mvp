@@ -807,6 +807,7 @@ function paintSandango(ctx) {
   smile(ctx, 0, -16, 3.5);
   blush(ctx, -13, -17);
   blush(ctx, 13, -17);
+}
 
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
