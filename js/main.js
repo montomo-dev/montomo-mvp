@@ -43,12 +43,25 @@ function buildDex(save) {
   return { seen: [], caught: [] };
 }
 
+function buildItems(save) {
+  if (save && save.items && typeof save.items === "object") {
+    return { ...save.items };
+  }
+  return {};
+}
+
+function buildMoney(save) {
+  return save && Number.isInteger(save.money) && save.money >= 0 ? save.money : 100;
+}
+
 const game = {
   canvas,
   ctx,
   input: new Input(),
   party: [],
   ranch: [],
+  items: {},
+  money: 0,
   scene: null,
   field: null,
   changeScene(scene) {
@@ -63,6 +76,8 @@ const game = {
     this.party = buildParty(save);
     this.ranch = buildRanch(save);
     this.dex = buildDex(save);
+    this.items = buildItems(save);
+    this.money = buildMoney(save);
     let maxUid = 0;
     for (const m of [...this.party, ...this.ranch]) {
       if (typeof m.uid === "number" && m.uid > maxUid) maxUid = m.uid;

@@ -2,6 +2,7 @@ import { BattleScene } from "./battle.js";
 import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
 import { PokedexScene } from "./pokedex.js";
+import { ShopScene } from "./shop.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
 import { getStage, START_STAGE_ID, TILE_TYPES } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
@@ -15,6 +16,7 @@ const T_BOSS = TILE_TYPES.BOSS;
 const T_RANCH = TILE_TYPES.RANCH;
 const T_NEXT = TILE_TYPES.NEXT;
 const T_PREV = TILE_TYPES.PREV;
+const T_SHOP = TILE_TYPES.SHOP;
 
 export class FieldScene {
   constructor(game, stageId = START_STAGE_ID) {
@@ -123,6 +125,10 @@ export class FieldScene {
       this.game.changeScene(new RanchScene(this.game, this));
       return;
     }
+    if (tile === T_SHOP) {
+      this.game.changeScene(new ShopScene(this.game, this));
+      return;
+    }
     if (tile === T_NEXT && this.stage.nextStage) {
       const nextStage = getStage(this.stage.nextStage);
       this.moveStage(nextStage.id, "fromPrev", `${nextStage.shortName} に すすんだ！`);
@@ -147,6 +153,7 @@ export class FieldScene {
     if (tile === T_BUSH) return "くさむら: であいに ちゅうい";
     if (tile === T_SPRING) return "いずみ: HP ぜんかいふく";
     if (tile === T_RANCH) return "まきば: なかまの いれかえ";
+    if (tile === T_SHOP) return "どうぐや: アイテムを かえる";
     if (tile === T_NEXT && this.stage.nextStage) return `${getStage(this.stage.nextStage).shortName}: つぎへ すすむ`;
     if (tile === T_PREV && this.stage.prevStage) return `${getStage(this.stage.prevStage).shortName}: ひとつ もどる`;
     if (tile === T_BOSS) {
@@ -246,6 +253,29 @@ export class FieldScene {
           }
           ctx.closePath();
           ctx.fill();
+        } else if (tile === T_SHOP) {
+          ctx.fillStyle = "#e8563f";
+          ctx.beginPath();
+          ctx.moveTo(px + 4, py + 16);
+          ctx.lineTo(px + 20, py + 6);
+          ctx.lineTo(px + 36, py + 16);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = "#fff6d9";
+          ctx.lineWidth = 2;
+          for (const sx of [px + 9, px + 20, px + 31]) {
+            ctx.beginPath();
+            ctx.moveTo(sx - 3, py + 12);
+            ctx.lineTo(sx + 3, py + 12);
+            ctx.stroke();
+          }
+          ctx.fillStyle = "#c9a35a";
+          ctx.fillRect(px + 8, py + 16, 24, 20);
+          ctx.fillStyle = "#6b4e2e";
+          ctx.fillRect(px + 16, py + 22, 8, 14);
+          ctx.strokeStyle = "#6b4e2e";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(px + 8, py + 16, 24, 20);
         } else if (tile === T_BOSS) {
           const defeated = this.game.flags && this.game.flags.bossDefeated;
           ctx.fillStyle = defeated ? "#9a9a9a" : "#d64545";
@@ -280,6 +310,9 @@ export class FieldScene {
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
     ctx.fillText(this.stage.name, 412, 38);
+    ctx.textAlign = "right";
+    ctx.fillText(`${this.game.money || 0}円`, 612, 38);
+    ctx.textAlign = "left";
     ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.fillText(`みつけた ${this.game.dex.seen.length} / なかま ${this.game.dex.caught.length}`, 412, 58);
     ctx.fillText(this.currentTileMessage(), 412, 78);

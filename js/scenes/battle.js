@@ -1,13 +1,16 @@
 import { SKILLS } from "../data/skills.js";
 import { SPECIES } from "../data/monsters.js";
+import { ITEMS } from "../data/items.js";
 import { gainExp, expToNext } from "../systems/growth.js";
-import { MAX_PARTY } from "../systems/party.js";
+import { MAX_PARTY, moveToFront } from "../systems/party.js";
 import { markSeen, markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { EndingScene } from "./ending.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 
-const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "にげる"];
+const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる"];
+const COMMAND_COLS = [[0, 2, 4], [1, 3]];
+const COMMAND_POS = [[70, 402], [330, 402], [70, 424], [330, 424], [70, 446]];
 
 export class BattleScene {
   constructor(game, enemy, opts = {}) {
@@ -66,9 +69,14 @@ export class BattleScene {
         if (this.queue.length === 0) this.enterNext();
       }
     } else if (this.phase === "command") {
-      if (input.wasPressed("up") || input.wasPressed("down")) this.cursor = (this.cursor + 2) % 4;
+      const col = COMMAND_COLS[0].includes(this.cursor) ? 0 : 1;
+      const colList = COMMAND_COLS[col];
+      const idx = colList.indexOf(this.cursor);
+      if (input.wasPressed("up")) this.cursor = colList[(idx + colList.length - 1) % colList.length];
+      if (input.wasPressed("down")) this.cursor = colList[(idx + 1) % colList.length];
       if (input.wasPressed("left") || input.wasPressed("right")) {
-        this.cursor = this.cursor % 2 === 0 ? this.cursor + 1 : this.cursor - 1;
+        const otherList = COMMAND_COLS[1 - col];
+        this.cursor = otherList[Math.min(idx, otherList.length - 1)];
       }
       if (input.wasPressed("ok")) this.chooseCommand(this.cursor);
     } else if (this.phase === "skill") {
@@ -79,7 +87,18 @@ export class BattleScene {
       else if (input.wasPressed("ok")) {
         this.resolveTurn({ type: "skill", skillId: skills[this.skillCursor] });
       }
+    } else if (this.phase === "item") {
+      const owned = this.ownedItemIds();
+      if (input.wasPressed("cancel")) { this.phase = "command"; return; }
+      if (owned.length === 0) return;
+      if (input.wasPressed("up")) this.itemCursor = (this.itemCursor + owned.length - 1) % owned.length;
+      if (input.wasPressed("down")) this.itemCursor = (this.itemCursor + 1) % owned.length;
+      if (input.wasPressed("ok")) this.useItem(owned[this.itemCursor]);
     }
+  }
+
+  ownedItemIds() {
+    return Object.keys(this.game.items || {}).filter((id) => this.game.items[id] > 0);
   }
 
   chooseCommand(index) {
@@ -94,8 +113,33 @@ export class BattleScene {
       }
     } else if (index === 2) {
       this.tryRecruit();
+    } else if (index === 3) {
+      if (this.ownedItemIds().length === 0) {
+        this.say(["どうぐを もっていない！"], "command");
+      } else {
+        this.phase = "item";
+        this.itemCursor = 0;
+      }
     } else {
       this.tryFlee();
+    }
+  }
+
+  useItem(itemId) {
+    const item = ITEMS[itemId];
+    this.game.items[itemId]--;
+    if (item.kind === "heal") {
+      const before = this.ally.hp;
+      this.ally.hp = Math.min(this.ally.maxHp, this.ally.hp + item.value);
+      const healed = this.ally.hp - before;
+      const messages = [`${this.ally.name} に ${item.name}を つかった！`, `HPが ${healed} かいふくした！`];
+      this.enemyAct(messages);
+      this.finishTurn(messages);
+    } else if (item.kind === "bait") {
+      this.pendingBaitBonus = item.value;
+      const messages = [`${item.name}を なげた！`, `${this.enemy.name}が きょうみを しめしている…`];
+      this.enemyAct(messages);
+      this.finishTurn(messages);
     }
   }
 
@@ -141,7 +185,17 @@ export class BattleScene {
       return;
     }
     if (this.ally.hp <= 0) {
-      messages.push(`${this.ally.name} は たおれてしまった…`, "めのまえが まっくらに なった…");
+      messages.push(`${this.ally.name} は たおれてしまった…`);
+      const nextIndex = this.game.party.findIndex((m) => m.hp > 0);
+      if (nextIndex !== -1) {
+        moveToFront(this.game.party, nextIndex);
+        this.ally = this.game.party[0];
+        this.shownHp.ally = this.ally.hp;
+        messages.push(`${this.ally.name}、たのんだよ！`);
+        this.say(messages, "command");
+        return;
+      }
+      messages.push("めのまえが まっくらに なった…");
       this.say(messages, "gameover");
       return;
     }
@@ -151,7 +205,13 @@ export class BattleScene {
   victory(messages) {
     const enemySpecies = SPECIES[this.enemy.speciesId];
     const exp = enemySpecies.exp * this.enemy.level;
-    messages.push(`${this.enemy.name} を たおした！`, `${this.ally.name} は けいけんち ${exp} を てにいれた！`);
+    const money = Math.max(3, Math.round(enemySpecies.exp * this.enemy.level * 0.4));
+    this.game.money = (this.game.money || 0) + money;
+    messages.push(
+      `${this.enemy.name} を たおした！`,
+      `${this.ally.name} は けいけんち ${exp} を てにいれた！`,
+      `${money} えんを ひろった！`
+    );
     for (const event of gainExp(this.ally, SPECIES, exp)) {
       if (event.type === "evolve") {
         messages.push(`${event.from} は ${event.to} に しんかした！`);
@@ -186,7 +246,9 @@ export class BattleScene {
     }
     const species = SPECIES[this.enemy.speciesId];
     const hpBonus = (1 - this.enemy.hp / this.enemy.maxHp) * 0.55;
-    const chance = Math.min(0.9, species.recruitEase + hpBonus);
+    const baitBonus = this.pendingBaitBonus || 0;
+    this.pendingBaitBonus = 0;
+    const chance = Math.min(0.9, species.recruitEase + hpBonus + baitBonus);
     const messages = [`${this.ally.name} は ${this.enemy.name} を なかまに さそった！`];
     if (Math.random() < chance) {
       this.enemy.hp = this.enemy.maxHp;
@@ -251,35 +313,42 @@ export class BattleScene {
     ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))} / ${this.ally.maxHp}`, 388, 310);
     ctx.fillText(`つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`, 388, 332);
 
-    panel(ctx, 12, 356, 616, 112);
+    panel(ctx, 12, 344, 616, 124);
     ctx.fillStyle = "#3a3a52";
     if (this.phase === "message") {
       ctx.font = FONT_BOLD;
       const text = this.queue[0] || "";
-      this.drawWrapped(ctx, text, 36, 396, 34);
+      this.drawWrapped(ctx, text, 36, 384, 34);
       if (Math.sin(this.time * 6) > 0) {
         ctx.fillText("▼", 596, 452);
       }
     } else if (this.phase === "command") {
       ctx.font = FONT;
-      ctx.fillText(`${this.ally.name} は どうする？`, 36, 386);
+      ctx.fillText(`${this.ally.name} は どうする？`, 36, 374);
       ctx.font = FONT_BOLD;
-      const positions = [
-        [70, 420], [330, 420],
-        [70, 452], [330, 452],
-      ];
       COMMANDS.forEach((command, i) => {
-        ctx.fillText(command, positions[i][0], positions[i][1]);
-        if (this.cursor === i) ctx.fillText("▶", positions[i][0] - 26, positions[i][1]);
+        ctx.fillText(command, COMMAND_POS[i][0], COMMAND_POS[i][1]);
+        if (this.cursor === i) ctx.fillText("▶", COMMAND_POS[i][0] - 26, COMMAND_POS[i][1]);
       });
     } else if (this.phase === "skill") {
       ctx.font = FONT;
-      ctx.fillText("どの スキルを つかう？（X: もどる）", 36, 386);
+      ctx.fillText("どの スキルを つかう？（X: もどる）", 36, 374);
       ctx.font = FONT_BOLD;
       this.ally.skills.forEach((skillId, i) => {
-        const y = 416 + i * 28;
+        const y = 402 + i * 26;
         ctx.fillText(SKILLS[skillId].name, 70, y);
         if (this.skillCursor === i) ctx.fillText("▶", 44, y);
+      });
+    } else if (this.phase === "item") {
+      ctx.font = FONT;
+      ctx.fillText("どの どうぐを つかう？（X: もどる）", 36, 374);
+      ctx.font = FONT_BOLD;
+      const owned = this.ownedItemIds();
+      owned.forEach((itemId, i) => {
+        const y = 402 + i * 26;
+        const item = ITEMS[itemId];
+        ctx.fillText(`${item.name} × ${this.game.items[itemId]}`, 70, y);
+        if (this.itemCursor === i) ctx.fillText("▶", 44, y);
       });
     }
   }

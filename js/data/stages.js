@@ -7,6 +7,7 @@ export const TILE_TYPES = {
   RANCH: 5,
   NEXT: 6,
   PREV: 7,
+  SHOP: 8,
 };
 
 export const START_STAGE_ID = "stage1";
@@ -42,7 +43,7 @@ export const STAGES = {
       "2000000111000002",
       "2001100000000022",
       "2001100000220002",
-      "2000000000000002",
+      "2000000000000802",
       "2222222222222222",
     ],
   },

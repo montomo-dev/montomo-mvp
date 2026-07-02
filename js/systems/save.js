@@ -8,6 +8,8 @@ export function saveGame(game) {
       party: game.party,
       ranch: game.ranch || [],
       dex: game.dex || { seen: [], caught: [] },
+      items: game.items || {},
+      money: Number.isInteger(game.money) ? game.money : 0,
       field: game.field
         ? {
             stageId: game.field.stageId,
