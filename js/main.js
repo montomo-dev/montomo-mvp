@@ -3,6 +3,7 @@ import { createMonster, SPECIES, ensureUidAbove } from "./data/monsters.js";
 import { FieldScene } from "./scenes/field.js";
 import { TitleScene } from "./scenes/title.js";
 import { saveGame } from "./systems/save.js";
+import { markCaught } from "./systems/dex.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -20,6 +21,13 @@ function buildRanch(save) {
     return save.ranch.filter((m) => m && SPECIES[m.speciesId]);
   }
   return [];
+}
+
+function buildDex(save) {
+  if (save && save.dex && Array.isArray(save.dex.seen) && Array.isArray(save.dex.caught)) {
+    return { seen: [...save.dex.seen], caught: [...save.dex.caught] };
+  }
+  return { seen: [], caught: [] };
 }
 
 const game = {
@@ -41,9 +49,11 @@ const game = {
     this.flags = { bossDefeated: !!(save && save.flags && save.flags.bossDefeated) };
     this.party = buildParty(save);
     this.ranch = buildRanch(save);
+    this.dex = buildDex(save);
     let maxUid = 0;
     for (const m of [...this.party, ...this.ranch]) {
       if (typeof m.uid === "number" && m.uid > maxUid) maxUid = m.uid;
+      markCaught(this, m.speciesId);
     }
     ensureUidAbove(maxUid);
     this.field = new FieldScene(this);

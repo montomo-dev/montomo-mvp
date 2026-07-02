@@ -3,6 +3,7 @@ import { MAX_PARTY, moveToFront } from "../systems/party.js";
 import { breedMonsters } from "../systems/breeding.js";
 import { SKILLS } from "../data/skills.js";
 import { expToNext } from "../systems/growth.js";
+import { markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 
@@ -105,6 +106,7 @@ export class PartyScene {
 
     const { child, inheritedSkill } = breedMonsters(this.firstParent, selected);
     this.game.party.push(child);
+    markCaught(this.game, child.speciesId);
     const skillMessage = inheritedSkill ? ` ${SKILLS[inheritedSkill].name}を うけついだ！` : "";
     const colorMessage = child.tintName ? ` からだが ${child.tintName}いろに そまった！` : "";
     this.message = `${child.name}が うまれた！${colorMessage}${skillMessage}`;

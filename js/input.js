@@ -6,6 +6,7 @@ const KEYMAP = {
   KeyZ: "ok",
   Enter: "ok",
   KeyS: "save",
+  KeyD: "dex",
   KeyX: "cancel",
   Escape: "cancel",
 };

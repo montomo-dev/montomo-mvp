@@ -2,6 +2,7 @@ import { SKILLS } from "../data/skills.js";
 import { SPECIES } from "../data/monsters.js";
 import { gainExp, expToNext } from "../systems/growth.js";
 import { MAX_PARTY } from "../systems/party.js";
+import { markSeen, markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { EndingScene } from "./ending.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
@@ -14,6 +15,7 @@ export class BattleScene {
     this.ally = game.party[0];
     this.enemy = enemy;
     this.isBoss = !!opts.isBoss;
+    markSeen(game, enemy.speciesId);
     this.time = 0;
     this.cursor = 0;
     this.skillCursor = 0;
@@ -153,6 +155,7 @@ export class BattleScene {
     for (const event of gainExp(this.ally, SPECIES, exp)) {
       if (event.type === "evolve") {
         messages.push(`${event.from} は ${event.to} に しんかした！`);
+        markCaught(this.game, event.speciesId);
         continue;
       }
       messages.push(`${event.name} は レベル ${event.level} に あがった！`);
@@ -188,6 +191,7 @@ export class BattleScene {
     if (Math.random() < chance) {
       this.enemy.hp = this.enemy.maxHp;
       this.game.party.push(this.enemy);
+      markCaught(this.game, this.enemy.speciesId);
       messages.push(
         `${this.enemy.name} は うれしそうに ちかづいてきた！`,
         `${this.enemy.name} が なかまに くわわった！`

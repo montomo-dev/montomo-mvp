@@ -61,7 +61,7 @@ export function gainExp(monster, speciesTable, amount) {
       monster.spd = evoAfter.spd;
       monster.hp = Math.min(monster.maxHp, monster.hp + (evoAfter.maxHp - evoBefore.maxHp));
       species = evolved;
-      events.push({ type: "evolve", level: monster.level, from: fromName, to: evolved.name });
+      events.push({ type: "evolve", level: monster.level, from: fromName, to: evolved.name, speciesId: evolved.id });
     }
   }
   return events;

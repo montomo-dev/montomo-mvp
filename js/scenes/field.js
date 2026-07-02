@@ -1,6 +1,7 @@
 import { BattleScene } from "./battle.js";
 import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
+import { PokedexScene } from "./pokedex.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
 import { drawPlayer } from "../sprites.js";
 import { panel, FONT_BOLD } from "../ui.js";
@@ -78,6 +79,10 @@ export class FieldScene {
     }
     if (input.wasPressed("cancel")) {
       this.game.changeScene(new PartyScene(this.game, this));
+      return;
+    }
+    if (input.wasPressed("dex")) {
+      this.game.changeScene(new PokedexScene(this.game, this));
       return;
     }
 

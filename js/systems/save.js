@@ -7,6 +7,7 @@ export function saveGame(game) {
       savedAt: Date.now(),
       party: game.party,
       ranch: game.ranch || [],
+      dex: game.dex || { seen: [], caught: [] },
       field: game.field
         ? { x: game.field.player.x, y: game.field.player.y, facing: game.field.facing }
         : null,
