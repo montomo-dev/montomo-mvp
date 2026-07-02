@@ -228,7 +228,7 @@ export class BattleScene {
     if (this.enemy.hp > 0 || this.shownHp.enemy > 0.5) {
       drawMonster(ctx, this.enemy.speciesId, 470, 150, 1.6, this.time);
     }
-    drawMonster(ctx, this.ally.speciesId, 170, 305, 1.3, this.time + 1.7);
+    drawMonster(ctx, this.ally.speciesId, 170, 305, 1.3, this.time + 1.7, this.ally.tintHue || 0);
 
     panel(ctx, 16, 14, 250, 64);
     ctx.fillStyle = "#3a3a52";

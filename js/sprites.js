@@ -470,7 +470,7 @@ const PAINTERS = {
   tsukinone: paintTsukinone,
 };
 
-export function drawMonster(ctx, speciesId, cx, cy, scale, t) {
+export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
   const bob = Math.sin(t * 3) * 3 * scale;
   ctx.save();
   ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
@@ -479,7 +479,9 @@ export function drawMonster(ctx, speciesId, cx, cy, scale, t) {
   ctx.fill();
   ctx.translate(cx, cy + bob);
   ctx.scale(scale, scale);
+  if (hueRotate) ctx.filter = `hue-rotate(${hueRotate}deg) saturate(1.2)`;
   PAINTERS[speciesId](ctx);
+  ctx.filter = "none";
   ctx.restore();
 }
 

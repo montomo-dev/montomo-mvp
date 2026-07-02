@@ -15,12 +15,25 @@ export class PartyScene {
     this.mode = "list";
     this.firstParent = null;
     this.message = null;
+    this.confirm = null;
   }
 
   update(dt) {
     this.time += dt;
     const input = this.game.input;
     const count = this.game.party.length;
+
+    if (this.confirm) {
+      if (input.wasPressed("left") || input.wasPressed("right")) this.confirm.yes = !this.confirm.yes;
+      if (input.wasPressed("cancel")) { this.confirm = null; return; }
+      if (input.wasPressed("ok")) {
+        const { index, yes } = this.confirm;
+        this.confirm = null;
+        if (yes) this.releaseMonster(index);
+        return;
+      }
+      return;
+    }
     if (this.message) {
       if (input.wasPressed("ok") || input.wasPressed("cancel")) this.message = null;
       return;
@@ -39,6 +52,7 @@ export class PartyScene {
     if (input.wasPressed("down")) this.cursor = (this.cursor + 1) % count;
     if (this.mode === "list") {
       if (input.wasPressed("right")) this.startBreeding();
+      if (input.wasPressed("left")) this.askRelease();
       if (input.wasPressed("ok") && this.cursor > 0) {
         moveToFront(this.game.party, this.cursor);
         this.cursor = 0;
@@ -63,6 +77,21 @@ export class PartyScene {
     this.cursor = 0;
   }
 
+  askRelease() {
+    if (this.game.party.length <= 1) {
+      this.message = "さいごの なかまは にがせないよ。";
+      return;
+    }
+    this.confirm = { index: this.cursor, yes: false, monster: this.game.party[this.cursor] };
+  }
+
+  releaseMonster(index) {
+    const [removed] = this.game.party.splice(index, 1);
+    if (this.cursor >= this.game.party.length) this.cursor = this.game.party.length - 1;
+    this.message = `${removed.name}を にがした。`;
+    this.game.save();
+  }
+
   chooseParent(index) {
     const selected = this.game.party[index];
     if (!this.firstParent) {
@@ -77,7 +106,8 @@ export class PartyScene {
     const { child, inheritedSkill } = breedMonsters(this.firstParent, selected);
     this.game.party.push(child);
     const skillMessage = inheritedSkill ? ` ${SKILLS[inheritedSkill].name}を うけついだ！` : "";
-    this.message = `${child.name}が うまれた！${skillMessage}`;
+    const colorMessage = child.tintName ? ` からだが ${child.tintName}いろに そまった！` : "";
+    this.message = `${child.name}が うまれた！${colorMessage}${skillMessage}`;
     this.mode = "list";
     this.firstParent = null;
     this.cursor = this.game.party.length - 1;
@@ -111,7 +141,16 @@ export class PartyScene {
         ctx.font = FONT_BOLD;
         ctx.fillText("おや 1", 524, y + 66);
       }
-      drawMonster(ctx, monster.speciesId, 70, y + 42, 0.7, this.time + i);
+      drawMonster(ctx, monster.speciesId, 70, y + 42, 0.7, this.time + i, monster.tintHue || 0);
+      if (monster.tintColor) {
+        ctx.fillStyle = monster.tintColor;
+        ctx.beginPath();
+        ctx.arc(108, y + 16, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#2b2b33";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.fillText(`${monster.name}  Lv.${monster.level}`, 130, y + 32);
@@ -137,7 +176,7 @@ export class PartyScene {
       ? this.firstParent
         ? "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる"
         : "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる"
-      : "↑↓: えらぶ ／ Z: せんとう ／ →: 配合 ／ X: もどる";
+      : "↑↓: えらぶ ／ Z: せんとう ／ →: 配合 ／ ←: にがす ／ X: もどる";
     ctx.fillText(hint, 30, 462);
 
     if (this.message) {
@@ -148,6 +187,25 @@ export class PartyScene {
       ctx.fillText(this.message, 320, 232);
       ctx.font = FONT;
       ctx.fillText("Z または X で とじる", 320, 264);
+      ctx.textAlign = "left";
+    }
+
+    if (this.confirm) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillRect(0, 0, 640, 480);
+      panel(ctx, 80, 176, 480, 138);
+      ctx.fillStyle = "#3a3a52";
+      ctx.font = FONT_BOLD;
+      ctx.textAlign = "center";
+      ctx.fillText(`${this.confirm.monster.name}を にがします。よろしい？`, 320, 222);
+      const y = 272;
+      ctx.fillStyle = this.confirm.yes ? "#e8842e" : "#3a3a52";
+      ctx.fillText("はい", 250, y);
+      ctx.fillStyle = !this.confirm.yes ? "#e8842e" : "#3a3a52";
+      ctx.fillText("いいえ", 396, y);
+      ctx.font = FONT;
+      ctx.fillStyle = "#5a5a70";
+      ctx.fillText("←→: えらぶ ／ Z: けってい ／ X: やめる", 320, 300);
       ctx.textAlign = "left";
     }
   }

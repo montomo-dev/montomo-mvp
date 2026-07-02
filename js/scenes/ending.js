@@ -46,7 +46,7 @@ export class EndingScene {
     const startX = 320 - (party.length - 1) * 55;
     party.forEach((m, i) => {
       const x = startX + i * 110;
-      drawMonster(ctx, m.speciesId, x, 250, 1.0, this.time + i);
+      drawMonster(ctx, m.speciesId, x, 250, 1.0, this.time + i, m.tintHue || 0);
       ctx.fillStyle = "#f0ead8";
       ctx.font = FONT;
       ctx.fillText(m.name, x, 322);
