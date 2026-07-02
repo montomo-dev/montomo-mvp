@@ -44,6 +44,19 @@ test("追加した3体も個体生成できる", () => {
   assert.ok(pot.maxHp > 0);
 });
 
+test("配合専用キャラは特定の組み合わせからだけ生まれる", () => {
+  const a = createMonster("mofuri", 4);
+  const b = createMonster("pyokotan", 4);
+  const c = createMonster("hibachi", 4);
+  const d = createMonster("pachikoro", 4);
+  const e = createMonster("dogura", 4);
+  const f = createMonster("fuwarisu", 4);
+
+  assert.equal(breedMonsters(a, b).child.speciesId, "obako");
+  assert.equal(breedMonsters(c, d).child.speciesId, "kurista");
+  assert.equal(breedMonsters(e, f).child.speciesId, "hagumon");
+});
+
 test("stage3 は cave の先にあり、ボス地形を持つ", () => {
   const stage2 = getStage("stage2");
   const cave = getStage(stage2.nextStage);

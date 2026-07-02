@@ -7,6 +7,12 @@ const BASE_SPECIES = {
   tenfuwarisu: "fuwarisu",
 };
 
+const SPECIAL_RESULTS = {
+  "mofuri+pyokotan": "obako",
+  "hibachi+pachikoro": "kurista",
+  "dogura+fuwarisu": "hagumon",
+};
+
 const PRIMARY_BLENDS = {
   "blue+red": { color: "#8e44ad", name: "むらさき" },
   "red+yellow": { color: "#e8842e", name: "オレンジ" },
@@ -59,9 +65,9 @@ function mixColors(speciesA, speciesB) {
 export function breedMonsters(parentA, parentB) {
   const idA = baseSpeciesId(parentA);
   const idB = baseSpeciesId(parentB);
-  const candidates = [idA, idB].sort();
   const seed = parentA.uid + parentB.uid + parentA.level + parentB.level;
-  const speciesId = candidates[seed % candidates.length];
+  const pairKey = [idA, idB].sort().join("+");
+  const speciesId = SPECIAL_RESULTS[pairKey] || [idA, idB].sort()[seed % 2];
   const child = createMonster(speciesId, 1);
 
   const mixed = mixColors(SPECIES[idA], SPECIES[idB]);
