@@ -155,6 +155,21 @@ function starSpark(ctx, x, y, r, color) {
   ctx.fill();
 }
 
+function scaleMark(ctx, x, y, r, color = "rgba(255,255,255,0.35)") {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(x, y, r, r * 0.55, -0.45, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function tinyLeaf(ctx, x, y, rot, color = "#7ed95a") {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  glossOval(ctx, 0, 0, 7, 3.5, color, "#4f9a38", "#2f6428", 1.2);
+  ctx.restore();
+}
+
 function paintMofuri(ctx) {
   ctx.strokeStyle = "#4a7d2e";
   ctx.lineWidth = 8;
@@ -282,6 +297,9 @@ function paintMofurif(ctx) {
   ctx.restore();
   petalFlower(ctx, 16, -44, 8, "#f78fb3", "#ffe07a");
   petalFlower(ctx, 0, -24, 7, "#ffe07a", "#f78fb3");
+  for (const [lx, ly, rot] of [[-22, -9, -0.8], [22, -9, 0.8], [-17, 15, -0.45], [17, 15, 0.45]]) {
+    tinyLeaf(ctx, lx, ly, rot, "#9fe56c");
+  }
   shine(ctx, -14, -16, 13, 8);
   eye(ctx, -12, -3, 9);
   eye(ctx, 12, -3, 9);
@@ -297,6 +315,8 @@ function paintBorudogura(ctx) {
   glossOval(ctx, 0, 2, 36, 32, "#b98a5e", "#7a5236", "#4a3320", 6);
   rockPlate(ctx, -30, -2, 11);
   rockPlate(ctx, 30, -2, 11);
+  rockPlate(ctx, -20, 14, 8);
+  rockPlate(ctx, 20, 14, 8);
   glossOval(ctx, 0, 16, 19, 15, "#f0d3ac", "#d9b48f", "#4a3320", 3);
   glossOval(ctx, -18, 29, 10, 6, "#c9c4bb", "#8a8478", "#4a3320", 2.5);
   glossOval(ctx, 18, 29, 10, 6, "#c9c4bb", "#8a8478", "#4a3320", 2.5);
@@ -333,6 +353,11 @@ function paintBakuhibachi(ctx) {
   glossOval(ctx, 0, 13, 14, 13, "#fff0d6", "#ffe1b3", "#8a3016", 3);
   glossOval(ctx, -14, 28, 8, 5, "#ff9868", "#c2502a", "#8a3016", 2.5);
   glossOval(ctx, 14, 28, 8, 5, "#ff9868", "#c2502a", "#8a3016", 2.5);
+  scaleMark(ctx, -18, 2, 4, "rgba(255, 230, 122, 0.45)");
+  scaleMark(ctx, 18, 1, 4, "rgba(255, 230, 122, 0.45)");
+  scaleMark(ctx, 0, -12, 3.5, "rgba(255, 230, 122, 0.50)");
+  starSpark(ctx, -31, -11, 4, "#ffe07a");
+  starSpark(ctx, 31, -8, 4, "#ffe07a");
   shine(ctx, -12, -14, 12, 6);
   eye(ctx, -11, -6, 8.5);
   eye(ctx, 11, -6, 8.5);
@@ -346,6 +371,10 @@ function paintTenfuwarisu(ctx) {
   glossOval(ctx, 34, 0, 12, 20, "#d5f2fc", "#8fcbe8", "#3a6f8f", 4.5);
   windSwirl(ctx, -40, -6, 9);
   windSwirl(ctx, 40, -6, 9);
+  for (const side of [-1, 1]) {
+    glossOval(ctx, side * 39, 14, 6, 12, "#ffffff", "#bfe9f7", "#3a6f8f", 1.6);
+    glossOval(ctx, side * 45, 8, 5, 10, "#ffffff", "#bfe9f7", "#3a6f8f", 1.4);
+  }
   glossCircle(ctx, 0, 0, 30, "#c2eaf8", "#6fb8d8", "#3a6f8f", 6);
   ctx.strokeStyle = "#3a6f8f";
   ctx.lineWidth = 4;
@@ -456,6 +485,121 @@ function paintTsukinone(ctx) {
   starSpark(ctx, 0, -23, 6, "#ffe676");
 }
 
+function horn(ctx, x, y, flip = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(flip, 1);
+  ctx.fillStyle = "#e8d69b";
+  ctx.strokeStyle = "#4b3a20";
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(10, -26, 30, -31);
+  ctx.quadraticCurveTo(22, -15, 8, 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(75,58,32,0.45)";
+  ctx.lineWidth = 1.8;
+  for (const p of [0.32, 0.55, 0.76]) {
+    ctx.beginPath();
+    ctx.moveTo(7 + 18 * p, -28 * p);
+    ctx.lineTo(2 + 10 * p, -12 * p);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function paintNushi(ctx) {
+  // クリア目標のボス。森の大樹＋獣を合わせた、通常モンスターより大きく威圧感のある見た目。
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  for (let i = 0; i < 8; i++) {
+    const a = (Math.PI * 2 * i) / 8;
+    const r = 38 + (i % 2) * 7;
+    ctx.strokeStyle = i % 2 ? "#d8f7a8" : "#86d46b";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 16, Math.sin(a) * 12);
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  ctx.strokeStyle = "#fff4a3";
+  ctx.lineWidth = 2;
+  for (const r of [48, 58]) {
+    ctx.beginPath();
+    ctx.arc(0, -2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  horn(ctx, -24, -26, -1);
+  horn(ctx, 24, -26, 1);
+
+  // 枝角と葉冠
+  ctx.strokeStyle = "#4b3a20";
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-26, -28); ctx.lineTo(-42, -48); ctx.lineTo(-52, -62);
+  ctx.moveTo(-38, -43); ctx.lineTo(-52, -42);
+  ctx.moveTo(26, -28); ctx.lineTo(42, -48); ctx.lineTo(52, -62);
+  ctx.moveTo(38, -43); ctx.lineTo(52, -42);
+  ctx.stroke();
+  for (const [lx, ly, r] of [[-54, -62, 8], [-52, -42, 7], [54, -62, 8], [52, -42, 7], [0, -51, 9]]) {
+    glossOval(ctx, lx, ly, r, r * 0.65, "#9fe56c", "#4e9a3e", "#2f6428", 2);
+  }
+
+  // 巨体
+  glossOval(ctx, 0, 4, 42, 37, "#7fc05b", "#3f7d37", "#234a24", 7);
+  glossOval(ctx, 0, 17, 21, 16, "#d7efaa", "#93c66f", "#234a24", 3.5);
+  shine(ctx, -18, -14, 16, 9);
+
+  // 腕・爪
+  glossOval(ctx, -39, 12, 12, 21, "#6faf52", "#336d31", "#234a24", 4);
+  glossOval(ctx, 39, 12, 12, 21, "#6faf52", "#336d31", "#234a24", 4);
+  for (const side of [-1, 1]) {
+    tri(ctx, side * 38, 28, side * 45, 38, side * 31, 35, "#e8d69b", "#4b3a20", 1.8);
+  }
+
+  // 足元の根
+  ctx.strokeStyle = "#234a24";
+  ctx.lineWidth = 5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-14, 33); ctx.quadraticCurveTo(-30, 42, -43, 38);
+  ctx.moveTo(14, 33); ctx.quadraticCurveTo(30, 42, 43, 38);
+  ctx.stroke();
+
+  // 顔。ボスらしくキリッとした目にする。
+  ctx.fillStyle = "#fff7c2";
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.ellipse(-14, -8, 8, 6, -0.12, 0, Math.PI * 2);
+  ctx.ellipse(14, -8, 8, 6, 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -12, -7, 3.5, "#2b2b33", null);
+  circle(ctx, 12, -7, 3.5, "#2b2b33", null);
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-24, -17); ctx.lineTo(-7, -12);
+  ctx.moveTo(24, -17); ctx.lineTo(7, -12);
+  ctx.moveTo(-8, 10); ctx.quadraticCurveTo(0, 16, 8, 10);
+  ctx.stroke();
+
+  starSpark(ctx, -31, -31, 5, "#fff4a3");
+  starSpark(ctx, 32, -29, 4.5, "#fff4a3");
+}
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
@@ -468,6 +612,7 @@ const PAINTERS = {
   pyokotan: paintPyokotan,
   pachikoro: paintPachikoro,
   tsukinone: paintTsukinone,
+  nushi: paintNushi,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
@@ -480,41 +625,146 @@ export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
   ctx.translate(cx, cy + bob);
   ctx.scale(scale, scale);
   if (hueRotate) ctx.filter = `hue-rotate(${hueRotate}deg) saturate(1.2)`;
-  PAINTERS[speciesId](ctx);
+  const painter = PAINTERS[speciesId] || paintMofuri;
+  painter(ctx);
   ctx.filter = "none";
   ctx.restore();
 }
 
+export function drawCompanion(ctx, monster, playerX, playerY, facing, t) {
+  if (!monster || !monster.speciesId) return;
+  const offset = {
+    up: [18, 18],
+    down: [-18, -20],
+    left: [18, -14],
+    right: [-18, -14],
+  }[facing] || [-18, -20];
+  const hop = Math.sin(t * 5 + monster.uid * 0.7) * 1.6;
+  const x = playerX + offset[0];
+  const y = playerY + offset[1] + hop;
+  drawMonster(ctx, monster.speciesId, x, y, 0.38, t + monster.uid * 0.37);
+
+  // なかよし感を出す小さな反応。戦闘性能には関係しない純粋な演出。
+  if (Math.sin(t * 1.4 + monster.uid) > 0.94) {
+    ctx.save();
+    ctx.globalAlpha = 0.75;
+    ctx.fillStyle = "#ff8fb3";
+    ctx.beginPath();
+    ctx.moveTo(x, y - 34);
+    ctx.bezierCurveTo(x - 5, y - 41, x - 14, y - 34, x, y - 25);
+    ctx.bezierCurveTo(x + 14, y - 34, x + 5, y - 41, x, y - 34);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 export function drawPlayer(ctx, cx, cy, facing, t) {
   const bob = Math.sin(t * 6) * 1.2;
+  const step = Math.sin(t * 10);
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.20)";
   ctx.beginPath();
-  ctx.ellipse(cx, cy + 15, 10, 3.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + 16, 12, 4, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.translate(cx, cy + bob);
-  ctx.fillStyle = "#4a7fd6";
+
+  // 足（歩きのニュアンス）
   ctx.strokeStyle = "#2b2b33";
-  ctx.lineWidth = 2;
-  ctx.lineJoin = "round";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.roundRect(-8, -3, 16, 15, 5);
-  ctx.fill();
+  if (facing === "left" || facing === "right") {
+    ctx.moveTo(-4, 10); ctx.lineTo(-7 - step * 2, 16);
+    ctx.moveTo(5, 10); ctx.lineTo(8 + step * 2, 16);
+  } else {
+    ctx.moveTo(-5, 10); ctx.lineTo(-7, 16 + step);
+    ctx.moveTo(5, 10); ctx.lineTo(7, 16 - step);
+  }
   ctx.stroke();
-  circle(ctx, 0, -11, 9, "#f6d0a8", "#2b2b33", 2);
+
+  // からだ・リュック
+  if (facing === "up") {
+    ctx.fillStyle = "#5b8fdf";
+    ctx.strokeStyle = "#2b2b33";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-10, -3, 20, 16, 5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#d18c45";
+    ctx.beginPath();
+    ctx.roundRect(-7, 0, 14, 13, 4);
+    ctx.fill();
+    ctx.strokeStyle = "#6f4520";
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = "#4a7fd6";
+    ctx.strokeStyle = "#2b2b33";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-9, -4, 18, 17, 5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#ffd75e";
+    ctx.fillRect(-5, -1, 10, 3);
+    ctx.strokeStyle = "#2b2b33";
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(-5, -1, 10, 3);
+  }
+
+  // うで
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  if (facing === "left") {
+    ctx.moveTo(-8, 1); ctx.lineTo(-14, 7 + step);
+    ctx.moveTo(8, 1); ctx.lineTo(10, 8 - step);
+  } else if (facing === "right") {
+    ctx.moveTo(8, 1); ctx.lineTo(14, 7 + step);
+    ctx.moveTo(-8, 1); ctx.lineTo(-10, 8 - step);
+  } else {
+    ctx.moveTo(-9, 1); ctx.lineTo(-14, 8 - step);
+    ctx.moveTo(9, 1); ctx.lineTo(14, 8 + step);
+  }
+  ctx.stroke();
+
+  // 顔・帽子
+  circle(ctx, 0, -12, 9.5, "#f6d0a8", "#2b2b33", 2);
   ctx.fillStyle = "#e8563f";
   ctx.strokeStyle = "#2b2b33";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(0, -12, 9.5, Math.PI, 0);
+  ctx.arc(0, -13, 10.5, Math.PI, 0);
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = "#c2432f";
-  ctx.fillRect(-9.5, -13, 19, 3);
+  ctx.beginPath();
+  ctx.roundRect(-11, -14, 22, 4, 2);
+  ctx.fill();
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = "#fff4c2";
+  ctx.beginPath();
+  ctx.arc(0, -17, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
   if (facing !== "up") {
     const dx = facing === "left" ? -3 : facing === "right" ? 3 : 0;
-    circle(ctx, dx - 3, -8, 1.4, "#2b2b33", null);
-    circle(ctx, dx + 3, -8, 1.4, "#2b2b33", null);
+    circle(ctx, dx - 3, -9, 1.5, "#2b2b33", null);
+    circle(ctx, dx + 3, -9, 1.5, "#2b2b33", null);
+    ctx.strokeStyle = "#9b5a3c";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(dx, -5, 3, 0.2 * Math.PI, 0.8 * Math.PI);
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = "#8b4e32";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -12, 7, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
   }
   ctx.restore();
 }

@@ -3,7 +3,7 @@ import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
 import { PokedexScene } from "./pokedex.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
-import { drawPlayer } from "../sprites.js";
+import { drawCompanion, drawPlayer } from "../sprites.js";
 import { panel, FONT_BOLD } from "../ui.js";
 
 const TILE = 40;
@@ -211,7 +211,10 @@ export class FieldScene {
       }
     }
 
-    drawPlayer(ctx, this.player.x * TILE + 20, this.player.y * TILE + 20, this.facing, this.time);
+    const playerPx = this.player.x * TILE + 20;
+    const playerPy = this.player.y * TILE + 20;
+    drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, this.time);
+    drawPlayer(ctx, playerPx, playerPy, this.facing, this.time);
 
     if (this.toast) {
       ctx.save();
