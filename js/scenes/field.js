@@ -143,12 +143,18 @@ export class FieldScene {
       this.moveStage(prevStage.id, "fromNext", `${prevStage.shortName} に もどった`);
       return;
     }
-    if (tile === T_BUSH && Math.random() < this.stage.encounterRate) {
-      const speciesId = rollWildSpecies();
-      const [minLevel, maxLevel] = this.stage.wildLevels;
-      const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
-      this.pendingEnemy = createMonster(speciesId, level);
-      this.flash = 0.45;
+    if (tile === T_BUSH) {
+      if (Math.random() < this.stage.encounterRate) {
+        const speciesId = rollWildSpecies();
+        const [minLevel, maxLevel] = this.stage.wildLevels;
+        const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
+        this.pendingEnemy = createMonster(speciesId, level);
+        this.flash = 0.45;
+      } else if (this.stage.rareSpecies && Math.random() < 0.005) {
+        const rareData = this.stage.rareSpecies[Math.floor(Math.random() * this.stage.rareSpecies.length)];
+        this.pendingEnemy = createMonster(rareData.speciesId, rareData.level);
+        this.flash = 0.45;
+      }
     }
 
     this.checkTreasureAt(this.player.x, this.player.y);
