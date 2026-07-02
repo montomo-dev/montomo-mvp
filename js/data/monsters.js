@@ -256,6 +256,21 @@ export const SPECIES = {
       { level: 1, skill: "gantekiotoshi" },
     ],
   },
+  reverseNushi: {
+    id: "reverseNushi",
+    name: "ウラノヌシ",
+    genus: "うらのぬし",
+    base: { hp: 280, atk: 60, def: 45, spd: 25 },
+    growth: { hp: 0, atk: 0, def: 0, spd: 0 },
+    exp: 100,
+    recruitEase: 0,
+    boss: true,
+    learnset: [
+      { level: 1, skill: "daibakuhatsu" },
+      { level: 1, skill: "senpugeki" },
+      { level: 1, skill: "gantekiotoshi" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

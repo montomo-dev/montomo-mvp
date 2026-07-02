@@ -64,7 +64,7 @@ export class FieldScene {
     if (this.flash > 0) {
       this.flash -= dt;
       if (this.flash <= 0) {
-        this.game.changeScene(new BattleScene(this.game, this.pendingEnemy, { isBoss: this.pendingBoss }));
+        this.game.changeScene(new BattleScene(this.game, this.pendingEnemy, { isBoss: this.pendingBoss, stageId: this.stageId }));
         this.pendingEnemy = null;
         this.pendingBoss = false;
       }
@@ -112,11 +112,15 @@ export class FieldScene {
       return;
     }
     if (tile === T_BOSS) {
-      if (this.game.flags && this.game.flags.bossDefeated) {
+      const bossId = this.stage.bossId || "nushi";
+      const bossLevel = this.stage.bossLevel || 12;
+      const stageClearedFlags = this.game.flags?.stageClearedFlags || {};
+
+      if (stageClearedFlags[this.stageId]) {
         this.showToast("しずかな けはいが ただよっている…");
         return;
       }
-      this.pendingEnemy = createMonster("nushi", 12);
+      this.pendingEnemy = createMonster(bossId, bossLevel);
       this.pendingBoss = true;
       this.flash = 0.6;
       return;
@@ -145,6 +149,41 @@ export class FieldScene {
       const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
       this.pendingEnemy = createMonster(speciesId, level);
       this.flash = 0.45;
+    }
+
+    this.checkTreasureAt(this.player.x, this.player.y);
+    this.checkGroundItemAt(this.player.x, this.player.y);
+  }
+
+  checkTreasureAt(x, y) {
+    if (!this.stage.treasures) return;
+    for (const treasure of this.stage.treasures) {
+      if (treasure.x === x && treasure.y === y) {
+        const treasureKey = `${this.stageId}:${treasure.id}`;
+        if (!this.game.treasureState[treasureKey]) {
+          this.game.treasureState[treasureKey] = true;
+          this.game.money += treasure.money;
+          this.showToast(`お金を ${treasure.money} えた！`);
+          this.game.save();
+        }
+        return;
+      }
+    }
+  }
+
+  checkGroundItemAt(x, y) {
+    if (!this.stage.groundItems) return;
+    for (const item of this.stage.groundItems) {
+      if (item.x === x && item.y === y) {
+        const itemKey = `${this.stageId}:${item.id}`;
+        if (!this.game.groundItemState[itemKey]) {
+          this.game.groundItemState[itemKey] = true;
+          this.game.items[item.itemId] = (this.game.items[item.itemId] || 0) + 1;
+          this.showToast(`${item.itemId} を てにいれた！`);
+          this.game.save();
+        }
+        return;
+      }
     }
   }
 
@@ -287,6 +326,9 @@ export class FieldScene {
       }
     }
 
+    this.drawTreasures(ctx);
+    this.drawGroundItems(ctx);
+
     const playerPx = this.player.x * TILE + 20;
     const playerPy = this.player.y * TILE + 20;
     drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, this.time);
@@ -332,6 +374,38 @@ export class FieldScene {
     if (this.flash > 0) {
       ctx.fillStyle = `rgba(255, 255, 255, ${Math.sin((this.flash / 0.45) * Math.PI)})`;
       ctx.fillRect(0, 0, 640, 480);
+    }
+  }
+
+  drawTreasures(ctx) {
+    if (!this.stage.treasures) return;
+    for (const treasure of this.stage.treasures) {
+      const treasureKey = `${this.stageId}:${treasure.id}`;
+      if (this.game.treasureState[treasureKey]) continue;
+
+      const px = treasure.x * TILE + 20;
+      const py = treasure.y * TILE + 20;
+      ctx.fillStyle = "#ffd700";
+      ctx.font = 'bold 28px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("宝", px, py);
+    }
+  }
+
+  drawGroundItems(ctx) {
+    if (!this.stage.groundItems) return;
+    for (const item of this.stage.groundItems) {
+      const itemKey = `${this.stageId}:${item.id}`;
+      if (this.game.groundItemState[itemKey]) continue;
+
+      const px = item.x * TILE + 20;
+      const py = item.y * TILE + 20;
+      ctx.fillStyle = "#88dd88";
+      ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("落", px, py);
     }
   }
 }

@@ -72,12 +72,17 @@ const game = {
     return saveGame(this);
   },
   startAdventure(save) {
-    this.flags = { bossDefeated: !!(save && save.flags && save.flags.bossDefeated) };
+    this.flags = {
+      bossDefeated: !!(save && save.flags && save.flags.bossDefeated),
+      stageClearedFlags: (save && save.flags && save.flags.stageClearedFlags) || {},
+    };
     this.party = buildParty(save);
     this.ranch = buildRanch(save);
     this.dex = buildDex(save);
     this.items = buildItems(save);
     this.money = buildMoney(save);
+    this.treasureState = (save && save.treasureState) || {};
+    this.groundItemState = (save && save.groundItemState) || {};
     let maxUid = 0;
     for (const m of [...this.party, ...this.ranch]) {
       if (typeof m.uid === "number" && m.uid > maxUid) maxUid = m.uid;

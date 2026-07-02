@@ -19,6 +19,8 @@ export function saveGame(game) {
           }
         : null,
       flags: game.flags || {},
+      treasureState: game.treasureState || {},
+      groundItemState: game.groundItemState || {},
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     return true;

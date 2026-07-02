@@ -6,6 +6,7 @@ import { MAX_PARTY, moveToFront } from "../systems/party.js";
 import { markSeen, markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { EndingScene } from "./ending.js";
+import { ChoiceScene } from "./choice.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 
 const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる"];
@@ -18,6 +19,7 @@ export class BattleScene {
     this.ally = game.party[0];
     this.enemy = enemy;
     this.isBoss = !!opts.isBoss;
+    this.stageId = opts.stageId;
     markSeen(game, enemy.speciesId);
     this.time = 0;
     this.cursor = 0;
@@ -44,7 +46,11 @@ export class BattleScene {
       return;
     }
     if (this.after === "ending") {
-      this.game.changeScene(new EndingScene(this.game));
+      if (this.stageId === "stage3") {
+        this.game.changeScene(new ChoiceScene(this.game));
+      } else {
+        this.game.changeScene(new EndingScene(this.game));
+      }
       return;
     }
     if (this.after === "gameover") {
@@ -226,9 +232,13 @@ export class BattleScene {
       }
     }
     if (this.isBoss) {
+      if (!this.game.flags.stageClearedFlags) {
+        this.game.flags.stageClearedFlags = {};
+      }
+      this.game.flags.stageClearedFlags[this.stageId] = true;
       this.game.flags.bossDefeated = true;
       this.game.save();
-      messages.push("もりの ヌシを のりこえた…！");
+      messages.push(`${this.enemy.name} を のりこえた…！`);
       this.say(messages, "ending");
     } else {
       this.say(messages, "end");
