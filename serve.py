@@ -11,5 +11,5 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
 
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-port = int(sys.argv[1]) if len(sys.argv) > 1 else 3461
+port = int(os.environ.get("PORT") or (sys.argv[1] if len(sys.argv) > 1 else 3461))
 http.server.ThreadingHTTPServer(("127.0.0.1", port), NoCacheHandler).serve_forever()
