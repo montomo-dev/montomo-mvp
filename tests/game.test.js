@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 
-import { createMonster, rollWildSpecies } from "../js/data/monsters.js";
+import { createMonster, rollWildSpecies, SPECIES } from "../js/data/monsters.js";
 import { getStage, STAGES } from "../js/data/stages.js";
 import { breedMonsters } from "../js/systems/breeding.js";
 import { depositToRanch } from "../js/systems/party.js";
@@ -106,4 +107,15 @@ test("落ちものは種類が2種類以上に多様化されている", () => {
     }
   }
   assert.ok(kinds.size >= 2, `アイテム種類=${kinds.size}種 期待2種以上`);
+});
+
+test("全モンスターに専用の描画関数(PAINTERS)が登録されている", async () => {
+  const src = await readFile(new URL("../js/sprites.js", import.meta.url), "utf8");
+  const painterKeys = [...src.matchAll(/^\s*(\w+):\s*paint\w+,/gm)].map((m) => m[1]);
+  for (const id of Object.keys(SPECIES)) {
+    assert.ok(
+      painterKeys.includes(id),
+      `${id} 用の描画関数が PAINTERS に登録されていない（他モンスターの見た目にフォールバックしてしまう）`
+    );
+  }
 });

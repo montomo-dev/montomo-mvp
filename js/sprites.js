@@ -925,6 +925,182 @@ function paintHagumon(ctx) {
   ctx.stroke();
 }
 
+function paintReverseNushi(ctx) {
+  // 裏ボス。表のヌシと同じ樹木＋獣の系統だが、枯れ木化・紫のオーラで異形さを強調。
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  for (let i = 0; i < 10; i++) {
+    const a = (Math.PI * 2 * i) / 10;
+    const r = 44 + (i % 2) * 9;
+    ctx.strokeStyle = i % 2 ? "#c9a0f5" : "#6f3fa8";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 18, Math.sin(a) * 14);
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  ctx.strokeStyle = "#e0c6ff";
+  ctx.lineWidth = 2.2;
+  for (const r of [54, 66]) {
+    ctx.beginPath();
+    ctx.arc(0, -2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  horn(ctx, -27, -28, -1);
+  horn(ctx, 27, -28, 1);
+
+  // 枯れ枝角と紫の葉冠
+  ctx.strokeStyle = "#2b2033";
+  ctx.lineWidth = 6.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-28, -30); ctx.lineTo(-46, -52); ctx.lineTo(-58, -68);
+  ctx.moveTo(-42, -47); ctx.lineTo(-58, -46);
+  ctx.moveTo(28, -30); ctx.lineTo(46, -52); ctx.lineTo(58, -68);
+  ctx.moveTo(42, -47); ctx.lineTo(58, -46);
+  ctx.stroke();
+  for (const [lx, ly, r] of [[-60, -68, 9], [-58, -46, 8], [60, -68, 9], [58, -46, 8], [0, -56, 10]]) {
+    glossOval(ctx, lx, ly, r, r * 0.65, "#c9a0f5", "#6f3fa8", "#3a2050", 2.2);
+  }
+
+  // 巨体（紫がかった濃緑〜黒）
+  glossOval(ctx, 0, 4, 46, 41, "#7a5aa0", "#3f2960", "#1e1230", 7.5);
+  glossOval(ctx, 0, 18, 23, 18, "#c9a0f5", "#8a5fc0", "#1e1230", 4);
+  shine(ctx, -20, -15, 18, 10);
+
+  // 腕・爪
+  glossOval(ctx, -43, 13, 13, 23, "#5f4390", "#332055", "#1e1230", 4.5);
+  glossOval(ctx, 43, 13, 13, 23, "#5f4390", "#332055", "#1e1230", 4.5);
+  for (const side of [-1, 1]) {
+    tri(ctx, side * 42, 30, side * 50, 42, side * 34, 38, "#e8d69b", "#2b2033", 2);
+  }
+
+  // 足元の根
+  ctx.strokeStyle = "#1e1230";
+  ctx.lineWidth = 5.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-15, 36); ctx.quadraticCurveTo(-33, 46, -47, 42);
+  ctx.moveTo(15, 36); ctx.quadraticCurveTo(33, 46, 47, 42);
+  ctx.stroke();
+
+  // 顔。怒りを帯びた紫の目。
+  ctx.fillStyle = "#e8d0ff";
+  ctx.strokeStyle = "#1e1230";
+  ctx.lineWidth = 2.8;
+  ctx.beginPath();
+  ctx.ellipse(-15, -9, 9, 6.5, -0.16, 0, Math.PI * 2);
+  ctx.ellipse(15, -9, 9, 6.5, 0.16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -13, -8, 4, "#6f3fa8", null);
+  circle(ctx, 13, -8, 4, "#6f3fa8", null);
+  circle(ctx, -13, -8, 1.8, "#2b2033", null);
+  circle(ctx, 13, -8, 1.8, "#2b2033", null);
+  ctx.strokeStyle = "#1e1230";
+  ctx.lineWidth = 3.2;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-26, -19); ctx.lineTo(-8, -13);
+  ctx.moveTo(26, -19); ctx.lineTo(8, -13);
+  ctx.moveTo(-9, 11); ctx.quadraticCurveTo(0, 4, 9, 11);
+  ctx.stroke();
+
+  starSpark(ctx, -34, -34, 5.5, "#e0c6ff");
+  starSpark(ctx, 35, -32, 5, "#e0c6ff");
+}
+
+function paintTakarabox(ctx) {
+  // 宝箱に擬態するモンスター。木箱のボディに金の帯、うっすら開いた口から牙が覗く。
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.beginPath();
+  ctx.ellipse(0, 34, 26, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 箱の下段
+  ctx.fillStyle = "#a8703c";
+  ctx.strokeStyle = "#5c3a1e";
+  ctx.lineWidth = 4.5;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.roundRect(-30, -4, 60, 32, 6);
+  ctx.fill();
+  ctx.stroke();
+
+  // 蓋（少し開いた宝箱の口）
+  ctx.fillStyle = "#c48a4c";
+  ctx.beginPath();
+  ctx.moveTo(-30, -4);
+  ctx.quadraticCurveTo(-30, -30, 0, -32);
+  ctx.quadraticCurveTo(30, -30, 30, -4);
+  ctx.lineTo(24, -10);
+  ctx.quadraticCurveTo(0, -8, -24, -10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // 金の帯
+  ctx.fillStyle = "#e8b23a";
+  ctx.strokeStyle = "#8a611c";
+  ctx.lineWidth = 2;
+  ctx.fillRect(-30, 4, 60, 5);
+  ctx.strokeRect(-30, 4, 60, 5);
+  ctx.beginPath();
+  ctx.roundRect(-6, -30, 12, 34, 3);
+  ctx.fill();
+  ctx.stroke();
+
+  // 鍵穴（顔の中心に据えて表情のアクセントに）
+  ctx.fillStyle = "#6b4a1c";
+  ctx.beginPath();
+  ctx.arc(0, 13, 3.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(-1.6, 13, 3.2, 6);
+
+  // 牙のある口（擬態モンスターらしい凶暴さ）
+  ctx.fillStyle = "#3a2210";
+  ctx.beginPath();
+  ctx.moveTo(-16, -9);
+  ctx.quadraticCurveTo(0, -2, 16, -9);
+  ctx.lineTo(14, 0);
+  ctx.quadraticCurveTo(0, 5, -14, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#f2ead6";
+  for (const fx of [-11, -3, 5, 12]) {
+    ctx.beginPath();
+    ctx.moveTo(fx, -8);
+    ctx.lineTo(fx + 3, -8);
+    ctx.lineTo(fx + 1.5, -2);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // 目（蓋の上、驚かせる演出用に吊り上がった目つき）
+  ctx.fillStyle = "#ffe27a";
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(-13, -19, 6, 5, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(13, -19, 6, 5, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -13, -19, 2.6, "#2b2b33", null);
+  circle(ctx, 13, -19, 2.6, "#2b2b33", null);
+  circle(ctx, -14.5, -20.5, 1, "#ffffff", null);
+  circle(ctx, 11.5, -20.5, 1, "#ffffff", null);
+
+  starSpark(ctx, -26, -22, 4, "#fff1a0");
+  starSpark(ctx, 27, -18, 4, "#fff1a0");
+  shine(ctx, -12, -2, 12, 7);
+}
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
@@ -944,6 +1120,8 @@ const PAINTERS = {
   tsubogame: paintTsubogame,
   sandango: paintSandango,
   nushi: paintNushi,
+  reverseNushi: paintReverseNushi,
+  takarabox: paintTakarabox,
   obako: paintObako,
   kurista: paintKurista,
   hagumon: paintHagumon,
