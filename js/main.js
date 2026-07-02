@@ -10,16 +10,16 @@ const ctx = canvas.getContext("2d");
 function buildParty(save) {
   if (save && Array.isArray(save.party)) {
     const restored = save.party.filter((m) => m && SPECIES[m.speciesId]);
-    if (restored.length > 0) {
-      let maxUid = 0;
-      for (const m of restored) {
-        if (typeof m.uid === "number" && m.uid > maxUid) maxUid = m.uid;
-      }
-      ensureUidAbove(maxUid);
-      return restored;
-    }
+    if (restored.length > 0) return restored;
   }
   return [createMonster("mofuri", 3)];
+}
+
+function buildRanch(save) {
+  if (save && Array.isArray(save.ranch)) {
+    return save.ranch.filter((m) => m && SPECIES[m.speciesId]);
+  }
+  return [];
 }
 
 const game = {
@@ -27,6 +27,7 @@ const game = {
   ctx,
   input: new Input(),
   party: [],
+  ranch: [],
   scene: null,
   field: null,
   changeScene(scene) {
@@ -39,6 +40,12 @@ const game = {
   startAdventure(save) {
     this.flags = { bossDefeated: !!(save && save.flags && save.flags.bossDefeated) };
     this.party = buildParty(save);
+    this.ranch = buildRanch(save);
+    let maxUid = 0;
+    for (const m of [...this.party, ...this.ranch]) {
+      if (typeof m.uid === "number" && m.uid > maxUid) maxUid = m.uid;
+    }
+    ensureUidAbove(maxUid);
     this.field = new FieldScene(this);
     if (save && save.field) {
       if (Number.isInteger(save.field.x) && Number.isInteger(save.field.y)) {

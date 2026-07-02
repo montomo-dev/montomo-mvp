@@ -1,5 +1,6 @@
 import { BattleScene } from "./battle.js";
 import { PartyScene } from "./party.js";
+import { RanchScene } from "./ranch.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
 import { drawPlayer } from "../sprites.js";
 import { panel, FONT_BOLD } from "../ui.js";
@@ -12,6 +13,7 @@ const T_BUSH = 1;
 const T_TREE = 2;
 const T_SPRING = 3;
 const T_BOSS = 4;
+const T_RANCH = 5;
 
 const LAYOUT = [
   "2222222222222222",
@@ -23,7 +25,7 @@ const LAYOUT = [
   "2002200111000002",
   "2000000111000002",
   "2001100000000022",
-  "2001100000220002",
+  "2001100050220002",
   "2000000000220002",
   "2222222222222222",
 ];
@@ -114,6 +116,10 @@ export class FieldScene {
       this.flash = 0.6;
       return;
     }
+    if (tile === T_RANCH) {
+      this.game.changeScene(new RanchScene(this.game, this));
+      return;
+    }
     if (tile === T_BUSH && Math.random() < ENCOUNTER_RATE) {
       const speciesId = rollWildSpecies();
       const level = 1 + Math.floor(Math.random() * 3);
@@ -175,6 +181,20 @@ export class FieldScene {
           ctx.beginPath();
           ctx.arc(px + 20, py + 18, sparkle, 0, Math.PI * 2);
           ctx.fill();
+        } else if (tile === T_RANCH) {
+          ctx.fillStyle = "#c9a35a";
+          ctx.beginPath();
+          ctx.roundRect(px + 4, py + 16, TILE - 8, TILE - 20, 4);
+          ctx.fill();
+          ctx.strokeStyle = "#6b4e2e";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(px + 5, py + 22); ctx.lineTo(px + TILE - 5, py + 22);
+          ctx.moveTo(px + 5, py + 30); ctx.lineTo(px + TILE - 5, py + 30);
+          ctx.stroke();
+          ctx.fillStyle = "#6b4e2e";
+          ctx.fillRect(px + 6, py + 14, 4, 22);
+          ctx.fillRect(px + TILE - 10, py + 14, 4, 22);
         } else if (tile === T_BOSS) {
           const defeated = this.game.flags && this.game.flags.bossDefeated;
           ctx.fillStyle = defeated ? "#9a9a9a" : "#d64545";
