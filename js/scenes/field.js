@@ -143,7 +143,7 @@ export class FieldScene {
       this.moveStage(prevStage.id, "fromNext", `${prevStage.shortName} に もどった`);
       return;
     }
-    if (tile === T_BUSH) {
+    if (tile === T_BUSH && this.game.party.length > 0) {
       if (Math.random() < this.stage.encounterRate) {
         const speciesId = rollWildSpecies();
         const [minLevel, maxLevel] = this.stage.wildLevels;
@@ -168,7 +168,7 @@ export class FieldScene {
         const treasureKey = `${this.stageId}:${treasure.id}`;
         if (!this.game.treasureState[treasureKey]) {
           this.game.treasureState[treasureKey] = true;
-          if (treasure.trap) {
+          if (treasure.trap && this.game.party.length > 0) {
             const speciesId = rollWildSpecies();
             const [minLevel, maxLevel] = this.stage.wildLevels;
             const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));

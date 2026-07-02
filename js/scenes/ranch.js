@@ -1,9 +1,10 @@
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
-import { MAX_PARTY, RANCH_CAPACITY, depositToRanch, withdrawFromRanch } from "../systems/party.js";
+import { MAX_PARTY, depositToRanch, withdrawFromRanch } from "../systems/party.js";
 
-const ROW_H = 40;
-const ROW_GAP = 4;
+const ICON_SIZE = 36;
+const ICON_GAP = 14;
+const ICON_COLS = 6;
 
 export class RanchScene {
   constructor(game, prevScene) {
@@ -41,14 +42,6 @@ export class RanchScene {
 
   toggle(entry) {
     if (entry.loc === "party") {
-      if (this.game.party.length <= 1) {
-        this.message = "さいごの なかまは あずけられないよ。";
-        return;
-      }
-      if (this.game.ranch.length >= RANCH_CAPACITY) {
-        this.message = "牧場は もう いっぱいだよ。";
-        return;
-      }
       const name = entry.m.name;
       depositToRanch(this.game.party, this.game.ranch, entry.i);
       this.message = `${name}を 牧場に あずけた。`;
@@ -65,21 +58,32 @@ export class RanchScene {
     this.game.save();
   }
 
-  drawRow(ctx, monster, x, y, w, highlighted) {
-    panel(ctx, x, y, w, ROW_H);
+  drawIcon(ctx, monster, x, y, highlighted) {
+    panel(ctx, x, y, ICON_SIZE, ICON_SIZE);
     if (highlighted) {
       ctx.beginPath();
-      ctx.roundRect(x, y, w, ROW_H, 8);
+      ctx.roundRect(x, y, ICON_SIZE, ICON_SIZE, 8);
       ctx.strokeStyle = "#ffd75e";
       ctx.lineWidth = 3;
       ctx.stroke();
     }
-    drawMonster(ctx, monster.speciesId, x + 22, y + 26, 0.36, this.time, monster.tintHue || 0);
-    ctx.fillStyle = "#3a3a52";
-    ctx.font = FONT;
-    ctx.textAlign = "left";
-    ctx.fillText(`${monster.name} Lv.${monster.level}`, x + 46, y + 17);
-    ctx.fillText(`HP ${monster.hp}/${monster.maxHp}`, x + 46, y + 33);
+    drawMonster(ctx, monster.speciesId, x + ICON_SIZE / 2, y + ICON_SIZE / 2 + 2, 0.28, this.time, monster.tintHue || 0);
+  }
+
+  drawGrid(ctx, list, startX, startY, highlightedIndex, emptyText) {
+    if (list.length === 0) {
+      ctx.font = FONT;
+      ctx.fillStyle = "#a8a8c0";
+      ctx.fillText(emptyText, startX + 4, startY + 24);
+      return;
+    }
+    list.forEach((monster, i) => {
+      const col = i % ICON_COLS;
+      const row = Math.floor(i / ICON_COLS);
+      const x = startX + col * (ICON_SIZE + ICON_GAP);
+      const y = startY + row * (ICON_SIZE + ICON_GAP);
+      this.drawIcon(ctx, monster, x, y, highlightedIndex === i);
+    });
   }
 
   draw(ctx) {
@@ -90,27 +94,15 @@ export class RanchScene {
     ctx.textAlign = "left";
     ctx.fillText("牧場", 30, 44);
 
-    let idx = 0;
     ctx.font = FONT_BOLD;
     ctx.fillText(`つれている なかま（${this.game.party.length}/${MAX_PARTY}）`, 30, 70);
-    this.game.party.forEach((m, i) => {
-      this.drawRow(ctx, m, 30, 78 + i * (ROW_H + ROW_GAP), 580, idx === this.cursor);
-      idx++;
-    });
+    this.drawGrid(ctx, this.game.party, 30, 86, this.cursor, "なかまはいない");
 
-    const ranchLabelY = 78 + MAX_PARTY * (ROW_H + ROW_GAP) + 24;
+    const partyRows = Math.max(1, Math.ceil(this.game.party.length / ICON_COLS));
+    const ranchLabelY = 86 + partyRows * (ICON_SIZE + ICON_GAP) + 28;
     ctx.font = FONT_BOLD;
-    ctx.fillText(`あずけている なかま（${this.game.ranch.length}/${RANCH_CAPACITY}）`, 30, ranchLabelY);
-    if (this.game.ranch.length === 0) {
-      ctx.font = FONT;
-      ctx.fillStyle = "#a8a8c0";
-      ctx.fillText("だれも いない", 40, ranchLabelY + 26);
-    } else {
-      this.game.ranch.forEach((m, i) => {
-        this.drawRow(ctx, m, 30, ranchLabelY + 8 + i * (ROW_H + ROW_GAP), 580, idx === this.cursor);
-        idx++;
-      });
-    }
+    ctx.fillText(`あずけている なかま（${this.game.ranch.length}）`, 30, ranchLabelY);
+    this.drawGrid(ctx, this.game.ranch, 30, ranchLabelY + 14, this.cursor - this.game.party.length, "だれも いない");
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;

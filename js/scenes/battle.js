@@ -17,6 +17,7 @@ export class BattleScene {
   constructor(game, enemy, opts = {}) {
     this.game = game;
     this.ally = game.party[0];
+    if (!this.ally) throw new Error("BattleScene requires at least one party monster");
     this.enemy = enemy;
     this.isBoss = !!opts.isBoss;
     this.stageId = opts.stageId;
