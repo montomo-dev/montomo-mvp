@@ -807,6 +807,121 @@ function paintSandango(ctx) {
   smile(ctx, 0, -16, 3.5);
   blush(ctx, -13, -17);
   blush(ctx, 13, -17);
+
+function gear(ctx, x, y, r, teeth, fill, line) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  for (let i = 0; i < teeth; i++) {
+    const a = (Math.PI * 2 * i) / teeth;
+    const a2 = a + Math.PI / teeth;
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.lineTo(Math.cos(a) * r * 1.22, Math.sin(a) * r * 1.22);
+    ctx.lineTo(Math.cos(a2) * r * 1.22, Math.sin(a2) * r * 1.22);
+    ctx.lineTo(Math.cos(a2) * r, Math.sin(a2) * r);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, 0, 0, r * 0.4, line, null);
+  ctx.restore();
+}
+
+// --- 別スタイルのキャラ群（フラット/輪郭強め）: 見た目のみ。ステータス等はシステム側で設定 ---
+function paintObako(ctx) {
+  // ゆうれい系: 半透明・下がゆらめく・ツヤ無しのフラット。
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = "#ece8ff";
+  ctx.strokeStyle = "#5f4f96";
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(0, 0, 26, Math.PI, Math.PI * 2);
+  ctx.lineTo(26, 12);
+  ctx.quadraticCurveTo(19, 26, 13, 14);
+  ctx.quadraticCurveTo(6, 26, 0, 14);
+  ctx.quadraticCurveTo(-6, 26, -13, 14);
+  ctx.quadraticCurveTo(-19, 26, -26, 12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  oval(ctx, -9, -5, 4.5, 7, "#5f4f96", null);
+  oval(ctx, 9, -5, 4.5, 7, "#5f4f96", null);
+  circle(ctx, -10.5, -8, 1.6, "#ffffff", null);
+  circle(ctx, 7.5, -8, 1.6, "#ffffff", null);
+  circle(ctx, 0, 7, 3, "#5f4f96", null);
+  ctx.globalAlpha = 0.55;
+  circle(ctx, -31, -18, 3, "#ece8ff", "#5f4f96", 1.5);
+  circle(ctx, 31, -21, 2.4, "#ece8ff", "#5f4f96", 1.5);
+  ctx.globalAlpha = 1;
+}
+
+function paintKurista(ctx) {
+  // 結晶系: 角ばったファセット、フラットなセル塗り。
+  const body = "#8fe3f2";
+  const dark = "#3f9bc0";
+  const line = "#1f5e78";
+  ctx.fillStyle = body;
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, -32);
+  ctx.lineTo(24, -10);
+  ctx.lineTo(18, 26);
+  ctx.lineTo(-18, 26);
+  ctx.lineTo(-24, -10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  tri(ctx, 0, -32, 24, -10, 0, -6, dark, line, 2);
+  tri(ctx, 0, -6, 18, 26, -18, 26, dark, line, 2);
+  tri(ctx, -30, -20, -24, -8, -34, -8, body, line, 2);
+  tri(ctx, 30, -22, 24, -10, 34, -10, body, line, 2);
+  ctx.fillStyle = "#12303c";
+  ctx.beginPath(); ctx.moveTo(-13, 1); ctx.lineTo(-4, -2); ctx.lineTo(-8, 7); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(13, 1); ctx.lineTo(4, -2); ctx.lineTo(8, 7); ctx.closePath(); ctx.fill();
+  smile(ctx, 0, 12, 4);
+  starSpark(ctx, 9, -16, 5, "#eafbff");
+}
+
+function paintHagumon(ctx) {
+  // ぜんまい仕掛けの虫: 金属・歯車のメカ系。
+  const metal = "#cabd8f";
+  const dark = "#8a7a4e";
+  const line = "#4b3f22";
+  gear(ctx, 0, -4, 18, 8, "#b7a56f", line);
+  oval(ctx, 0, 10, 20, 15, metal, line, 4);
+  oval(ctx, 0, 10, 11, 8, dark, line, 2);
+  circle(ctx, 0, -20, 11, metal, line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-6, -28); ctx.lineTo(-11, -38);
+  ctx.moveTo(6, -28); ctx.lineTo(11, -38);
+  ctx.stroke();
+  circle(ctx, -12, -40, 3, metal, line, 2);
+  circle(ctx, 12, -40, 3, metal, line, 2);
+  circle(ctx, -4, -20, 3.2, "#2b2b33", null);
+  circle(ctx, 4, -20, 3.2, "#2b2b33", null);
+  circle(ctx, -3, -21, 1.1, "#ffffff", null);
+  circle(ctx, 5, -21, 1.1, "#ffffff", null);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-16, 8); ctx.lineTo(-27, 14);
+  ctx.moveTo(-16, 15); ctx.lineTo(-27, 21);
+  ctx.moveTo(16, 8); ctx.lineTo(27, 14);
+  ctx.moveTo(16, 15); ctx.lineTo(27, 21);
+  ctx.stroke();
 }
 
 const PAINTERS = {
@@ -828,6 +943,9 @@ const PAINTERS = {
   tsubogame: paintTsubogame,
   sandango: paintSandango,
   nushi: paintNushi,
+  obako: paintObako,
+  kurista: paintKurista,
+  hagumon: paintHagumon,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
