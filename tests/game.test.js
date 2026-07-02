@@ -6,12 +6,16 @@ import { getStage } from "../js/data/stages.js";
 import { breedMonsters } from "../js/systems/breeding.js";
 
 test("レア枠は乱数5%未満でツキノネになる", () => {
-  assert.equal(rollWildSpecies(() => 0.049), "tsukinone");
+  assert.equal(rollWildSpecies(undefined, () => 0.049), "tsukinone");
 });
 
 test("5%以上では通常モンスターになる", () => {
   const values = [0.05, 0];
-  assert.equal(rollWildSpecies(() => values.shift()), "dogura");
+  assert.equal(rollWildSpecies(undefined, () => values.shift()), "dogura");
+});
+
+test("新しい野生モンスターが出現表に入っている", () => {
+  assert.equal(rollWildSpecies(undefined, () => 0.999), "tsuboco");
 });
 
 test("配合で親を残したままLv.1の子と継承技が生まれる", () => {
@@ -27,11 +31,26 @@ test("配合で親を残したままLv.1の子と継承技が生まれる", () =
   assert.equal(parentB.level, 3);
 });
 
-test("stage3 は stage2 の先にあり、ボス地形を持つ", () => {
+test("追加した3体も個体生成できる", () => {
+  const paper = createMonster("orihiko", 2);
+  const wood = createMonster("kiboko", 2);
+  const pot = createMonster("tsuboco", 2);
+
+  assert.equal(paper.name, "オリヒコ");
+  assert.equal(wood.name, "キボコ");
+  assert.equal(pot.name, "ツボコ");
+  assert.ok(paper.maxHp > 0);
+  assert.ok(wood.maxHp > 0);
+  assert.ok(pot.maxHp > 0);
+});
+
+test("stage3 は cave の先にあり、ボス地形を持つ", () => {
   const stage2 = getStage("stage2");
-  const stage3 = getStage(stage2.nextStage);
+  const cave = getStage(stage2.nextStage);
+  const stage3 = getStage(cave.nextStage);
 
   assert.equal(stage3.id, "stage3");
-  assert.equal(stage3.prevStage, "stage2");
+  assert.equal(cave.id, "cave");
+  assert.equal(stage3.prevStage, "cave");
   assert.ok(stage3.layout.some((row) => row.includes("4")));
 });

@@ -450,6 +450,129 @@ function paintPachikoro(ctx) {
   blush(ctx, 19, 1);
 }
 
+function paintOrihiko(ctx) {
+  ctx.save();
+  ctx.rotate(-0.08);
+  ctx.beginPath();
+  ctx.moveTo(-28, 4);
+  ctx.lineTo(-4, -30);
+  ctx.lineTo(24, -8);
+  ctx.lineTo(10, 30);
+  ctx.lineTo(-18, 20);
+  ctx.closePath();
+  ctx.fillStyle = "#f2e4c8";
+  ctx.strokeStyle = "#4f4333";
+  ctx.lineWidth = 5;
+  ctx.lineJoin = "round";
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#d9c19b";
+  ctx.beginPath();
+  ctx.moveTo(-8, -18);
+  ctx.lineTo(8, -8);
+  ctx.lineTo(-2, 12);
+  ctx.lineTo(-18, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "#b98a5a";
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(-6, -26);
+  ctx.lineTo(8, -6);
+  ctx.moveTo(-19, 4);
+  ctx.lineTo(10, 13);
+  ctx.stroke();
+
+  ctx.restore();
+  eye(ctx, -5, -5, 7.5);
+  eye(ctx, 10, -2, 7.5);
+  smile(ctx, 2, 10, 4);
+  blush(ctx, -18, 6);
+  blush(ctx, 20, 8);
+  starSpark(ctx, 19, -20, 4.5, "#fff2c0");
+}
+
+function paintKiboko(ctx) {
+  ctx.fillStyle = "#9f6d45";
+  ctx.strokeStyle = "#5c3f28";
+  ctx.lineWidth = 5;
+  ctx.lineJoin = "round";
+
+  ctx.beginPath();
+  ctx.roundRect(-18, -28, 36, 56, 12);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.roundRect(-22, -36, 44, 20, 8);
+  ctx.fillStyle = "#b27c50";
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#d8ab7b";
+  ctx.beginPath();
+  ctx.roundRect(-10, -10, 20, 22, 6);
+  ctx.fill();
+  ctx.strokeStyle = "#5c3f28";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = "#7b522f";
+  ctx.fillRect(-12, -28, 4, 10);
+  ctx.fillRect(8, -28, 4, 10);
+  ctx.beginPath();
+  ctx.arc(-12, -30, 3, 0, Math.PI * 2);
+  ctx.arc(12, -30, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#6d4a2a";
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(-14, -18); ctx.lineTo(14, -18);
+  ctx.moveTo(-14, -6); ctx.lineTo(14, -6);
+  ctx.moveTo(-14, 6); ctx.lineTo(14, 6);
+  ctx.stroke();
+
+  shine(ctx, -10, -20, 9, 5);
+  eye(ctx, -7, -6, 6.8);
+  eye(ctx, 7, -6, 6.8);
+  smile(ctx, 0, 6, 3.8);
+  blush(ctx, -16, 8);
+  blush(ctx, 16, 8);
+}
+
+function paintTsuboco(ctx) {
+  ctx.save();
+  ctx.translate(0, 2);
+  glossOval(ctx, 0, 0, 28, 24, "#d9a57b", "#b36d46", "#6a4029", 5);
+  ctx.fillStyle = "#eed1a8";
+  ctx.strokeStyle = "#6a4029";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(-18, -30, 36, 14, 7);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#8d5737";
+  ctx.fillRect(-6, -36, 12, 6);
+  ctx.fillRect(-12, 22, 6, 8);
+  ctx.fillRect(6, 22, 6, 8);
+  ctx.strokeStyle = "#6a4029";
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(-10, -12); ctx.lineTo(-2, -2); ctx.lineTo(-12, 8);
+  ctx.moveTo(12, -8); ctx.lineTo(4, 0); ctx.lineTo(14, 10);
+  ctx.stroke();
+  ctx.restore();
+  shine(ctx, -12, -12, 11, 6);
+  eye(ctx, -8, -4, 7);
+  eye(ctx, 8, -4, 7);
+  smile(ctx, 0, 6, 4.2);
+  blush(ctx, -18, 4);
+  blush(ctx, 18, 4);
+}
+
 function paintTsukinone(ctx) {
   ctx.save();
   ctx.translate(-15, -30);
@@ -697,6 +820,9 @@ const PAINTERS = {
   tenfuwarisu: paintTenfuwarisu,
   pyokotan: paintPyokotan,
   pachikoro: paintPachikoro,
+  orihiko: paintOrihiko,
+  kiboko: paintKiboko,
+  tsuboco: paintTsuboco,
   tsukinone: paintTsukinone,
   honbori: paintHonbori,
   tsubogame: paintTsubogame,
