@@ -1269,6 +1269,70 @@ function paintYukibouzu(ctx) {
   blush(ctx, 18, 2);
 }
 
+function paintSabotenko(ctx) {
+  // トゲトゲのさぼてん。丸い腕を左右に広げ、頭にちいさな花を咲かせる。
+  glossOval(ctx, -28, 4, 11, 22, "#7ed85c", "#4a8038", "#2f5624", 4);
+  glossOval(ctx, 28, 4, 11, 22, "#7ed85c", "#4a8038", "#2f5624", 4);
+
+  glossOval(ctx, 0, 4, 27, 30, "#8ee868", "#5a9a4a", "#2f5624", 6.5);
+  ctx.strokeStyle = "rgba(47, 86, 36, 0.55)";
+  ctx.lineWidth = 1.6;
+  for (const x of [-14, 0, 14]) {
+    ctx.beginPath();
+    ctx.moveTo(x, -18);
+    ctx.lineTo(x, 26);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#2f5624";
+  for (const [tx, ty] of [[-14, -10], [0, -16], [14, -10], [-14, 6], [0, 10], [14, 6], [-14, 20], [14, 20]]) {
+    tri(ctx, tx - 2, ty, tx + 2, ty, tx, ty - 6, "#2f5624", null);
+  }
+  shine(ctx, -13, -6, 12, 7);
+
+  petalFlower(ctx, 0, -30, 9, "#f78fb3", "#ffe07a");
+
+  glossOval(ctx, 0, 18, 14, 10, "#c9f5a8", "#a8e07a", "#2f5624", 2.5);
+  eye(ctx, -9, 4, 7);
+  eye(ctx, 9, 4, 7);
+  smile(ctx, 0, 16, 3.6);
+  blush(ctx, -18, 10);
+  blush(ctx, 18, 10);
+}
+
+function paintSunasasori(ctx) {
+  // 砂ばのさそり。大きなはさみと、くるりと丸まったしっぽが特徴。
+  ctx.strokeStyle = "#8a621c";
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(6, -18); ctx.quadraticCurveTo(20, -30, 30, -24); ctx.quadraticCurveTo(28, -14, 20, -16);
+  ctx.stroke();
+  glossCircle(ctx, 26, -22, 8, "#f0c46a", "#d4a24a", "#8a621c", 2.5);
+
+  for (const side of [-1, 1]) {
+    glossOval(ctx, side * 30, 12, 11, 8, "#f0c46a", "#d4a24a", "#8a621c", 3);
+    tri(ctx, side * 38, 4, side * 44, 12, side * 34, 16, "#d4a24a", "#8a621c", 1.8);
+  }
+
+  glossOval(ctx, 0, 4, 27, 24, "#f0c46a", "#d4a24a", "#8a621c", 6);
+  ctx.strokeStyle = "rgba(138, 98, 28, 0.5)";
+  ctx.lineWidth = 2;
+  for (const y of [-6, 6, 16]) {
+    ctx.beginPath();
+    ctx.moveTo(-20, y);
+    ctx.quadraticCurveTo(0, y + 5, 20, y);
+    ctx.stroke();
+  }
+  shine(ctx, -13, -6, 12, 7);
+
+  glossOval(ctx, 0, 16, 14, 9, "#fff0c9", "#f0d99a", "#8a621c", 2.2);
+  eye(ctx, -9, 2, 7);
+  eye(ctx, 9, 2, 7);
+  smile(ctx, 0, 14, 3.4);
+  blush(ctx, -18, 8);
+  blush(ctx, 18, 8);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1778,6 +1842,8 @@ const PAINTERS = {
   kooritsumu: paintKooritsumu,
   pengiri: paintPengiri,
   yukibouzu: paintYukibouzu,
+  sabotenko: paintSabotenko,
+  sunasasori: paintSunasasori,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

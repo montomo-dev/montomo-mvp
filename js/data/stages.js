@@ -637,6 +637,42 @@ export const STAGES = {
     treasures: [{ id: "t16", money: 1400, x: 6, y: 7, trap: true }],
     groundItems: [{ id: "i16", itemId: "defSeed", x: 12, y: 5 }],
   },
+  desert_stage1: {
+    id: "desert_stage1",
+    shortName: "sabaku1",
+    name: "すなのおおどおり",
+    encounterRate: 0.16,
+    wildLevels: [40, 43],
+    wildSpecies: ["sabotenko", "sunasasori"],
+    prevStage: "snow_stage3",
+    spawns: {
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#e8c67a",
+      accent: "#dcb862",
+      bushFill: "#c9a24a",
+      bushStroke: "#a8823a",
+      treeLeaf: "#8a9a4a",
+      treeFruit: "#c4d060",
+    },
+    layout: [
+      "2222222222222222",
+      "2000111100000002",
+      "2000111100011002",
+      "2000000000011002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000111002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t17", money: 1500, x: 8, y: 6, trap: true }],
+    groundItems: [{ id: "i17", itemId: "premiumBait", x: 11, y: 4 }],
+  },
 };
 
 export function getStage(stageId) {

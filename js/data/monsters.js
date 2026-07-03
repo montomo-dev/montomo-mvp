@@ -548,6 +548,34 @@ export const SPECIES = {
       { level: 1, skill: "daibakuhatsu" },
     ],
   },
+  sabotenko: {
+    id: "sabotenko",
+    name: "サボテンコ",
+    genus: "とげとげさぼてん",
+    color: "#5a9a4a",
+    base: { hp: 34, atk: 13, def: 19, spd: 7 },
+    growth: { hp: 6.8, atk: 2.2, def: 3.2, spd: 1.2 },
+    exp: 38,
+    recruitEase: 0.13,
+    learnset: [
+      { level: 1, skill: "gantekiotoshi" },
+      { level: 6, skill: "jinarashipress" },
+    ],
+  },
+  sunasasori: {
+    id: "sunasasori",
+    name: "スナサソリ",
+    genus: "すなばのさそり",
+    color: "#d4a24a",
+    base: { hp: 28, atk: 19, def: 14, spd: 15 },
+    growth: { hp: 5.4, atk: 3.4, def: 2.4, spd: 2.4 },
+    exp: 40,
+    recruitEase: 0.09,
+    learnset: [
+      { level: 1, skill: "gantekiotoshi" },
+      { level: 6, skill: "hibiwareGeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

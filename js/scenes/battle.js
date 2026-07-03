@@ -61,6 +61,7 @@ export class BattleScene {
         }));
       } else if (this.stageId === "snow_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
+          nextStageId: "desert_stage1",
           subtitle: "ヒョウガヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
       } else {
