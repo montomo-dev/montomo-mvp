@@ -222,3 +222,31 @@ test("reverse_stage3にはnextStageを設定しない（ボス再訪時の選択
   // sea_stage1 への接続はボス撃破直後のEndingScene(nextStageId)のみで行う。
   assert.equal(STAGES.reverse_stage3.nextStage, undefined);
 });
+
+test("sea_stage1はsea_stage2と接続され、sea_stage2は専用モンスターが出現する", () => {
+  assert.equal(STAGES.sea_stage1.nextStage, "sea_stage2");
+  const sea2 = STAGES.sea_stage2;
+  assert.ok(sea2, "sea_stage2 が STAGES に存在しない");
+  assert.equal(sea2.prevStage, "sea_stage1");
+  assert.deepEqual(sea2.wildSpecies, ["awairuka", "hikariebi"]);
+  for (const id of sea2.wildSpecies) {
+    assert.ok(SPECIES[id], `sea_stage2 の wildSpecies '${id}' が SPECIES に存在しない`);
+  }
+});
+
+test("全ステージで宝箱・落ちものが木や壁と重ならず平地に置かれている（座標コピペミスの防止）", () => {
+  for (const [id, stage] of Object.entries(STAGES)) {
+    const checkPlacement = (kind, items) => {
+      for (const item of items || []) {
+        const tile = Number(stage.layout[item.y][item.x]);
+        assert.equal(
+          tile,
+          TILE_TYPES.PLAIN,
+          `${id} の ${kind} '${item.id}' (${item.x},${item.y}) が平地ではない(tile=${tile})`
+        );
+      }
+    };
+    checkPlacement("宝箱", stage.treasures);
+    checkPlacement("落ちもの", stage.groundItems);
+  }
+});

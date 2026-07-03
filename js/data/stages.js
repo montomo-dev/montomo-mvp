@@ -335,8 +335,10 @@ export const STAGES = {
     wildLevels: [25, 28],
     wildSpecies: ["kaigaran", "awairuka"],
     prevStage: "reverse_stage3",
+    nextStage: "sea_stage2",
     spawns: {
       start: { x: 2, y: 1 },
+      fromNext: { x: 13, y: 1 },
     },
     palette: {
       ground: "#3aa0c9",
@@ -348,7 +350,7 @@ export const STAGES = {
     },
     layout: [
       "2222222222222222",
-      "2000111100000002",
+      "2000111100001162",
       "2000111100011002",
       "2000000000011002",
       "2011110000000002",
@@ -362,6 +364,43 @@ export const STAGES = {
     ],
     treasures: [{ id: "t9", money: 700, x: 8, y: 6, trap: true }],
     groundItems: [{ id: "i9", itemId: "premiumBait", x: 11, y: 4 }],
+  },
+  sea_stage2: {
+    id: "sea_stage2",
+    shortName: "umi2",
+    name: "さんごのうみ",
+    encounterRate: 0.17,
+    wildLevels: [27, 30],
+    wildSpecies: ["awairuka", "hikariebi"],
+    prevStage: "sea_stage1",
+    spawns: {
+      fromPrev: { x: 2, y: 1 },
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#2a8ab0",
+      accent: "#3a9ac0",
+      bushFill: "#1a7098",
+      bushStroke: "#5ad0e8",
+      treeLeaf: "#0a6088",
+      treeFruit: "#f0d060",
+    },
+    layout: [
+      "2222222222222222",
+      "2700111100000062",
+      "2000111100111002",
+      "2000000000111002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000000002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t10", money: 800, x: 7, y: 7, trap: true }],
+    groundItems: [{ id: "i10", itemId: "premiumBait", x: 9, y: 4 }],
   },
 };
 

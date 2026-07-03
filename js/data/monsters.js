@@ -432,6 +432,21 @@ export const SPECIES = {
       { level: 6, skill: "senpugeki" },
     ],
   },
+  hikariebi: {
+    id: "hikariebi",
+    name: "ヒカリエビ",
+    genus: "はっこうえび",
+    color: "#8fe8d0",
+    pigment: "blue",
+    base: { hp: 22, atk: 16, def: 6, spd: 20 },
+    growth: { hp: 4.2, atk: 3.0, def: 1.2, spd: 3.2 },
+    exp: 28,
+    recruitEase: 0.09,
+    learnset: [
+      { level: 1, skill: "hotarubi" },
+      { level: 6, skill: "shibukikick" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

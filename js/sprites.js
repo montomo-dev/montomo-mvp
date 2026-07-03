@@ -1028,6 +1028,45 @@ function paintAwairuka(ctx) {
   blush(ctx, 18, 8);
 }
 
+function paintHikariebi(ctx) {
+  // 発光する小さなエビ。背中が曲がり、しっぽの先がぼんやり光る。
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = "#c9fff0";
+  for (const [gx, gy, r] of [[24, 20, 6], [30, 12, 4], [18, 28, 4]]) {
+    circle(ctx, gx, gy, r, "#c9fff0", null);
+  }
+  ctx.restore();
+
+  ctx.strokeStyle = "#3fa88a";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-6, -20); ctx.quadraticCurveTo(-16, -26, -14, -34);
+  ctx.moveTo(4, -20); ctx.quadraticCurveTo(10, -28, 8, -36);
+  ctx.stroke();
+
+  glossOval(ctx, -2, -4, 22, 26, "#c9fff0", "#8fe8d0", "#3fa88a", 5);
+  tri(ctx, 6, 20, 22, 16, 20, 30, "#8fe8d0", "#3fa88a", 2);
+  tri(ctx, 6, 20, 20, 30, 8, 32, "#8fe8d0", "#3fa88a", 2);
+  ctx.fillStyle = "#fff6c2";
+  circle(ctx, 22, 22, 3, "#fff6c2", null);
+
+  ctx.strokeStyle = "rgba(63, 168, 138, 0.5)";
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-16, -8); ctx.lineTo(12, -2);
+  ctx.moveTo(-16, 2); ctx.lineTo(10, 8);
+  ctx.stroke();
+
+  shine(ctx, -10, -10, 11, 6);
+  glossOval(ctx, -2, 8, 13, 9, "#eafff8", "#c9fff0", "#3fa88a", 2.2);
+  eye(ctx, -8, -6, 6.5);
+  eye(ctx, 4, -6, 6.5);
+  smile(ctx, -2, 10, 3.4);
+  blush(ctx, -16, 6);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1351,6 +1390,7 @@ const PAINTERS = {
   nejiko: paintNejiko,
   kaigaran: paintKaigaran,
   awairuka: paintAwairuka,
+  hikariebi: paintHikariebi,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
