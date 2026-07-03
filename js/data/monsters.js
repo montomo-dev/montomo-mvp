@@ -519,6 +519,35 @@ export const SPECIES = {
       { level: 6, skill: "senpugeki" },
     ],
   },
+  yukibouzu: {
+    id: "yukibouzu",
+    name: "ユキボウズ",
+    genus: "ふぶきのようせい",
+    color: "#eef5fb",
+    base: { hp: 26, atk: 18, def: 9, spd: 18 },
+    growth: { hp: 5.0, atk: 3.2, def: 1.6, spd: 2.8 },
+    exp: 36,
+    recruitEase: 0.08,
+    learnset: [
+      { level: 1, skill: "soyokazecutter" },
+      { level: 6, skill: "tatsumakifeather" },
+    ],
+  },
+  hyougaNushi: {
+    id: "hyougaNushi",
+    name: "ヒョウガヌシ",
+    genus: "ひょうがのぬし",
+    base: { hp: 380, atk: 60, def: 60, spd: 22 },
+    growth: { hp: 0, atk: 0, def: 0, spd: 0 },
+    exp: 140,
+    recruitEase: 0,
+    boss: true,
+    learnset: [
+      { level: 1, skill: "hibiwareGeki" },
+      { level: 1, skill: "senpugeki" },
+      { level: 1, skill: "daibakuhatsu" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

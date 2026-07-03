@@ -59,6 +59,10 @@ export class BattleScene {
           nextStageId: "snow_stage1",
           subtitle: "シンカイヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
+      } else if (this.stageId === "snow_stage3") {
+        this.game.changeScene(new EndingScene(this.game, {
+          subtitle: "ヒョウガヌシを のりこえ、きみと なかまは でんせつに なった。",
+        }));
       } else {
         this.game.changeScene(new EndingScene(this.game));
       }

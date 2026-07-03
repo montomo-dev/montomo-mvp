@@ -1231,6 +1231,44 @@ function paintPengiri(ctx) {
   blush(ctx, 14, -13);
 }
 
+function paintYukibouzu(ctx) {
+  // 吹雪の中を漂う半透明の精霊。裾がゆらめき、まわりに粉雪が舞う。
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  for (const [sx, sy, r] of [[-28, -20, 2.5], [26, -26, 2], [-22, 10, 2], [24, 8, 2.5], [0, -32, 2]]) {
+    circle(ctx, sx, sy, r, "#ffffff", null);
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = "#f5fafd";
+  ctx.strokeStyle = "#a8c8d8";
+  ctx.lineWidth = 3.5;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(0, -4, 27, Math.PI, Math.PI * 2);
+  ctx.lineTo(27, 14);
+  ctx.quadraticCurveTo(19, 30, 13, 16);
+  ctx.quadraticCurveTo(6, 30, 0, 16);
+  ctx.quadraticCurveTo(-6, 30, -13, 16);
+  ctx.quadraticCurveTo(-19, 30, -27, 14);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  shine(ctx, -12, -12, 12, 7);
+  oval(ctx, -9, -9, 5, 8, "#3a6f8f", null);
+  oval(ctx, 9, -9, 5, 8, "#3a6f8f", null);
+  circle(ctx, -10.5, -12, 1.8, "#ffffff", null);
+  circle(ctx, 7.5, -12, 1.8, "#ffffff", null);
+  smile(ctx, 0, 6, 4);
+  blush(ctx, -18, 2);
+  blush(ctx, 18, 2);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1533,6 +1571,89 @@ function paintSeaNushi(ctx) {
   starSpark(ctx, 34, -30, 4.5, "#c2f0ff");
 }
 
+function paintHyougaNushi(ctx) {
+  // 雪原ワールドのボス。氷河をまとう巨大な獣。冷気のオーラと
+  // 鋭い氷の牙・つららの毛並みで威圧感を出す。
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  for (let i = 0; i < 10; i++) {
+    const a = (Math.PI * 2 * i) / 10;
+    const r = 47 + (i % 2) * 8;
+    ctx.strokeStyle = i % 2 ? "#eafcff" : "#7abcd8";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 18, Math.sin(a) * 14);
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = "#eafcff";
+  ctx.lineWidth = 2;
+  for (const r of [53, 65]) {
+    ctx.beginPath();
+    ctx.arc(0, -2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 氷のたてがみ（頭の周り）
+  ctx.fillStyle = "#eafcff";
+  ctx.strokeStyle = "#3f7a98";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  for (const [tx, ty, r] of [[-30, -34, 10], [30, -34, 10], [-40, -14, 8], [40, -14, 8], [0, -46, 11]]) {
+    tri(ctx, tx, ty - r, tx - r * 0.6, ty + r * 0.6, tx + r * 0.6, ty + r * 0.6, "#eafcff", "#3f7a98", 2);
+  }
+
+  // 巨体
+  glossOval(ctx, 0, 6, 45, 40, "#8fc8e0", "#4a8fb0", "#1e4a5e", 7.5);
+  glossOval(ctx, 0, 18, 24, 18, "#eafcff", "#c2ecf8", "#1e4a5e", 4);
+  shine(ctx, -19, -14, 17, 10);
+
+  // 太い前脚
+  glossOval(ctx, -40, 26, 13, 20, "#4a8fb0", "#2a5f78", "#1e4a5e", 4.5);
+  glossOval(ctx, 40, 26, 13, 20, "#4a8fb0", "#2a5f78", "#1e4a5e", 4.5);
+  for (const side of [-1, 1]) {
+    tri(ctx, side * 38, 40, side * 46, 50, side * 30, 48, "#eafcff", "#1e4a5e", 2);
+  }
+
+  // 冷気の吐息
+  ctx.save();
+  ctx.globalAlpha = 0.4;
+  ctx.fillStyle = "#eafcff";
+  for (const [bx, by, r] of [[-38, 44, 5], [38, 46, 4], [0, 52, 4.5]]) {
+    circle(ctx, bx, by, r, "#eafcff", "#7abcd8", 1.4);
+  }
+  ctx.restore();
+
+  // 顔。鋭い氷色の目。
+  ctx.fillStyle = "#eafcff";
+  ctx.strokeStyle = "#1e4a5e";
+  ctx.lineWidth = 2.8;
+  ctx.beginPath();
+  ctx.ellipse(-16, -8, 9, 6.5, -0.16, 0, Math.PI * 2);
+  ctx.ellipse(16, -8, 9, 6.5, 0.16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -14, -7, 4, "#3f7a98", null);
+  circle(ctx, 14, -7, 4, "#3f7a98", null);
+  circle(ctx, -14, -7, 1.8, "#1e4a5e", null);
+  circle(ctx, 14, -7, 1.8, "#1e4a5e", null);
+
+  // 牙
+  ctx.fillStyle = "#eafcff";
+  ctx.strokeStyle = "#1e4a5e";
+  ctx.lineWidth = 1.6;
+  tri(ctx, -10, 12, -4, 12, -7, 22, "#eafcff", "#1e4a5e", 1.4);
+  tri(ctx, 10, 12, 4, 12, 7, 22, "#eafcff", "#1e4a5e", 1.4);
+
+  starSpark(ctx, -35, -33, 5.5, "#eafcff");
+  starSpark(ctx, 36, -31, 5, "#eafcff");
+}
+
 function paintTakarabox(ctx) {
   // 宝箱に擬態するモンスター。木箱のボディに金の帯、うっすら開いた口から牙が覗く。
   ctx.fillStyle = "rgba(0,0,0,0.18)";
@@ -1639,6 +1760,7 @@ const PAINTERS = {
   nushi: paintNushi,
   reverseNushi: paintReverseNushi,
   seaNushi: paintSeaNushi,
+  hyougaNushi: paintHyougaNushi,
   takarabox: paintTakarabox,
   obako: paintObako,
   kurista: paintKurista,
@@ -1655,6 +1777,7 @@ const PAINTERS = {
   yukimaro: paintYukimaro,
   kooritsumu: paintKooritsumu,
   pengiri: paintPengiri,
+  yukibouzu: paintYukibouzu,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
