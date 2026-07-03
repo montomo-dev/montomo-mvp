@@ -955,8 +955,10 @@ export const STAGES = {
     wildLevels: [53, 56],
     wildSpecies: ["akumakko", "kokushou"],
     prevStage: "factory_stage3",
+    nextStage: "castle_stage2",
     spawns: {
       start: { x: 2, y: 1 },
+      fromNext: { x: 13, y: 1 },
     },
     palette: {
       ground: "#2b1a3a",
@@ -968,7 +970,7 @@ export const STAGES = {
     },
     layout: [
       "2222222222222222",
-      "2000111100000002",
+      "2000111100001162",
       "2000111100011002",
       "2000000000011002",
       "2011110000000002",
@@ -982,6 +984,43 @@ export const STAGES = {
     ],
     treasures: [{ id: "t25", money: 2300, x: 8, y: 6, trap: true }],
     groundItems: [{ id: "i25", itemId: "premiumBait", x: 11, y: 4 }],
+  },
+  castle_stage2: {
+    id: "castle_stage2",
+    shortName: "majou2",
+    name: "たましいのかいだん",
+    encounterRate: 0.17,
+    wildLevels: [55, 58],
+    wildSpecies: ["kokushou", "yuureiking"],
+    prevStage: "castle_stage1",
+    spawns: {
+      fromPrev: { x: 2, y: 1 },
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#1a1024",
+      accent: "#2b1a3a",
+      bushFill: "#150c20",
+      bushStroke: "#5a3a7a",
+      treeLeaf: "#0a0612",
+      treeFruit: "#e04a4a",
+    },
+    layout: [
+      "2222222222222222",
+      "2700111100000062",
+      "2000111100111002",
+      "2000000000111002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000000002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t26", money: 2400, x: 7, y: 7, trap: true }],
+    groundItems: [{ id: "i26", itemId: "premiumBait", x: 9, y: 4 }],
   },
 };
 

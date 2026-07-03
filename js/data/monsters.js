@@ -735,6 +735,20 @@ export const SPECIES = {
       { level: 1, skill: "gantekiotoshi" },
     ],
   },
+  yuureiking: {
+    id: "yuureiking",
+    name: "ユウレイキング",
+    genus: "まようゆうれい",
+    color: "#4a3a5a",
+    base: { hp: 26, atk: 24, def: 11, spd: 20 },
+    growth: { hp: 5.0, atk: 4.0, def: 2.0, spd: 3.0 },
+    exp: 52,
+    recruitEase: 0.07,
+    learnset: [
+      { level: 1, skill: "daibakuhatsu" },
+      { level: 6, skill: "hibiwareGeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

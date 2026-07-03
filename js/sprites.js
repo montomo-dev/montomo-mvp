@@ -2003,6 +2003,56 @@ function paintMaou(ctx) {
   starSpark(ctx, 37, -32, 5.5, "#e04a4a");
 }
 
+function paintYuureiking(ctx) {
+  // 王冠をかぶった幽霊。半透明の裾がゆらめき、目だけが赤く光る。
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  for (const [sx, sy, r] of [[-26, -18, 2.5], [24, -24, 2], [-20, 12, 2], [22, 10, 2.5]]) {
+    circle(ctx, sx, sy, r, "#c9a0e8", null);
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.88;
+  ctx.fillStyle = "#5a3a7a";
+  ctx.strokeStyle = "#2b1a3a";
+  ctx.lineWidth = 3.5;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(0, -4, 27, Math.PI, Math.PI * 2);
+  ctx.lineTo(27, 14);
+  ctx.quadraticCurveTo(19, 30, 13, 16);
+  ctx.quadraticCurveTo(6, 30, 0, 16);
+  ctx.quadraticCurveTo(-6, 30, -13, 16);
+  ctx.quadraticCurveTo(-19, 30, -27, 14);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = "#e8c34a";
+  ctx.strokeStyle = "#8a621c";
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(-12, -26); ctx.lineTo(-8, -34); ctx.lineTo(-4, -27);
+  ctx.lineTo(0, -36); ctx.lineTo(4, -27);
+  ctx.lineTo(8, -34); ctx.lineTo(12, -26);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  shine(ctx, -12, -12, 12, 7);
+  circle(ctx, -9, -8, 3.5, "#e04a4a", null);
+  circle(ctx, 9, -8, 3.5, "#e04a4a", null);
+  ctx.strokeStyle = "#2b1a3a";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(0, 6, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+  ctx.stroke();
+}
+
 function paintReverseNushi(ctx) {
   // 裏ボス。表のヌシと同じ樹木＋獣の系統だが、枯れ木化・紫のオーラで異形さを強調。
   ctx.save();
@@ -2392,6 +2442,7 @@ const PAINTERS = {
   paipon: paintPaipon,
   akumakko: paintAkumakko,
   kokushou: paintKokushou,
+  yuureiking: paintYuureiking,
   pukurin: paintPukurin,
   kageuri: paintKageuri,
   hoshimogu: paintHoshimogu,
