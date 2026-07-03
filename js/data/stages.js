@@ -800,8 +800,10 @@ export const STAGES = {
     wildLevels: [47, 50],
     wildSpecies: ["hagurumaru", "sparkun"],
     prevStage: "desert_stage3",
+    nextStage: "factory_stage2",
     spawns: {
       start: { x: 2, y: 1 },
+      fromNext: { x: 13, y: 1 },
     },
     palette: {
       ground: "#7a7a8a",
@@ -813,7 +815,7 @@ export const STAGES = {
     },
     layout: [
       "2222222222222222",
-      "2000111100000002",
+      "2000111100001162",
       "2000111100011002",
       "2000000000011002",
       "2011110000000002",
@@ -827,6 +829,43 @@ export const STAGES = {
     ],
     treasures: [{ id: "t21", money: 1900, x: 8, y: 6, trap: true }],
     groundItems: [{ id: "i21", itemId: "premiumBait", x: 11, y: 4 }],
+  },
+  factory_stage2: {
+    id: "factory_stage2",
+    shortName: "koujou2",
+    name: "べるとコンベアのれっしゃ",
+    encounterRate: 0.17,
+    wildLevels: [49, 52],
+    wildSpecies: ["sparkun", "karakuribat"],
+    prevStage: "factory_stage1",
+    spawns: {
+      fromPrev: { x: 2, y: 1 },
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#6a6a7a",
+      accent: "#7a7a8a",
+      bushFill: "#4a4a56",
+      bushStroke: "#8a8a9a",
+      treeLeaf: "#2b2b38",
+      treeFruit: "#f0d040",
+    },
+    layout: [
+      "2222222222222222",
+      "2700111100000062",
+      "2000111100111002",
+      "2000000000111002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000000002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t22", money: 2000, x: 7, y: 7, trap: true }],
+    groundItems: [{ id: "i22", itemId: "premiumBait", x: 9, y: 4 }],
   },
 };
 

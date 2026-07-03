@@ -648,6 +648,20 @@ export const SPECIES = {
       { level: 6, skill: "raimeidan" },
     ],
   },
+  karakuribat: {
+    id: "karakuribat",
+    name: "カラクリバット",
+    genus: "からくりこうもり",
+    color: "#4a4a5a",
+    base: { hp: 24, atk: 17, def: 9, spd: 22 },
+    growth: { hp: 4.6, atk: 3.0, def: 1.6, spd: 3.4 },
+    exp: 48,
+    recruitEase: 0.09,
+    learnset: [
+      { level: 1, skill: "tatsumakifeather" },
+      { level: 6, skill: "senpugeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

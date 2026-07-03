@@ -1656,6 +1656,55 @@ function paintSparkun(ctx) {
   blush(ctx, 18, 8);
 }
 
+function paintKarakuribat(ctx) {
+  // からくり仕掛けのこうもり。金属の羽根が扇状に開き、関節がぎこちなく光る。
+  ctx.fillStyle = "#5a5a6a";
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.scale(side, 1);
+    ctx.beginPath();
+    ctx.moveTo(10, -4);
+    ctx.lineTo(38, -20);
+    ctx.lineTo(34, -4);
+    ctx.lineTo(40, 6);
+    ctx.lineTo(30, 6);
+    ctx.lineTo(32, 16);
+    ctx.lineTo(14, 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(43,43,51,0.5)";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(14, 0); ctx.lineTo(34, -12);
+    ctx.moveTo(16, 6); ctx.lineTo(30, 4);
+    ctx.stroke();
+    ctx.strokeStyle = "#2b2b33";
+    ctx.lineWidth = 2.5;
+    ctx.restore();
+  }
+
+  glossOval(ctx, 0, 6, 20, 22, "#6a6a78", "#4a4a56", "#2b2b33", 5.5);
+  ctx.strokeStyle = "rgba(43,43,51,0.5)";
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(0, -8); ctx.lineTo(0, 26);
+  ctx.stroke();
+  shine(ctx, -10, -2, 10, 6);
+
+  glossCircle(ctx, -10, -18, 6.5, "#c9c9d6", "#8a8a9a", "#2b2b33", 2.5);
+  glossCircle(ctx, 10, -18, 6.5, "#c9c9d6", "#8a8a9a", "#2b2b33", 2.5);
+  circle(ctx, -10, -18, 3, "#e04a4a", null);
+  circle(ctx, 10, -18, 3, "#e04a4a", null);
+  circle(ctx, -11, -19, 1, "#ffb0b0", null);
+  circle(ctx, 9, -19, 1, "#ffb0b0", null);
+
+  glossOval(ctx, 0, 14, 12, 8, "#dcdce4", "#c9c9d6", "#2b2b33", 2);
+}
+
 function paintReverseNushi(ctx) {
   // 裏ボス。表のヌシと同じ樹木＋獣の系統だが、枯れ木化・紫のオーラで異形さを強調。
   ctx.save();
@@ -2039,6 +2088,7 @@ const PAINTERS = {
   hagumon: paintHagumon,
   hagurumaru: paintHagurumaru,
   sparkun: paintSparkun,
+  karakuribat: paintKarakuribat,
   pukurin: paintPukurin,
   kageuri: paintKageuri,
   hoshimogu: paintHoshimogu,
