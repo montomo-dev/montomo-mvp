@@ -691,6 +691,50 @@ export const SPECIES = {
       { level: 1, skill: "senpugeki" },
     ],
   },
+  akumakko: {
+    id: "akumakko",
+    name: "アクマッコ",
+    genus: "こあくま",
+    color: "#5a1a3a",
+    base: { hp: 28, atk: 22, def: 12, spd: 18 },
+    growth: { hp: 5.4, atk: 3.8, def: 2.0, spd: 2.8 },
+    exp: 50,
+    recruitEase: 0.08,
+    learnset: [
+      { level: 1, skill: "daibakuhatsu" },
+      { level: 6, skill: "senpugeki" },
+    ],
+  },
+  kokushou: {
+    id: "kokushou",
+    name: "コクショウ",
+    genus: "やみのよろい",
+    color: "#2b2038",
+    base: { hp: 40, atk: 16, def: 24, spd: 8 },
+    growth: { hp: 8.0, atk: 2.6, def: 4.0, spd: 1.2 },
+    exp: 50,
+    recruitEase: 0.09,
+    learnset: [
+      { level: 1, skill: "hibiwareGeki" },
+      { level: 6, skill: "gantekiotoshi" },
+    ],
+  },
+  maou: {
+    id: "maou",
+    name: "マオウ",
+    genus: "まおう",
+    base: { hp: 460, atk: 78, def: 72, spd: 32 },
+    growth: { hp: 0, atk: 0, def: 0, spd: 0 },
+    exp: 220,
+    recruitEase: 0,
+    boss: true,
+    learnset: [
+      { level: 1, skill: "daibakuhatsu" },
+      { level: 1, skill: "hibiwareGeki" },
+      { level: 1, skill: "senpugeki" },
+      { level: 1, skill: "gantekiotoshi" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

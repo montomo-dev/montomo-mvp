@@ -947,6 +947,42 @@ export const STAGES = {
     treasures: [{ id: "t24", money: 2200, x: 6, y: 7, trap: true }],
     groundItems: [{ id: "i24", itemId: "defSeed", x: 12, y: 5 }],
   },
+  castle_stage1: {
+    id: "castle_stage1",
+    shortName: "majou1",
+    name: "まおうじょうのおおもん",
+    encounterRate: 0.16,
+    wildLevels: [53, 56],
+    wildSpecies: ["akumakko", "kokushou"],
+    prevStage: "factory_stage3",
+    spawns: {
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#2b1a3a",
+      accent: "#3a2450",
+      bushFill: "#1a1024",
+      bushStroke: "#5a3a7a",
+      treeLeaf: "#150c20",
+      treeFruit: "#e04a4a",
+    },
+    layout: [
+      "2222222222222222",
+      "2000111100000002",
+      "2000111100011002",
+      "2000000000011002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000111002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t25", money: 2300, x: 8, y: 6, trap: true }],
+    groundItems: [{ id: "i25", itemId: "premiumBait", x: 11, y: 4 }],
+  },
 };
 
 export function getStage(stageId) {

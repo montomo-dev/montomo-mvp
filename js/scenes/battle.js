@@ -71,6 +71,7 @@ export class BattleScene {
         }));
       } else if (this.stageId === "factory_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
+          nextStageId: "castle_stage1",
           subtitle: "コウジョウヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
       } else {

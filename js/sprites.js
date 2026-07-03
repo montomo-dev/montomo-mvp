@@ -1836,6 +1836,173 @@ function paintKoujouNushi(ctx) {
   starSpark(ctx, 36, -31, 5, "#f0a0a0");
 }
 
+function paintAkumakko(ctx) {
+  // 小さな悪魔。とがった翼と尻尾、いたずらっぽい笑顔が特徴。
+  ctx.fillStyle = "#3a1024";
+  ctx.strokeStyle = "#1a0812";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.scale(side, 1);
+    ctx.beginPath();
+    ctx.moveTo(14, -6);
+    ctx.lineTo(32, -16);
+    ctx.lineTo(26, -2);
+    ctx.lineTo(34, 8);
+    ctx.lineTo(18, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.strokeStyle = "#1a0812";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 28); ctx.quadraticCurveTo(14, 34, 12, 44);
+  ctx.stroke();
+  tri(ctx, 8, 40, 18, 40, 13, 48, "#5a1a3a", "#1a0812", 1.6);
+
+  glossOval(ctx, 0, 4, 24, 24, "#8a2a5a", "#5a1a3a", "#1a0812", 5.5);
+  shine(ctx, -11, -4, 11, 6);
+
+  ctx.fillStyle = "#3a0f1e";
+  tri(ctx, -12, -20, -6, -8, -18, -6, "#3a0f1e", "#1a0812", 1.6);
+  tri(ctx, 12, -20, 6, -8, 18, -6, "#3a0f1e", "#1a0812", 1.6);
+
+  glossOval(ctx, 0, 14, 13, 8, "#e8c9d8", "#d89ab8", "#1a0812", 2);
+  eye(ctx, -8, 0, 6.5);
+  eye(ctx, 8, 0, 6.5);
+  ctx.strokeStyle = "#1a0812";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 10, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+  ctx.stroke();
+}
+
+function paintKokushou(ctx) {
+  // 闇の鎧をまとった重戦士。角ばった甲冑と、まっすぐな視線が特徴。
+  glossOval(ctx, -26, 8, 10, 20, "#4a3a5a", "#2b2038", "#150e1c", 4);
+  glossOval(ctx, 26, 8, 10, 20, "#4a3a5a", "#2b2038", "#150e1c", 4);
+
+  ctx.fillStyle = "#3a2c48";
+  ctx.strokeStyle = "#150e1c";
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(-24, -12);
+  ctx.lineTo(0, -22);
+  ctx.lineTo(24, -12);
+  ctx.lineTo(24, 26);
+  ctx.lineTo(-24, 26);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(21, 14, 28, 0.6)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-20, -4); ctx.lineTo(20, -4);
+  ctx.moveTo(-20, 10); ctx.lineTo(20, 10);
+  ctx.stroke();
+  shine(ctx, -12, -8, 11, 6);
+
+  ctx.fillStyle = "#6a5580";
+  tri(ctx, -6, -20, 6, -20, 0, -30, "#6a5580", "#150e1c", 1.8);
+
+  glossOval(ctx, 0, 2, 15, 9, "#0d0812", "#150e1c", "#4a3a5a", 2.2);
+  circle(ctx, -7, 1, 3, "#c9a0e8", null);
+  circle(ctx, 7, 1, 3, "#c9a0e8", null);
+}
+
+function paintMaou(ctx) {
+  // 魔王城ワールドの最終ボス。黒紫のマントと巨大な角、
+  // 深紅の瞳が全てを見透かすような威圧感を放つ。
+  ctx.save();
+  ctx.globalAlpha = 0.24;
+  for (let i = 0; i < 12; i++) {
+    const a = (Math.PI * 2 * i) / 12;
+    const r = 48 + (i % 2) * 9;
+    ctx.strokeStyle = i % 2 ? "#e04a4a" : "#3a2050";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 18, Math.sin(a) * 14);
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  ctx.strokeStyle = "#e04a4a";
+  ctx.lineWidth = 2.2;
+  for (const r of [54, 67]) {
+    ctx.beginPath();
+    ctx.arc(0, -2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 巨大な角
+  ctx.fillStyle = "#1a1024";
+  ctx.strokeStyle = "#0a0612";
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.scale(side, 1);
+    ctx.beginPath();
+    ctx.moveTo(16, -30);
+    ctx.quadraticCurveTo(32, -56, 22, -74);
+    ctx.quadraticCurveTo(24, -50, 10, -34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // マント
+  glossOval(ctx, 0, 20, 48, 34, "#2b1a3a", "#150c20", "#0a0612", 6);
+
+  // 巨体
+  glossOval(ctx, 0, 4, 44, 39, "#5a3a7a", "#2b1a3a", "#0a0612", 7.5);
+  glossOval(ctx, 0, 16, 23, 17, "#8a5fc0", "#5a3a7a", "#0a0612", 4);
+  shine(ctx, -18, -14, 17, 9);
+
+  // 太い腕
+  glossOval(ctx, -40, 12, 13, 22, "#2b1a3a", "#150c20", "#0a0612", 4.5);
+  glossOval(ctx, 40, 12, 13, 22, "#2b1a3a", "#150c20", "#0a0612", 4.5);
+  for (const side of [-1, 1]) {
+    tri(ctx, side * 37, 28, side * 45, 38, side * 29, 36, "#8a5fc0", "#0a0612", 2);
+  }
+
+  // 顔。深紅の瞳。
+  ctx.fillStyle = "#0d0812";
+  ctx.strokeStyle = "#0a0612";
+  ctx.lineWidth = 2.8;
+  ctx.beginPath();
+  ctx.ellipse(-15, -8, 9, 6.5, -0.16, 0, Math.PI * 2);
+  ctx.ellipse(15, -8, 9, 6.5, 0.16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -13, -7, 4.2, "#e04a4a", null);
+  circle(ctx, 13, -7, 4.2, "#e04a4a", null);
+  circle(ctx, -13, -7, 2, "#3a0808", null);
+  circle(ctx, 13, -7, 2, "#3a0808", null);
+  ctx.strokeStyle = "#0a0612";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-26, -18); ctx.lineTo(-8, -13);
+  ctx.moveTo(26, -18); ctx.lineTo(8, -13);
+  ctx.stroke();
+
+  starSpark(ctx, -36, -34, 6, "#e04a4a");
+  starSpark(ctx, 37, -32, 5.5, "#e04a4a");
+}
+
 function paintReverseNushi(ctx) {
   // 裏ボス。表のヌシと同じ樹木＋獣の系統だが、枯れ木化・紫のオーラで異形さを強調。
   ctx.save();
@@ -2214,6 +2381,7 @@ const PAINTERS = {
   hyougaNushi: paintHyougaNushi,
   sunaNushi: paintSunaNushi,
   koujouNushi: paintKoujouNushi,
+  maou: paintMaou,
   takarabox: paintTakarabox,
   obako: paintObako,
   kurista: paintKurista,
@@ -2222,6 +2390,8 @@ const PAINTERS = {
   sparkun: paintSparkun,
   karakuribat: paintKarakuribat,
   paipon: paintPaipon,
+  akumakko: paintAkumakko,
+  kokushou: paintKokushou,
   pukurin: paintPukurin,
   kageuri: paintKageuri,
   hoshimogu: paintHoshimogu,
