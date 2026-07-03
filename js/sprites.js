@@ -2053,6 +2053,39 @@ function paintYuureiking(ctx) {
   ctx.stroke();
 }
 
+function paintNoroigumo(ctx) {
+  // のろいの蜘蛛。細長い8本足と、糸を紡ぐような紫のもよう。
+  ctx.strokeStyle = "#0d0812";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  for (const side of [-1, 1]) {
+    for (const [ang, len] of [[-0.9, 30], [-0.3, 34], [0.3, 34], [0.9, 30]]) {
+      ctx.save();
+      ctx.scale(side, 1);
+      ctx.beginPath();
+      ctx.moveTo(14, 4);
+      ctx.quadraticCurveTo(14 + len * 0.5, 4 + Math.sin(ang) * len * 0.4, 14 + len * Math.cos(ang), 4 + len * Math.sin(ang));
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  glossOval(ctx, 0, 8, 22, 18, "#3a2450", "#1a1024", "#0d0812", 5);
+  ctx.strokeStyle = "rgba(90, 58, 122, 0.5)";
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-14, 0); ctx.quadraticCurveTo(0, 8, 14, 0);
+  ctx.moveTo(-14, 14); ctx.quadraticCurveTo(0, 20, 14, 14);
+  ctx.stroke();
+  shine(ctx, -10, 2, 10, 6);
+
+  glossCircle(ctx, 0, -12, 15, "#3a2450", "#1a1024", "#0d0812", 4.5);
+  eye(ctx, -8, -13, 6.5);
+  eye(ctx, 8, -13, 6.5);
+  circle(ctx, -4, -6, 2, "#0d0812", null);
+  circle(ctx, 4, -6, 2, "#0d0812", null);
+}
+
 function paintReverseNushi(ctx) {
   // 裏ボス。表のヌシと同じ樹木＋獣の系統だが、枯れ木化・紫のオーラで異形さを強調。
   ctx.save();
@@ -2443,6 +2476,7 @@ const PAINTERS = {
   akumakko: paintAkumakko,
   kokushou: paintKokushou,
   yuureiking: paintYuureiking,
+  noroigumo: paintNoroigumo,
   pukurin: paintPukurin,
   kageuri: paintKageuri,
   hoshimogu: paintHoshimogu,

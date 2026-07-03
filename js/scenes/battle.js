@@ -74,6 +74,10 @@ export class BattleScene {
           nextStageId: "castle_stage1",
           subtitle: "コウジョウヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
+      } else if (this.stageId === "castle_stage3") {
+        this.game.changeScene(new EndingScene(this.game, {
+          subtitle: "マオウを のりこえ、ぼうけんは ついに おわりを むかえた…！",
+        }));
       } else {
         this.game.changeScene(new EndingScene(this.game));
       }

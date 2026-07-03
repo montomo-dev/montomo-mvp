@@ -749,6 +749,20 @@ export const SPECIES = {
       { level: 6, skill: "hibiwareGeki" },
     ],
   },
+  noroigumo: {
+    id: "noroigumo",
+    name: "ノロイグモ",
+    genus: "のろいのくも",
+    color: "#1a1024",
+    base: { hp: 34, atk: 20, def: 16, spd: 14 },
+    growth: { hp: 6.6, atk: 3.4, def: 2.6, spd: 2.2 },
+    exp: 54,
+    recruitEase: 0.07,
+    learnset: [
+      { level: 1, skill: "hibiwareGeki" },
+      { level: 6, skill: "daibakuhatsu" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [
