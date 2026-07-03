@@ -69,6 +69,10 @@ export class BattleScene {
           nextStageId: "factory_stage1",
           subtitle: "スナヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
+      } else if (this.stageId === "factory_stage3") {
+        this.game.changeScene(new EndingScene(this.game, {
+          subtitle: "コウジョウヌシを のりこえ、きみと なかまは でんせつに なった。",
+        }));
       } else {
         this.game.changeScene(new EndingScene(this.game));
       }

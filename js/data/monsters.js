@@ -662,6 +662,35 @@ export const SPECIES = {
       { level: 6, skill: "senpugeki" },
     ],
   },
+  paipon: {
+    id: "paipon",
+    name: "パイポン",
+    genus: "はいかんロボ",
+    color: "#6a7a5a",
+    base: { hp: 36, atk: 16, def: 23, spd: 8 },
+    growth: { hp: 7.2, atk: 2.6, def: 3.8, spd: 1.2 },
+    exp: 48,
+    recruitEase: 0.1,
+    learnset: [
+      { level: 1, skill: "jinarashipress" },
+      { level: 6, skill: "daibakuhatsu" },
+    ],
+  },
+  koujouNushi: {
+    id: "koujouNushi",
+    name: "コウジョウヌシ",
+    genus: "こうじょうのぬし",
+    base: { hp: 420, atk: 70, def: 65, spd: 28 },
+    growth: { hp: 0, atk: 0, def: 0, spd: 0 },
+    exp: 160,
+    recruitEase: 0,
+    boss: true,
+    learnset: [
+      { level: 1, skill: "daibakuhatsu" },
+      { level: 1, skill: "hibiwareGeki" },
+      { level: 1, skill: "senpugeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

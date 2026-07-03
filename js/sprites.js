@@ -1705,6 +1705,137 @@ function paintKarakuribat(ctx) {
   glossOval(ctx, 0, 14, 12, 8, "#dcdce4", "#c9c9d6", "#2b2b33", 2);
 }
 
+function paintPaipon(ctx) {
+  // 配管でできた頑丈なロボット。丸いボイラー胴体と、太い配管の腕。
+  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(0, 34, 26, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#3a4a2e";
+  ctx.lineWidth = 8;
+  ctx.lineCap = "round";
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(side * 20, -4);
+    ctx.lineTo(side * 34, 6);
+    ctx.lineTo(side * 30, 24);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "#8a9a6a";
+  ctx.lineWidth = 4;
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(side * 20, -4);
+    ctx.lineTo(side * 34, 6);
+    ctx.lineTo(side * 30, 24);
+    ctx.stroke();
+  }
+
+  glossOval(ctx, 0, 6, 27, 28, "#8a9a6a", "#6a7a5a", "#3a4a2e", 6);
+  ctx.strokeStyle = "rgba(58, 74, 46, 0.6)";
+  ctx.lineWidth = 2;
+  for (const y of [-8, 4, 16]) {
+    ctx.beginPath();
+    ctx.moveTo(-20, y);
+    ctx.lineTo(20, y);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#4a5a3a";
+  circle(ctx, -16, -8, 2.5, "#4a5a3a", "#2b3520", 1);
+  circle(ctx, 16, -8, 2.5, "#4a5a3a", "#2b3520", 1);
+  circle(ctx, -16, 4, 2.5, "#4a5a3a", "#2b3520", 1);
+  circle(ctx, 16, 4, 2.5, "#4a5a3a", "#2b3520", 1);
+  shine(ctx, -13, -8, 12, 7);
+
+  ctx.fillStyle = "#a8b88a";
+  ctx.strokeStyle = "#3a4a2e";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(0, -30, 12, Math.PI, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  glossOval(ctx, 0, -18, 10, 8, "#dcdce4", "#c9c9d6", "#3a4a2e", 2.2);
+  circle(ctx, -6, -18, 3, "#3a5a7a", null);
+  circle(ctx, 6, -18, 3, "#3a5a7a", null);
+  circle(ctx, -6.5, -19, 1, "#eafcff", null);
+  circle(ctx, 5.5, -19, 1, "#eafcff", null);
+
+  glossOval(ctx, 0, 20, 14, 8, "#dcdce4", "#c9c9d6", "#3a4a2e", 2.2);
+}
+
+function paintKoujouNushi(ctx) {
+  // 工場ワールドのボス。歯車とパイプが組み合わさった巨大な機械獣。
+  // 赤い警告ランプが点滅するような光の輪で威圧感を出す。
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  for (let i = 0; i < 10; i++) {
+    const a = (Math.PI * 2 * i) / 10;
+    const r = 47 + (i % 2) * 8;
+    ctx.strokeStyle = i % 2 ? "#f0a0a0" : "#8a8a9a";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 18, Math.sin(a) * 14);
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = "#f0a0a0";
+  ctx.lineWidth = 2;
+  for (const r of [53, 65]) {
+    ctx.beginPath();
+    ctx.arc(0, -2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 背中の歯車
+  gear(ctx, -30, -32, 12, 8, "#8a8a9a", "#2b2b33");
+  gear(ctx, 30, -32, 12, 8, "#8a8a9a", "#2b2b33");
+  gear(ctx, 0, -44, 10, 8, "#a8a8b8", "#2b2b33");
+
+  // 巨体
+  glossOval(ctx, 0, 6, 45, 40, "#a8a8b8", "#6a6a78", "#2b2b33", 7.5);
+  glossOval(ctx, 0, 18, 24, 18, "#dcdce4", "#a8a8b8", "#2b2b33", 4);
+  shine(ctx, -19, -14, 17, 10);
+
+  // 太い前脚
+  glossOval(ctx, -41, 26, 13, 20, "#6a6a78", "#4a4a56", "#2b2b33", 4.5);
+  glossOval(ctx, 41, 26, 13, 20, "#6a6a78", "#4a4a56", "#2b2b33", 4.5);
+  for (const side of [-1, 1]) {
+    tri(ctx, side * 38, 40, side * 46, 50, side * 30, 48, "#dcdce4", "#2b2b33", 2);
+  }
+
+  // 警告ランプ
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  for (const [bx, by, r] of [[-38, 44, 5], [38, 46, 4], [0, 52, 4.5]]) {
+    circle(ctx, bx, by, r, "#f0a0a0", "#a83a3a", 1.4);
+  }
+  ctx.restore();
+
+  // 顔。赤く光る目。
+  ctx.fillStyle = "#dcdce4";
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 2.8;
+  ctx.beginPath();
+  ctx.ellipse(-16, -8, 9, 6.5, -0.16, 0, Math.PI * 2);
+  ctx.ellipse(16, -8, 9, 6.5, 0.16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -14, -7, 4, "#e04a4a", null);
+  circle(ctx, 14, -7, 4, "#e04a4a", null);
+  circle(ctx, -14, -7, 1.8, "#5a1010", null);
+  circle(ctx, 14, -7, 1.8, "#5a1010", null);
+
+  starSpark(ctx, -35, -33, 5.5, "#f0a0a0");
+  starSpark(ctx, 36, -31, 5, "#f0a0a0");
+}
+
 function paintReverseNushi(ctx) {
   // 裏ボス。表のヌシと同じ樹木＋獣の系統だが、枯れ木化・紫のオーラで異形さを強調。
   ctx.save();
@@ -2082,6 +2213,7 @@ const PAINTERS = {
   seaNushi: paintSeaNushi,
   hyougaNushi: paintHyougaNushi,
   sunaNushi: paintSunaNushi,
+  koujouNushi: paintKoujouNushi,
   takarabox: paintTakarabox,
   obako: paintObako,
   kurista: paintKurista,
@@ -2089,6 +2221,7 @@ const PAINTERS = {
   hagurumaru: paintHagurumaru,
   sparkun: paintSparkun,
   karakuribat: paintKarakuribat,
+  paipon: paintPaipon,
   pukurin: paintPukurin,
   kageuri: paintKageuri,
   hoshimogu: paintHoshimogu,
