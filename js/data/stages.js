@@ -490,8 +490,10 @@ export const STAGES = {
     wildLevels: [33, 36],
     wildSpecies: ["yukimaro", "kooritsumu"],
     prevStage: "sea_stage3",
+    nextStage: "snow_stage2",
     spawns: {
       start: { x: 2, y: 1 },
+      fromNext: { x: 13, y: 1 },
     },
     palette: {
       ground: "#eaf4fb",
@@ -503,7 +505,7 @@ export const STAGES = {
     },
     layout: [
       "2222222222222222",
-      "2000111100000002",
+      "2000111100001162",
       "2000111100011002",
       "2000000000011002",
       "2011110000000002",
@@ -517,6 +519,43 @@ export const STAGES = {
     ],
     treasures: [{ id: "t13", money: 1100, x: 8, y: 6, trap: true }],
     groundItems: [{ id: "i13", itemId: "premiumBait", x: 11, y: 4 }],
+  },
+  snow_stage2: {
+    id: "snow_stage2",
+    shortName: "yuki2",
+    name: "こおりのみずうみ",
+    encounterRate: 0.17,
+    wildLevels: [35, 38],
+    wildSpecies: ["kooritsumu", "pengiri"],
+    prevStage: "snow_stage1",
+    spawns: {
+      fromPrev: { x: 2, y: 1 },
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#dcedf7",
+      accent: "#c9e4f2",
+      bushFill: "#a8c8d8",
+      bushStroke: "#eaf4fb",
+      treeLeaf: "#7098b8",
+      treeFruit: "#f0a8c0",
+    },
+    layout: [
+      "2222222222222222",
+      "2700111100000062",
+      "2000111100111002",
+      "2000000000111002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000000002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t14", money: 1200, x: 7, y: 7, trap: true }],
+    groundItems: [{ id: "i14", itemId: "premiumBait", x: 9, y: 4 }],
   },
 };
 

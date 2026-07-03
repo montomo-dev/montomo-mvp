@@ -505,6 +505,20 @@ export const SPECIES = {
       { level: 6, skill: "hibiwareGeki" },
     ],
   },
+  pengiri: {
+    id: "pengiri",
+    name: "ペンギリ",
+    genus: "そりすべりペンギン",
+    color: "#3a4a5a",
+    base: { hp: 30, atk: 15, def: 12, spd: 16 },
+    growth: { hp: 6.0, atk: 2.8, def: 2.2, spd: 2.6 },
+    exp: 34,
+    recruitEase: 0.1,
+    learnset: [
+      { level: 1, skill: "shibukikick" },
+      { level: 6, skill: "senpugeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

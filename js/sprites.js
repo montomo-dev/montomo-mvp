@@ -1193,6 +1193,44 @@ function paintKooritsumu(ctx) {
   blush(ctx, 18, 12);
 }
 
+function paintPengiri(ctx) {
+  // そりに乗って滑るペンギン。丸い翼を横に広げ、足元にそりの板がある。
+  ctx.save();
+  ctx.globalAlpha = 0.4;
+  ctx.strokeStyle = "#dcedf7";
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-30, 30); ctx.lineTo(-14, 30);
+  ctx.moveTo(14, 30); ctx.lineTo(30, 30);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = "#c9722a";
+  ctx.strokeStyle = "#8a4e18";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.roundRect(-24, 26, 48, 7, 3);
+  ctx.fill();
+  ctx.stroke();
+
+  glossOval(ctx, -24, 8, 10, 18, "#3a4a5a", "#232d38", "#141a20", 3.5);
+  glossOval(ctx, 24, 8, 10, 18, "#3a4a5a", "#232d38", "#141a20", 3.5);
+
+  glossOval(ctx, 0, 2, 26, 30, "#3a4a5a", "#232d38", "#141a20", 6);
+  glossOval(ctx, 0, 10, 16, 20, "#eef5fb", "#dcedf7", "#141a20", 3);
+  shine(ctx, -12, -8, 12, 7);
+
+  glossOval(ctx, 0, -20, 15, 15, "#3a4a5a", "#232d38", "#141a20", 5);
+  glossOval(ctx, 0, -14, 9, 10, "#eef5fb", "#dcedf7", "#141a20", 2.2);
+  tri(ctx, -3, -13, 3, -13, 0, -6, "#e8a23a", "#8a4e18", 1.8);
+  eye(ctx, -6, -19, 6);
+  eye(ctx, 6, -19, 6);
+  blush(ctx, -14, -13);
+  blush(ctx, 14, -13);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1616,6 +1654,7 @@ const PAINTERS = {
   yamiankou: paintYamiankou,
   yukimaro: paintYukimaro,
   kooritsumu: paintKooritsumu,
+  pengiri: paintPengiri,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
