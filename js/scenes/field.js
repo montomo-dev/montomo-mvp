@@ -5,7 +5,7 @@ import { PokedexScene } from "./pokedex.js";
 import { ShopScene } from "./shop.js";
 import { ChoiceScene } from "./choice.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
-import { getStage, START_STAGE_ID, TILE_TYPES } from "../data/stages.js";
+import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
 import { panel, hpBar, FONT_BOLD } from "../ui.js";
 
@@ -120,6 +120,9 @@ export class FieldScene {
       if (stageClearedFlags[this.stageId]) {
         if (this.stage.nextStage) {
           this.game.changeScene(new ChoiceScene(this.game));
+        } else if (WORLD_TRANSITIONS[this.stageId]) {
+          const nextStage = getStage(WORLD_TRANSITIONS[this.stageId]);
+          this.moveStage(nextStage.id, "start", `${nextStage.shortName} に すすんだ！`);
         } else {
           this.showToast("しずかな けはいが ただよっている…");
         }

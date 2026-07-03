@@ -1107,3 +1107,17 @@ export const STAGES = {
 export function getStage(stageId) {
   return STAGES[stageId] || STAGES[START_STAGE_ID];
 }
+
+// ワールドの最終ボス撃破後に次のワールドへ繋がる先。
+// 各ボスステージは stage.nextStage をあえて未設定にしている
+// （設定するとfield.jsのボス再訪ロジックがstage3専用のChoiceSceneを
+// 誤って再表示してしまうため）。そのため、撃破直後のEndingScene遷移を
+// 逃した場合（以前のセッションで既に撃破済みなど）でも、ボス部屋に
+// 戻れば次のワールドへ進めるように、この対応表を別途用意している。
+export const WORLD_TRANSITIONS = {
+  reverse_stage3: "sea_stage1",
+  sea_stage3: "snow_stage1",
+  snow_stage3: "desert_stage1",
+  desert_stage3: "factory_stage1",
+  factory_stage3: "castle_stage1",
+};
