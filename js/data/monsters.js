@@ -447,6 +447,35 @@ export const SPECIES = {
       { level: 6, skill: "shibukikick" },
     ],
   },
+  yamiankou: {
+    id: "yamiankou",
+    name: "ヤミアンコウ",
+    genus: "やみひかりうお",
+    color: "#4a3a68",
+    base: { hp: 36, atk: 14, def: 17, spd: 8 },
+    growth: { hp: 7.0, atk: 2.4, def: 2.9, spd: 1.4 },
+    exp: 30,
+    recruitEase: 0.09,
+    learnset: [
+      { level: 1, skill: "hotarubi" },
+      { level: 6, skill: "gantekiotoshi" },
+    ],
+  },
+  seaNushi: {
+    id: "seaNushi",
+    name: "シンカイヌシ",
+    genus: "しんかいのぬし",
+    base: { hp: 340, atk: 55, def: 55, spd: 18 },
+    growth: { hp: 0, atk: 0, def: 0, spd: 0 },
+    exp: 130,
+    recruitEase: 0,
+    boss: true,
+    learnset: [
+      { level: 1, skill: "gantekiotoshi" },
+      { level: 1, skill: "hibiwareGeki" },
+      { level: 1, skill: "daibakuhatsu" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

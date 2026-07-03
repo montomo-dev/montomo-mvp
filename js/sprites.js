@@ -1067,6 +1067,65 @@ function paintHikariebi(ctx) {
   blush(ctx, -16, 6);
 }
 
+function paintYamiankou(ctx) {
+  // 深海に潜むアンコウ。頭の上のちょうちんがぼんやり光り、丸くて平たい体つき。
+  ctx.save();
+  ctx.globalAlpha = 0.35;
+  ctx.strokeStyle = "#fff1a0";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, -38, 12, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.strokeStyle = "#2b2440";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, -20); ctx.quadraticCurveTo(-2, -34, 0, -38);
+  ctx.stroke();
+  glossCircle(ctx, 0, -38, 6, "#fff1a0", "#e8c95a", "#8a6b1c", 2);
+
+  glossOval(ctx, -30, 10, 10, 7, "#6a5590", "#4a3a68", "#241c38", 3);
+  glossOval(ctx, 30, 10, 10, 7, "#6a5590", "#4a3a68", "#241c38", 3);
+
+  glossOval(ctx, 0, 6, 30, 25, "#6a5590", "#4a3a68", "#241c38", 6);
+  ctx.strokeStyle = "rgba(36, 28, 56, 0.5)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-20, -6); ctx.quadraticCurveTo(-4, 4, -16, 22);
+  ctx.moveTo(20, -6); ctx.quadraticCurveTo(4, 4, 15, 20);
+  ctx.stroke();
+  shine(ctx, -13, -4, 12, 7);
+
+  ctx.fillStyle = "#241c38";
+  ctx.strokeStyle = "#120e1c";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-16, -8);
+  ctx.quadraticCurveTo(0, 0, 16, -8);
+  ctx.lineTo(14, 0);
+  ctx.quadraticCurveTo(0, 6, -14, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f2ead6";
+  for (const fx of [-11, -2, 7]) {
+    ctx.beginPath();
+    ctx.moveTo(fx, -6);
+    ctx.lineTo(fx + 3, -6);
+    ctx.lineTo(fx + 1.5, -1);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  glossOval(ctx, 0, 20, 14, 9, "#8a75b0", "#6a5590", "#241c38", 2.2);
+  eye(ctx, -9, 6, 6.5);
+  eye(ctx, 9, 6, 6.5);
+  blush(ctx, -18, 12);
+  blush(ctx, 18, 12);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1274,6 +1333,101 @@ function paintReverseNushi(ctx) {
   starSpark(ctx, 35, -32, 5, "#e0c6ff");
 }
 
+function paintSeaNushi(ctx) {
+  // 海ワールドのボス。巨大な甲羅とヒレを持つ深海の主。青白い発光模様と、
+  // まわりを漂う気泡の輪で威圧感を出す。
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  for (let i = 0; i < 10; i++) {
+    const a = (Math.PI * 2 * i) / 10;
+    const r = 46 + (i % 2) * 8;
+    ctx.strokeStyle = i % 2 ? "#8fe0f5" : "#3a8ab0";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 18, Math.sin(a) * 14);
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = "#c2f0ff";
+  ctx.lineWidth = 2;
+  for (const r of [52, 64]) {
+    ctx.beginPath();
+    ctx.arc(0, -2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 大きなヒレ（頭上）
+  ctx.fillStyle = "#2a5a78";
+  ctx.strokeStyle = "#123a4e";
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(side * 14, -32);
+    ctx.quadraticCurveTo(side * 30, -58, side * 20, -70);
+    ctx.quadraticCurveTo(side * 10, -50, side * 6, -30);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // 甲羅（大きく硬そうな背中）
+  glossOval(ctx, 0, 4, 46, 40, "#3f8aa8", "#245a72", "#123a4e", 7.5);
+  glossOval(ctx, 0, 12, 30, 22, "#7ed0e8", "#3f8aa8", "#123a4e", 4);
+  ctx.strokeStyle = "rgba(18, 58, 78, 0.6)";
+  ctx.lineWidth = 2;
+  for (const [hx, hy] of [[-16, 2], [16, 2], [0, 20], [-16, 24], [16, 24]]) {
+    ctx.beginPath();
+    ctx.moveTo(hx - 8, hy);
+    ctx.lineTo(hx, hy - 8);
+    ctx.lineTo(hx + 8, hy);
+    ctx.lineTo(hx, hy + 8);
+    ctx.closePath();
+    ctx.stroke();
+  }
+  shine(ctx, -20, -12, 17, 10);
+
+  // ヒレ状の腕
+  glossOval(ctx, -42, 14, 13, 24, "#3f8aa8", "#245a72", "#123a4e", 4.5);
+  glossOval(ctx, 42, 14, 13, 24, "#3f8aa8", "#245a72", "#123a4e", 4.5);
+
+  // 足元の泡
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  for (const [bx, by, r] of [[-40, 38, 5], [40, 40, 4], [0, 46, 4.5]]) {
+    circle(ctx, bx, by, r, "#c2f0ff", "#3a8ab0", 1.6);
+  }
+  ctx.restore();
+
+  // 顔。冷ややかな青の目。
+  ctx.fillStyle = "#dff7ff";
+  ctx.strokeStyle = "#123a4e";
+  ctx.lineWidth = 2.8;
+  ctx.beginPath();
+  ctx.ellipse(-15, -8, 9, 6.5, -0.14, 0, Math.PI * 2);
+  ctx.ellipse(15, -8, 9, 6.5, 0.14, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -13, -7, 4, "#3a8ab0", null);
+  circle(ctx, 13, -7, 4, "#3a8ab0", null);
+  circle(ctx, -13, -7, 1.8, "#123a4e", null);
+  circle(ctx, 13, -7, 1.8, "#123a4e", null);
+  ctx.strokeStyle = "#123a4e";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-9, 12); ctx.quadraticCurveTo(0, 6, 9, 12);
+  ctx.stroke();
+
+  starSpark(ctx, -33, -32, 5, "#c2f0ff");
+  starSpark(ctx, 34, -30, 4.5, "#c2f0ff");
+}
+
 function paintTakarabox(ctx) {
   // 宝箱に擬態するモンスター。木箱のボディに金の帯、うっすら開いた口から牙が覗く。
   ctx.fillStyle = "rgba(0,0,0,0.18)";
@@ -1379,6 +1533,7 @@ const PAINTERS = {
   sandango: paintSandango,
   nushi: paintNushi,
   reverseNushi: paintReverseNushi,
+  seaNushi: paintSeaNushi,
   takarabox: paintTakarabox,
   obako: paintObako,
   kurista: paintKurista,
@@ -1391,6 +1546,7 @@ const PAINTERS = {
   kaigaran: paintKaigaran,
   awairuka: paintAwairuka,
   hikariebi: paintHikariebi,
+  yamiankou: paintYamiankou,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

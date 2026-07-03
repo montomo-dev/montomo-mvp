@@ -54,6 +54,10 @@ export class BattleScene {
           nextStageId: "sea_stage1",
           subtitle: "ウラノヌシを のりこえ、きみと なかまは さらに つよく なった。",
         }));
+      } else if (this.stageId === "sea_stage3") {
+        this.game.changeScene(new EndingScene(this.game, {
+          subtitle: "シンカイヌシを のりこえ、きみと なかまは でんせつに なった。",
+        }));
       } else {
         this.game.changeScene(new EndingScene(this.game));
       }
