@@ -1595,6 +1595,67 @@ function paintHagumon(ctx) {
   ctx.stroke();
 }
 
+function paintHagurumaru(ctx) {
+  // 頑丈な歯車ロボット。大きな歯車の胸当てと、太い金属の腕が特徴。
+  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(0, 34, 26, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  glossOval(ctx, -28, 10, 10, 18, "#6a6a78", "#4a4a56", "#2b2b33", 3.5);
+  glossOval(ctx, 28, 10, 10, 18, "#6a6a78", "#4a4a56", "#2b2b33", 3.5);
+
+  glossOval(ctx, 0, 6, 27, 28, "#a8a8b8", "#8a8a9a", "#4a4a56", 6);
+  gear(ctx, 0, 8, 15, 8, "#c9c9d6", "#4a4a56");
+  circle(ctx, 0, 8, 5, "#6a6a78", "#2b2b33", 2);
+  shine(ctx, -13, -6, 12, 7);
+
+  glossOval(ctx, 0, -22, 15, 14, "#a8a8b8", "#8a8a9a", "#4a4a56", 5);
+  glossOval(ctx, 0, -18, 10, 8, "#dcdce4", "#c9c9d6", "#4a4a56", 2.2);
+  circle(ctx, -6, -18, 3, "#3a5a7a", null);
+  circle(ctx, 6, -18, 3, "#3a5a7a", null);
+  circle(ctx, -6.5, -19, 1, "#eafcff", null);
+  circle(ctx, 5.5, -19, 1, "#eafcff", null);
+
+  glossOval(ctx, 0, 22, 14, 8, "#dcdce4", "#c9c9d6", "#4a4a56", 2.2);
+  blush(ctx, -18, 18);
+  blush(ctx, 18, 18);
+}
+
+function paintSparkun(ctx) {
+  // 電気の火花をまとった小さな球体。まわりに稲妻の飾りが飛び散る。
+  ctx.save();
+  ctx.globalAlpha = 0.6;
+  ctx.strokeStyle = "#fff2a0";
+  ctx.lineWidth = 2.4;
+  ctx.lineCap = "round";
+  for (const [zx, zy, rot] of [[-32, -12, -0.3], [30, -18, 0.4], [-26, 22, 0.6], [28, 20, -0.5]]) {
+    ctx.save();
+    ctx.translate(zx, zy);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    ctx.moveTo(-4, -6); ctx.lineTo(2, -1); ctx.lineTo(-2, 1); ctx.lineTo(4, 6);
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+
+  glossCircle(ctx, 0, 4, 27, "#fff4b8", "#f0d040", "#a8842a", 6);
+  ctx.strokeStyle = "rgba(168, 132, 42, 0.5)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-6, -18); ctx.lineTo(2, -2); ctx.lineTo(-4, 2); ctx.lineTo(6, 20);
+  ctx.stroke();
+  shine(ctx, -13, -6, 12, 7);
+
+  glossOval(ctx, 0, 16, 14, 9, "#fffbe0", "#fff0a0", "#a8842a", 2.2);
+  eye(ctx, -9, 2, 7);
+  eye(ctx, 9, 2, 7);
+  smile(ctx, 0, 14, 3.4);
+  blush(ctx, -18, 8);
+  blush(ctx, 18, 8);
+}
+
 function paintReverseNushi(ctx) {
   // 裏ボス。表のヌシと同じ樹木＋獣の系統だが、枯れ木化・紫のオーラで異形さを強調。
   ctx.save();
@@ -1976,6 +2037,8 @@ const PAINTERS = {
   obako: paintObako,
   kurista: paintKurista,
   hagumon: paintHagumon,
+  hagurumaru: paintHagurumaru,
+  sparkun: paintSparkun,
   pukurin: paintPukurin,
   kageuri: paintKageuri,
   hoshimogu: paintHoshimogu,

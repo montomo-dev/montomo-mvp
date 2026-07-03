@@ -66,6 +66,7 @@ export class BattleScene {
         }));
       } else if (this.stageId === "desert_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
+          nextStageId: "factory_stage1",
           subtitle: "スナヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
       } else {

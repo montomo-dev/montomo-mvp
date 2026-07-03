@@ -792,6 +792,42 @@ export const STAGES = {
     treasures: [{ id: "t20", money: 1800, x: 6, y: 7, trap: true }],
     groundItems: [{ id: "i20", itemId: "defSeed", x: 12, y: 5 }],
   },
+  factory_stage1: {
+    id: "factory_stage1",
+    shortName: "koujou1",
+    name: "はいこうじょうのにゅうこう",
+    encounterRate: 0.16,
+    wildLevels: [47, 50],
+    wildSpecies: ["hagurumaru", "sparkun"],
+    prevStage: "desert_stage3",
+    spawns: {
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#7a7a8a",
+      accent: "#8a8a9a",
+      bushFill: "#5a5a6a",
+      bushStroke: "#4a4a56",
+      treeLeaf: "#3a3a48",
+      treeFruit: "#f0d040",
+    },
+    layout: [
+      "2222222222222222",
+      "2000111100000002",
+      "2000111100011002",
+      "2000000000011002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000111002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t21", money: 1900, x: 8, y: 6, trap: true }],
+    groundItems: [{ id: "i21", itemId: "premiumBait", x: 11, y: 4 }],
+  },
 };
 
 export function getStage(stageId) {

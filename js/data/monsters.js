@@ -619,6 +619,35 @@ export const SPECIES = {
       { level: 1, skill: "gantekiotoshi" },
     ],
   },
+  hagurumaru: {
+    id: "hagurumaru",
+    name: "ハグルマル",
+    genus: "がんじょうはぐるま",
+    color: "#8a8a9a",
+    base: { hp: 38, atk: 15, def: 22, spd: 6 },
+    growth: { hp: 7.6, atk: 2.4, def: 3.6, spd: 1.0 },
+    exp: 44,
+    recruitEase: 0.1,
+    learnset: [
+      { level: 1, skill: "jinarashipress" },
+      { level: 6, skill: "gantekiotoshi" },
+    ],
+  },
+  sparkun: {
+    id: "sparkun",
+    name: "スパークン",
+    genus: "でんきスパーク",
+    color: "#f0d040",
+    pigment: "yellow",
+    base: { hp: 26, atk: 20, def: 10, spd: 20 },
+    growth: { hp: 5.0, atk: 3.6, def: 1.8, spd: 3.0 },
+    exp: 46,
+    recruitEase: 0.08,
+    learnset: [
+      { level: 1, skill: "biribiritouch" },
+      { level: 6, skill: "raimeidan" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [
