@@ -590,6 +590,35 @@ export const SPECIES = {
       { level: 6, skill: "jinarashipress" },
     ],
   },
+  sunamiira: {
+    id: "sunamiira",
+    name: "スナミイラ",
+    genus: "いにしえのぬの",
+    color: "#d8c89a",
+    base: { hp: 32, atk: 16, def: 16, spd: 11 },
+    growth: { hp: 6.4, atk: 2.8, def: 2.8, spd: 1.8 },
+    exp: 42,
+    recruitEase: 0.09,
+    learnset: [
+      { level: 1, skill: "jinarashipress" },
+      { level: 6, skill: "hibiwareGeki" },
+    ],
+  },
+  sunaNushi: {
+    id: "sunaNushi",
+    name: "スナヌシ",
+    genus: "すなのぬし",
+    base: { hp: 400, atk: 65, def: 60, spd: 25 },
+    growth: { hp: 0, atk: 0, def: 0, spd: 0 },
+    exp: 150,
+    recruitEase: 0,
+    boss: true,
+    learnset: [
+      { level: 1, skill: "daibakuhatsu" },
+      { level: 1, skill: "hibiwareGeki" },
+      { level: 1, skill: "gantekiotoshi" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

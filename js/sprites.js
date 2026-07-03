@@ -1373,6 +1373,112 @@ function paintRakudan(ctx) {
   glossOval(ctx, 0, 22, 14, 9, "#f2e4bc", "#eed9a8", "#6b5122", 2.2);
 }
 
+function paintSunamiira(ctx) {
+  // いにしえの布をまとったミイラ。ぐるぐる巻きの包帯とちいさな金の飾り。
+  glossOval(ctx, -22, 12, 9, 18, "#e8dcb8", "#d8c89a", "#8a7550", 3);
+  glossOval(ctx, 22, 12, 9, 18, "#e8dcb8", "#d8c89a", "#8a7550", 3);
+
+  glossOval(ctx, 0, 4, 26, 28, "#e8dcb8", "#d8c89a", "#8a7550", 6);
+  ctx.strokeStyle = "rgba(138, 117, 80, 0.6)";
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(-20, -10); ctx.quadraticCurveTo(0, -4, 20, -10);
+  ctx.moveTo(-20, 4); ctx.quadraticCurveTo(0, 10, 20, 4);
+  ctx.moveTo(-20, 18); ctx.quadraticCurveTo(0, 24, 20, 18);
+  ctx.stroke();
+  shine(ctx, -13, -6, 12, 7);
+
+  ctx.fillStyle = "#e8c34a";
+  ctx.strokeStyle = "#8a621c";
+  ctx.lineWidth = 1.6;
+  circle(ctx, 0, -26, 4, "#e8c34a", "#8a621c", 1.6);
+  ctx.beginPath();
+  ctx.moveTo(-3, -26); ctx.lineTo(3, -26);
+  ctx.moveTo(0, -29); ctx.lineTo(0, -23);
+  ctx.stroke();
+
+  glossOval(ctx, 0, 4, 15, 10, "#3a3020", "#241c14", "#8a7550", 2.2);
+  eye(ctx, -8, 2, 6);
+  eye(ctx, 8, 2, 6);
+  blush(ctx, -18, 8);
+  blush(ctx, 18, 8);
+}
+
+function paintSunaNushi(ctx) {
+  // 砂漠ワールドのボス。砂に埋もれた巨大な獣。金色のオーラと
+  // 硬そうな甲羅状の背中、砂けむりを巻き上げる爪が特徴。
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  for (let i = 0; i < 10; i++) {
+    const a = (Math.PI * 2 * i) / 10;
+    const r = 47 + (i % 2) * 8;
+    ctx.strokeStyle = i % 2 ? "#f5dc8a" : "#c9922a";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 18, Math.sin(a) * 14);
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = "#f5dc8a";
+  ctx.lineWidth = 2;
+  for (const r of [53, 65]) {
+    ctx.beginPath();
+    ctx.arc(0, -2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 背中の突起
+  ctx.fillStyle = "#c9922a";
+  ctx.strokeStyle = "#6b4e18";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  for (const [tx, ty] of [[-24, -34], [0, -42], [24, -34]]) {
+    tri(ctx, tx - 9, ty + 10, tx + 9, ty + 10, tx, ty - 6, "#c9922a", "#6b4e18", 2);
+  }
+
+  // 巨体
+  glossOval(ctx, 0, 6, 45, 40, "#e8c34a", "#c9922a", "#6b4e18", 7.5);
+  glossOval(ctx, 0, 18, 24, 18, "#f5e0a0", "#e8c34a", "#6b4e18", 4);
+  shine(ctx, -19, -14, 17, 10);
+
+  // 太い前脚
+  glossOval(ctx, -41, 26, 13, 20, "#c9922a", "#8a6620", "#6b4e18", 4.5);
+  glossOval(ctx, 41, 26, 13, 20, "#c9922a", "#8a6620", "#6b4e18", 4.5);
+  for (const side of [-1, 1]) {
+    tri(ctx, side * 38, 40, side * 46, 50, side * 30, 48, "#f5e0a0", "#6b4e18", 2);
+  }
+
+  // 足元の砂けむり
+  ctx.save();
+  ctx.globalAlpha = 0.4;
+  for (const [bx, by, r] of [[-38, 44, 6], [38, 46, 5], [0, 52, 5.5]]) {
+    circle(ctx, bx, by, r, "#f5dc8a", "#c9922a", 1.4);
+  }
+  ctx.restore();
+
+  // 顔。琥珀色の目。
+  ctx.fillStyle = "#f5e0a0";
+  ctx.strokeStyle = "#6b4e18";
+  ctx.lineWidth = 2.8;
+  ctx.beginPath();
+  ctx.ellipse(-16, -8, 9, 6.5, -0.16, 0, Math.PI * 2);
+  ctx.ellipse(16, -8, 9, 6.5, 0.16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  circle(ctx, -14, -7, 4, "#8a6620", null);
+  circle(ctx, 14, -7, 4, "#8a6620", null);
+  circle(ctx, -14, -7, 1.8, "#3a2c10", null);
+  circle(ctx, 14, -7, 1.8, "#3a2c10", null);
+
+  starSpark(ctx, -35, -33, 5.5, "#f5dc8a");
+  starSpark(ctx, 36, -31, 5, "#f5dc8a");
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1865,6 +1971,7 @@ const PAINTERS = {
   reverseNushi: paintReverseNushi,
   seaNushi: paintSeaNushi,
   hyougaNushi: paintHyougaNushi,
+  sunaNushi: paintSunaNushi,
   takarabox: paintTakarabox,
   obako: paintObako,
   kurista: paintKurista,
@@ -1885,6 +1992,7 @@ const PAINTERS = {
   sabotenko: paintSabotenko,
   sunasasori: paintSunasasori,
   rakudan: paintRakudan,
+  sunamiira: paintSunamiira,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

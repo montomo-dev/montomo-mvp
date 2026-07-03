@@ -64,6 +64,10 @@ export class BattleScene {
           nextStageId: "desert_stage1",
           subtitle: "ヒョウガヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
+      } else if (this.stageId === "desert_stage3") {
+        this.game.changeScene(new EndingScene(this.game, {
+          subtitle: "スナヌシを のりこえ、きみと なかまは でんせつに なった。",
+        }));
       } else {
         this.game.changeScene(new EndingScene(this.game));
       }
