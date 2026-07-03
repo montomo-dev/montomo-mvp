@@ -576,6 +576,20 @@ export const SPECIES = {
       { level: 6, skill: "hibiwareGeki" },
     ],
   },
+  rakudan: {
+    id: "rakudan",
+    name: "ラクダン",
+    genus: "さばくのふたこぶ",
+    color: "#c9a868",
+    base: { hp: 36, atk: 14, def: 18, spd: 9 },
+    growth: { hp: 7.2, atk: 2.4, def: 3.0, spd: 1.5 },
+    exp: 40,
+    recruitEase: 0.11,
+    learnset: [
+      { level: 1, skill: "kouratackle" },
+      { level: 6, skill: "jinarashipress" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

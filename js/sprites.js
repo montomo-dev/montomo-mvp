@@ -1333,6 +1333,46 @@ function paintSunasasori(ctx) {
   blush(ctx, 18, 8);
 }
 
+function paintRakudan(ctx) {
+  // ふたつのこぶを持つらくだ。長い首とまつげの長い目が特徴。
+  glossOval(ctx, -16, 12, 8, 20, "#c9a868", "#a8863f", "#6b5122", 3.5);
+  glossOval(ctx, 16, 12, 8, 20, "#c9a868", "#a8863f", "#6b5122", 3.5);
+
+  glossOval(ctx, -12, -8, 13, 12, "#dcc088", "#c9a868", "#6b5122", 4);
+  glossOval(ctx, 10, -12, 13, 12, "#dcc088", "#c9a868", "#6b5122", 4);
+
+  glossOval(ctx, 0, 10, 27, 22, "#dcc088", "#c9a868", "#6b5122", 6);
+  shine(ctx, -13, -2, 12, 7);
+
+  ctx.save();
+  ctx.translate(20, -20);
+  ctx.rotate(-0.3);
+  glossOval(ctx, 0, 0, 8, 18, "#dcc088", "#c9a868", "#6b5122", 3);
+  ctx.restore();
+
+  glossCircle(ctx, 22, -34, 11, "#eed9a8", "#dcc088", "#6b5122", 3);
+  ctx.strokeStyle = "#8a6b32";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  for (const [ex, ey, r, rot] of [[16, -38, 6.5, -0.3], [28, -38, 6.5, 0.3]]) {
+    ctx.save();
+    ctx.translate(ex, ey);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    ctx.moveTo(-3, 2); ctx.lineTo(-6, -4);
+    ctx.moveTo(0, 2); ctx.lineTo(-1, -5);
+    ctx.moveTo(3, 2); ctx.lineTo(4, -4);
+    ctx.stroke();
+    ctx.restore();
+  }
+  eye(ctx, 17, -34, 5.5);
+  eye(ctx, 27, -34, 5.5);
+  smile(ctx, 22, -28, 3);
+  blush(ctx, 10, -30);
+
+  glossOval(ctx, 0, 22, 14, 9, "#f2e4bc", "#eed9a8", "#6b5122", 2.2);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1844,6 +1884,7 @@ const PAINTERS = {
   yukibouzu: paintYukibouzu,
   sabotenko: paintSabotenko,
   sunasasori: paintSunasasori,
+  rakudan: paintRakudan,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

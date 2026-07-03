@@ -645,8 +645,10 @@ export const STAGES = {
     wildLevels: [40, 43],
     wildSpecies: ["sabotenko", "sunasasori"],
     prevStage: "snow_stage3",
+    nextStage: "desert_stage2",
     spawns: {
       start: { x: 2, y: 1 },
+      fromNext: { x: 13, y: 1 },
     },
     palette: {
       ground: "#e8c67a",
@@ -658,7 +660,7 @@ export const STAGES = {
     },
     layout: [
       "2222222222222222",
-      "2000111100000002",
+      "2000111100001162",
       "2000111100011002",
       "2000000000011002",
       "2011110000000002",
@@ -672,6 +674,43 @@ export const STAGES = {
     ],
     treasures: [{ id: "t17", money: 1500, x: 8, y: 6, trap: true }],
     groundItems: [{ id: "i17", itemId: "premiumBait", x: 11, y: 4 }],
+  },
+  desert_stage2: {
+    id: "desert_stage2",
+    shortName: "sabaku2",
+    name: "きょだいサボテンのたに",
+    encounterRate: 0.17,
+    wildLevels: [42, 45],
+    wildSpecies: ["sunasasori", "rakudan"],
+    prevStage: "desert_stage1",
+    spawns: {
+      fromPrev: { x: 2, y: 1 },
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#dcb862",
+      accent: "#c9a24a",
+      bushFill: "#a8823a",
+      bushStroke: "#e8c67a",
+      treeLeaf: "#7a8a3a",
+      treeFruit: "#c4d060",
+    },
+    layout: [
+      "2222222222222222",
+      "2700111100000062",
+      "2000111100111002",
+      "2000000000111002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000000002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t18", money: 1600, x: 7, y: 7, trap: true }],
+    groundItems: [{ id: "i18", itemId: "premiumBait", x: 9, y: 4 }],
   },
 };
 
