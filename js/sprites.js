@@ -1126,6 +1126,73 @@ function paintYamiankou(ctx) {
   blush(ctx, 18, 12);
 }
 
+function paintYukimaro(ctx) {
+  // 雪の衣をまとったうさぎ。ふわふわの毛並みと長い耳が特徴。
+  ctx.save();
+  ctx.globalAlpha = 0.7;
+  glossOval(ctx, -10, -34, 8, 20, "#ffffff", "#dcedf7", "#a8c8d8", 3);
+  glossOval(ctx, 10, -34, 8, 20, "#ffffff", "#dcedf7", "#a8c8d8", 3);
+  ctx.restore();
+  glossOval(ctx, -10, -30, 5, 13, "#f7c9d8", "#eaa8c0", null, 0);
+  glossOval(ctx, 10, -30, 5, 13, "#f7c9d8", "#eaa8c0", null, 0);
+
+  glossOval(ctx, -26, 20, 9, 6, "#ffffff", "#dcedf7", "#a8c8d8", 2.5);
+  glossOval(ctx, 26, 20, 9, 6, "#ffffff", "#dcedf7", "#a8c8d8", 2.5);
+
+  glossOval(ctx, 0, 4, 27, 26, "#ffffff", "#eef5fb", "#a8c8d8", 6);
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  for (const [fx, fy] of [[-16, -4], [16, -4], [0, 16]]) {
+    circle(ctx, fx, fy, 3.5, "#ffffff", null);
+  }
+  ctx.restore();
+  shine(ctx, -13, -8, 12, 7);
+
+  glossOval(ctx, 0, 16, 14, 10, "#ffffff", "#f2f8fc", "#a8c8d8", 2.2);
+  eye(ctx, -9, 2, 7);
+  eye(ctx, 9, 2, 7);
+  tri(ctx, -4, 10, 4, 10, 0, 15, "#f5a8c0", null);
+  smile(ctx, 0, 18, 3.4);
+  blush(ctx, -18, 10);
+  blush(ctx, 18, 10);
+}
+
+function paintKooritsumu(ctx) {
+  // つららの結晶体。角ばった氷のパーツが集まってできた体つき。
+  ctx.save();
+  ctx.globalAlpha = 0.3;
+  ctx.strokeStyle = "#eafcff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, 33, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = "#eafcff";
+  ctx.strokeStyle = "#3f8aa8";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  tri(ctx, 0, -36, 8, -18, -8, -18, "#eafcff", "#3f8aa8", 2);
+  tri(ctx, -30, -8, -18, -18, -14, 0, "#eafcff", "#3f8aa8", 2);
+  tri(ctx, 30, -8, 18, -18, 14, 0, "#eafcff", "#3f8aa8", 2);
+
+  glossOval(ctx, 0, 6, 27, 26, "#c9f0fc", "#8fd8ec", "#3f8aa8", 6);
+  ctx.strokeStyle = "rgba(63, 138, 168, 0.5)";
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(0, -18); ctx.lineTo(0, 30);
+  ctx.moveTo(-18, -4); ctx.lineTo(18, 12);
+  ctx.stroke();
+  shine(ctx, -13, -4, 12, 7);
+
+  glossOval(ctx, 0, 18, 14, 10, "#eafcff", "#c9f0fc", "#3f8aa8", 2.2);
+  eye(ctx, -9, 4, 7);
+  eye(ctx, 9, 4, 7);
+  smile(ctx, 0, 20, 3.4);
+  blush(ctx, -18, 12);
+  blush(ctx, 18, 12);
+}
+
 function gear(ctx, x, y, r, teeth, fill, line) {
   ctx.save();
   ctx.translate(x, y);
@@ -1547,6 +1614,8 @@ const PAINTERS = {
   awairuka: paintAwairuka,
   hikariebi: paintHikariebi,
   yamiankou: paintYamiankou,
+  yukimaro: paintYukimaro,
+  kooritsumu: paintKooritsumu,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

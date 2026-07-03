@@ -482,6 +482,42 @@ export const STAGES = {
     treasures: [{ id: "t12", money: 1000, x: 6, y: 7, trap: true }],
     groundItems: [{ id: "i12", itemId: "defSeed", x: 12, y: 5 }],
   },
+  snow_stage1: {
+    id: "snow_stage1",
+    shortName: "yuki1",
+    name: "ゆきのおおどおり",
+    encounterRate: 0.16,
+    wildLevels: [33, 36],
+    wildSpecies: ["yukimaro", "kooritsumu"],
+    prevStage: "sea_stage3",
+    spawns: {
+      start: { x: 2, y: 1 },
+    },
+    palette: {
+      ground: "#eaf4fb",
+      accent: "#dcedf7",
+      bushFill: "#c9e4f2",
+      bushStroke: "#a8c8d8",
+      treeLeaf: "#8fb8d0",
+      treeFruit: "#f0a8c0",
+    },
+    layout: [
+      "2222222222222222",
+      "2000111100000002",
+      "2000111100011002",
+      "2000000000011002",
+      "2011110000000002",
+      "2010010002220002",
+      "2010010002031102",
+      "2000010002001102",
+      "2001110002000002",
+      "2001110000111002",
+      "2000000000111002",
+      "2222222222222222",
+    ],
+    treasures: [{ id: "t13", money: 1100, x: 8, y: 6, trap: true }],
+    groundItems: [{ id: "i13", itemId: "premiumBait", x: 11, y: 4 }],
+  },
 };
 
 export function getStage(stageId) {

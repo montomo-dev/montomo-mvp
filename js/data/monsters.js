@@ -476,6 +476,35 @@ export const SPECIES = {
       { level: 1, skill: "daibakuhatsu" },
     ],
   },
+  yukimaro: {
+    id: "yukimaro",
+    name: "ユキマロ",
+    genus: "ゆきごろもうさぎ",
+    color: "#eef5fb",
+    base: { hp: 32, atk: 14, def: 15, spd: 12 },
+    growth: { hp: 6.4, atk: 2.5, def: 2.6, spd: 2.0 },
+    exp: 32,
+    recruitEase: 0.13,
+    learnset: [
+      { level: 1, skill: "soyokazecutter" },
+      { level: 6, skill: "tatsumakifeather" },
+    ],
+  },
+  kooritsumu: {
+    id: "kooritsumu",
+    name: "コオリツム",
+    genus: "つららけっしょう",
+    color: "#bfe8f5",
+    pigment: "blue",
+    base: { hp: 38, atk: 10, def: 20, spd: 6 },
+    growth: { hp: 7.6, atk: 1.8, def: 3.4, spd: 1.0 },
+    exp: 30,
+    recruitEase: 0.12,
+    learnset: [
+      { level: 1, skill: "kouratackle" },
+      { level: 6, skill: "hibiwareGeki" },
+    ],
+  },
 };
 
 export const WILD_SPECIES = [

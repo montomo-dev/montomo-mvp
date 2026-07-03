@@ -273,3 +273,20 @@ test("海ワールド(sea_stage1〜sea_stage3)は一続きに接続され、sea_
   assert.ok(SPECIES.seaNushi);
   assert.equal(SPECIES.seaNushi.boss, true);
 });
+
+test("snow_stage1はsea_stage3の先にあり、専用モンスターのみ出現する", () => {
+  const snow = STAGES.snow_stage1;
+  assert.ok(snow, "snow_stage1 が STAGES に存在しない");
+  assert.equal(snow.prevStage, "sea_stage3");
+  assert.deepEqual(snow.wildSpecies, ["yukimaro", "kooritsumu"]);
+  for (const id of snow.wildSpecies) {
+    assert.ok(SPECIES[id], `snow_stage1 の wildSpecies '${id}' が SPECIES に存在しない`);
+  }
+});
+
+test("sea_stage3にはnextStageを設定しない（ボス再訪時の選択画面誤表示を防ぐ）", () => {
+  // reverse_stage3と同じ理由で、sea_stage3にnextStageを設定すると
+  // field.jsのボス再訪ロジックがstage3専用のChoiceSceneを誤って再表示する。
+  // snow_stage1への接続はボス撃破直後のEndingScene(nextStageId)のみで行う。
+  assert.equal(STAGES.sea_stage3.nextStage, undefined);
+});

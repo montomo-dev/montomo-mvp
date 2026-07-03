@@ -56,6 +56,7 @@ export class BattleScene {
         }));
       } else if (this.stageId === "sea_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
+          nextStageId: "snow_stage1",
           subtitle: "シンカイヌシを のりこえ、きみと なかまは でんせつに なった。",
         }));
       } else {
