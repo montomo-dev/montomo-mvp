@@ -1,5 +1,8 @@
 {
   "name": "montomo-mvp",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "build:itch": "sh scripts/build-itch.sh"
+  }
 }
