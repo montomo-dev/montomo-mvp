@@ -19,6 +19,32 @@ const T_NEXT = TILE_TYPES.NEXT;
 const T_PREV = TILE_TYPES.PREV;
 const T_SHOP = TILE_TYPES.SHOP;
 
+const WORLD_PREFIXES = [
+  ["reverse_", "reverse"],
+  ["sea_", "sea"],
+  ["snow_", "snow"],
+  ["desert_", "desert"],
+  ["factory_", "factory"],
+  ["castle_", "castle"],
+];
+
+function worldOf(stageId) {
+  for (const [prefix, world] of WORLD_PREFIXES) {
+    if (stageId.startsWith(prefix)) return world;
+  }
+  return "forest";
+}
+
+const PARTICLE_STYLE = {
+  forest:  { color: "rgba(255, 245, 180, 0.8)",  size: 2.2, speed: 6,  drift: 14, rise: -4, count: 18 },
+  reverse: { color: "rgba(160, 255, 140, 0.85)", size: 2.6, speed: 5,  drift: 10, rise: -6, count: 16, blink: true },
+  sea:     { color: "rgba(210, 245, 255, 0.85)", size: 2.4, speed: 12, drift: 8,  rise: -22, count: 22 },
+  snow:    { color: "rgba(255, 255, 255, 0.9)",  size: 2.6, speed: 8,  drift: 12, rise: 18,  count: 26 },
+  desert:  { color: "rgba(230, 200, 140, 0.6)",  size: 2.0, speed: 4,  drift: 22, rise: 0,   count: 20 },
+  factory: { color: "rgba(255, 180, 90, 0.85)",  size: 2.0, speed: 10, drift: 6,  rise: -18, count: 18, blink: true },
+  castle:  { color: "rgba(200, 150, 255, 0.7)",  size: 3.0, speed: 5,  drift: 16, rise: -8,  count: 14, blink: true },
+};
+
 export class FieldScene {
   constructor(game, stageId = START_STAGE_ID) {
     this.game = game;
@@ -48,6 +74,37 @@ export class FieldScene {
     const spawn = this.stage.spawns[spawnKey] || this.stage.spawns.start;
     this.player = { ...spawn };
     if (!keepFacing) this.facing = "down";
+    this.world = worldOf(this.stageId);
+    this.initParticles();
+  }
+
+  initParticles() {
+    const style = PARTICLE_STYLE[this.world] || PARTICLE_STYLE.forest;
+    this.particles = [];
+    for (let i = 0; i < style.count; i++) {
+      this.particles.push({
+        x: Math.random() * 640,
+        y: Math.random() * 480,
+        vx: (Math.random() - 0.5) * style.drift,
+        vy: style.rise + (Math.random() - 0.5) * style.speed,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+
+  updateParticles(dt) {
+    if (!this.particles) return;
+    const style = PARTICLE_STYLE[this.world] || PARTICLE_STYLE.forest;
+    for (const p of this.particles) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.phase += dt * 3;
+      if (p.y < -8) { p.y = 488; p.x = Math.random() * 640; }
+      if (p.y > 488) { p.y = -8; p.x = Math.random() * 640; }
+      if (p.x < -8) p.x = 648;
+      if (p.x > 648) p.x = -8;
+    }
+    this._particleStyle = style;
   }
 
   moveStage(stageId, spawnKey, message) {
@@ -61,6 +118,7 @@ export class FieldScene {
 
   update(dt) {
     this.time += dt;
+    this.updateParticles(dt);
     if (this.toast && (this.toast.timer -= dt) <= 0) this.toast = null;
     if (this.flash > 0) {
       this.flash -= dt;
@@ -240,32 +298,9 @@ export class FieldScene {
         }
         const tile = this.map[y][x];
         if (tile === T_BUSH) {
-          ctx.fillStyle = palette.bushFill;
-          ctx.beginPath();
-          ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
-          ctx.fill();
-          ctx.strokeStyle = palette.bushStroke;
-          ctx.lineWidth = 2.5;
-          ctx.lineCap = "round";
-          for (const ox of [10, 20, 30]) {
-            ctx.beginPath();
-            ctx.moveTo(px + ox, py + 30);
-            ctx.quadraticCurveTo(px + ox - 3, py + 18, px + ox - 6, py + 12);
-            ctx.moveTo(px + ox, py + 30);
-            ctx.quadraticCurveTo(px + ox + 3, py + 18, px + ox + 6, py + 12);
-            ctx.stroke();
-          }
+          this.drawBush(ctx, px, py, palette, x, y);
         } else if (tile === T_TREE) {
-          ctx.fillStyle = "#8a5a35";
-          ctx.fillRect(px + 15, py + 20, 10, 14);
-          ctx.fillStyle = palette.treeLeaf;
-          ctx.beginPath();
-          ctx.arc(px + 20, py + 14, 15, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = palette.treeFruit;
-          ctx.beginPath();
-          ctx.arc(px + 15, py + 10, 6, 0, Math.PI * 2);
-          ctx.fill();
+          this.drawTree(ctx, px, py, palette, x, y);
         } else if (tile === T_SPRING) {
           ctx.fillStyle = "#6db8e8";
           ctx.beginPath();
@@ -350,6 +385,7 @@ export class FieldScene {
 
     this.drawTreasures(ctx);
     this.drawGroundItems(ctx);
+    this.drawParticles(ctx);
 
     const playerPx = this.player.x * TILE + 20;
     const playerPy = this.player.y * TILE + 20;
@@ -476,5 +512,191 @@ export class FieldScene {
       ctx.arc(px + 28, y + 14, 1.5, 0, Math.PI * 2);
       ctx.fill();
     }
+  }
+
+  drawParticles(ctx) {
+    if (!this.particles) return;
+    const style = this._particleStyle || PARTICLE_STYLE[this.world] || PARTICLE_STYLE.forest;
+    ctx.save();
+    for (const p of this.particles) {
+      const alpha = style.blink ? 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(p.phase)) : 1;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = style.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, style.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  drawBush(ctx, px, py, palette, gx, gy) {
+    const w = this.world;
+    if (w === "sea") {
+      ctx.fillStyle = "#e8628a";
+      for (const [cx, cy, r] of [[12, 30, 6], [22, 32, 5], [30, 28, 6], [18, 24, 5]]) {
+        ctx.beginPath(); ctx.arc(px + cx, py + cy, r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.strokeStyle = "#c9425f"; ctx.lineWidth = 2; ctx.lineCap = "round";
+      for (const [x1, y1, x2, y2] of [[12, 30, 12, 20], [22, 32, 22, 18], [30, 28, 30, 20]]) {
+        ctx.beginPath(); ctx.moveTo(px + x1, py + y1); ctx.lineTo(px + x2, py + y2); ctx.stroke();
+      }
+      return;
+    }
+    if (w === "snow") {
+      ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#b8cbdc"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(px + 20, py + 26, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(px + 20, py + 15, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#3a3a52";
+      ctx.beginPath(); ctx.arc(px + 18, py + 14, 1, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px + 22, py + 14, 1, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    if (w === "desert") {
+      ctx.fillStyle = "#a58860"; ctx.strokeStyle = "#6d5636"; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px + 8, py + 32); ctx.lineTo(px + 14, py + 12);
+      ctx.lineTo(px + 26, py + 12); ctx.lineTo(px + 32, py + 32);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#84683f";
+      ctx.beginPath(); ctx.arc(px + 16, py + 20, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px + 25, py + 24, 2, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    if (w === "factory") {
+      ctx.fillStyle = "#7a7f88"; ctx.strokeStyle = "#3d434a"; ctx.lineWidth = 2;
+      ctx.fillRect(px + 6, py + 12, 28, 22); ctx.strokeRect(px + 6, py + 12, 28, 22);
+      ctx.strokeStyle = "#3d434a";
+      for (const gx2 of [px + 14, px + 20, px + 26]) {
+        ctx.beginPath(); ctx.moveTo(gx2, py + 12); ctx.lineTo(gx2, py + 34); ctx.stroke();
+      }
+      ctx.beginPath(); ctx.moveTo(px + 6, py + 23); ctx.lineTo(px + 34, py + 23); ctx.stroke();
+      return;
+    }
+    if (w === "castle") {
+      ctx.fillStyle = "#e5e2d9";
+      for (const [cx, cy, r] of [[14, 30, 5], [22, 32, 5], [28, 28, 4]]) {
+        ctx.beginPath(); ctx.arc(px + cx, py + cy, r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.fillStyle = "#3a3a52";
+      ctx.beginPath(); ctx.arc(px + 12, py + 29, 1, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px + 16, py + 29, 1, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    if (w === "reverse") {
+      ctx.fillStyle = "#c74dc1"; ctx.strokeStyle = "#7a2d78"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(px + 20, py + 26, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#fff2b0";
+      ctx.beginPath(); ctx.arc(px + 16, py + 22, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px + 25, py + 28, 2, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    ctx.fillStyle = palette.bushFill;
+    ctx.beginPath();
+    ctx.roundRect(px + 3, py + 3, TILE - 6, TILE - 6, 8);
+    ctx.fill();
+    ctx.strokeStyle = palette.bushStroke;
+    ctx.lineWidth = 2.5; ctx.lineCap = "round";
+    for (const ox of [10, 20, 30]) {
+      ctx.beginPath();
+      ctx.moveTo(px + ox, py + 30);
+      ctx.quadraticCurveTo(px + ox - 3, py + 18, px + ox - 6, py + 12);
+      ctx.moveTo(px + ox, py + 30);
+      ctx.quadraticCurveTo(px + ox + 3, py + 18, px + ox + 6, py + 12);
+      ctx.stroke();
+    }
+  }
+
+  drawTree(ctx, px, py, palette, gx, gy) {
+    const w = this.world;
+    if (w === "sea") {
+      ctx.fillStyle = "#e57373";
+      ctx.beginPath();
+      ctx.moveTo(px + 20, py + 36);
+      ctx.lineTo(px + 12, py + 16);
+      ctx.lineTo(px + 20, py + 20);
+      ctx.lineTo(px + 28, py + 16);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(px + 12, py + 16); ctx.lineTo(px + 6, py + 6);
+      ctx.moveTo(px + 28, py + 16); ctx.lineTo(px + 34, py + 6);
+      ctx.strokeStyle = "#c44848"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke();
+      ctx.fillStyle = "#fff0a0";
+      ctx.beginPath(); ctx.arc(px + 20, py + 22, 2, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    if (w === "snow") {
+      ctx.fillStyle = "#5e3a24";
+      ctx.fillRect(px + 17, py + 26, 6, 10);
+      ctx.fillStyle = "#2d5a3a";
+      ctx.beginPath();
+      ctx.moveTo(px + 20, py + 4); ctx.lineTo(px + 10, py + 20); ctx.lineTo(px + 30, py + 20); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(px + 20, py + 12); ctx.lineTo(px + 8, py + 28); ctx.lineTo(px + 32, py + 28); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.moveTo(px + 12, py + 20); ctx.lineTo(px + 20, py + 15); ctx.lineTo(px + 28, py + 20);
+      ctx.lineTo(px + 30, py + 22); ctx.lineTo(px + 10, py + 22); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(px + 10, py + 28); ctx.lineTo(px + 20, py + 23); ctx.lineTo(px + 30, py + 28);
+      ctx.lineTo(px + 32, py + 30); ctx.lineTo(px + 8, py + 30); ctx.closePath(); ctx.fill();
+      return;
+    }
+    if (w === "desert") {
+      ctx.fillStyle = "#3f9c5a"; ctx.strokeStyle = "#286a3d"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.roundRect(px + 16, py + 6, 8, 30, 4); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(px + 6, py + 16, 6, 14, 3); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px + 12, py + 22); ctx.lineTo(px + 12, py + 16); ctx.lineTo(px + 16, py + 16); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(px + 28, py + 12, 6, 16, 3); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px + 28, py + 18); ctx.lineTo(px + 28, py + 12); ctx.lineTo(px + 24, py + 12); ctx.stroke();
+      ctx.fillStyle = "#f2e6a0";
+      ctx.beginPath(); ctx.arc(px + 20, py + 4, 2.5, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    if (w === "factory") {
+      ctx.fillStyle = "#4a4d55";
+      ctx.fillRect(px + 12, py + 6, 16, 30);
+      ctx.fillStyle = "#2a2c32";
+      ctx.fillRect(px + 10, py + 4, 20, 5);
+      ctx.strokeStyle = "#2a2c32"; ctx.lineWidth = 1.5;
+      for (const yy of [py + 15, py + 22, py + 29]) {
+        ctx.beginPath(); ctx.moveTo(px + 12, yy); ctx.lineTo(px + 28, yy); ctx.stroke();
+      }
+      const smoke = 0.5 + 0.5 * Math.sin(this.time * 2 + gx + gy);
+      ctx.fillStyle = `rgba(180, 180, 190, ${0.4 + smoke * 0.3})`;
+      ctx.beginPath(); ctx.arc(px + 20, py + 2, 4, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    if (w === "castle") {
+      ctx.fillStyle = "#3d3a44";
+      ctx.fillRect(px + 17, py + 16, 6, 20);
+      ctx.strokeStyle = "#3d3a44"; ctx.lineWidth = 3; ctx.lineCap = "round";
+      for (const [x1, y1, x2, y2] of [[20, 20, 8, 10], [20, 22, 32, 8], [20, 26, 10, 30], [20, 20, 28, 4]]) {
+        ctx.beginPath(); ctx.moveTo(px + x1, py + y1); ctx.lineTo(px + x2, py + y2); ctx.stroke();
+      }
+      ctx.fillStyle = "#8b3355";
+      ctx.beginPath(); ctx.arc(px + 8, py + 10, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px + 32, py + 8, 2, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    if (w === "reverse") {
+      ctx.fillStyle = "#5b3574";
+      ctx.beginPath();
+      ctx.moveTo(px + 20, py + 36);
+      ctx.quadraticCurveTo(px + 12, py + 26, px + 18, py + 20);
+      ctx.quadraticCurveTo(px + 26, py + 14, px + 20, py + 8);
+      ctx.quadraticCurveTo(px + 22, py + 22, px + 20, py + 36);
+      ctx.fill();
+      ctx.fillStyle = "#a54fc4";
+      ctx.beginPath(); ctx.arc(px + 22, py + 10, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#ffe6f7";
+      ctx.beginPath(); ctx.arc(px + 24, py + 8, 2, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+    ctx.fillStyle = "#8a5a35";
+    ctx.fillRect(px + 15, py + 20, 10, 14);
+    ctx.fillStyle = palette.treeLeaf;
+    ctx.beginPath(); ctx.arc(px + 20, py + 14, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = palette.treeFruit;
+    ctx.beginPath(); ctx.arc(px + 15, py + 10, 6, 0, Math.PI * 2); ctx.fill();
   }
 }
