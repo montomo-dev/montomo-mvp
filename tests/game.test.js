@@ -9,6 +9,7 @@ import { depositToRanch } from "../js/systems/party.js";
 import { ITEMS } from "../js/data/items.js";
 import { SKILLS } from "../js/data/skills.js";
 import { getRank, RANK_ORDER, RANK_COLOR } from "../js/systems/rank.js";
+import { TYPES, SPECIES_TYPE, typeOf, typeEffectiveness } from "../js/data/types.js";
 
 test("レア枠は乱数5%未満でツキノネになる", () => {
   assert.equal(rollWildSpecies(undefined, () => 0.049), "tsukinone");
@@ -736,4 +737,56 @@ test("野生でrare指定のモンスターはBランクになる", () => {
 test("通常の野生モンスターはrecruitEaseに応じてC〜Eに分かれる", () => {
   assert.equal(getRank(SPECIES.dogura), "E", "recruitEaseが高い(捕まえやすい)ほど低ランクになるべき");
   assert.equal(getRank(SPECIES.mofurif), "C", "recruitEaseが低い(捕まえにくい)ほど高ランクになるべき");
+});
+
+test("全モンスターに有効なタイプが1つ割り当てられている", () => {
+  for (const [id, species] of Object.entries(SPECIES)) {
+    assert.ok(id in SPECIES_TYPE, `${id} にタイプが割り当てられていない`);
+    assert.ok(TYPES.includes(typeOf(id)), `${id} のタイプ '${typeOf(id)}' が TYPES に存在しない`);
+  }
+});
+
+test("全スキルに有効なタイプが設定されている", () => {
+  for (const [id, skill] of Object.entries(SKILLS)) {
+    assert.ok(TYPES.includes(skill.type), `${id} のタイプ '${skill.type}' が TYPES に存在しない`);
+  }
+});
+
+test("タイプ相性: くさはみずに効果抜群、ほのおにはいまひとつ", () => {
+  assert.equal(typeEffectiveness("くさ", "みず"), 2);
+  assert.equal(typeEffectiveness("くさ", "ほのお"), 0.5);
+  assert.equal(typeEffectiveness("くさ", "でんき"), 1);
+});
+
+test("タイプ相性: でんきはじめんに無効", () => {
+  assert.equal(typeEffectiveness("でんき", "じめん"), 0);
+});
+
+test("戦闘で効果抜群のタイプ相性だとメッセージが表示される", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { BattleScene } = await import("../js/scenes/battle.js");
+
+  // hibachi(ほのお)の攻撃 → mofuri(くさ)は効果抜群になるはず
+  const game = { party: [createMonster("hibachi", 15)], dex: { seen: [], caught: [] }, save: () => true };
+  const enemy = createMonster("mofuri", 15);
+  const battle = new BattleScene(game, enemy, {});
+  const messages = [];
+  const originalRandom = Math.random;
+  Math.random = () => 0.5;
+  try {
+    battle.performAction(battle.ally, battle.enemy, { type: "attack" }, messages);
+  } finally {
+    Math.random = originalRandom;
+  }
+  assert.ok(
+    messages.some((m) => m.includes("ばつぐん")),
+    `効果抜群のメッセージが含まれていない: ${JSON.stringify(messages)}`
+  );
 });

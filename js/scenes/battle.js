@@ -10,6 +10,14 @@ import { ChoiceScene } from "./choice.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 import { getRank } from "../systems/rank.js";
 import { sfxHit, sfxFaint, sfxLevelUp, sfxEvolve, sfxCatchSuccess, sfxCatchFail, sfxConfirm, sfxCancel, sfxCry } from "../audio.js";
+import { typeOf, typeEffectiveness } from "../data/types.js";
+
+function effectivenessMessage(eff) {
+  if (eff === 0) return "こうかが ないようだ…";
+  if (eff > 1) return "こうかは ばつぐんだ！";
+  if (eff < 1) return "こうかは いまひとつの ようだ…";
+  return null;
+}
 
 const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる", "ぼうぎょ"];
 const COMMAND_COLS = [[0, 2, 4], [1, 3, 5]];
@@ -232,9 +240,12 @@ export class BattleScene {
       return;
     }
     const power = skill ? skill.power : 1.0;
+    const atkType = skill ? skill.type : typeOf(actor.speciesId);
+    const eff = typeEffectiveness(atkType, typeOf(target.speciesId));
     let damage = Math.max(1, Math.round(actor.atk * power - target.def / 2 + (Math.random() * 4 - 2)));
+    damage = eff === 0 ? 0 : Math.max(1, Math.round(damage * eff));
     if (target === this.ally && this.allyGuarding) {
-      damage = Math.max(1, Math.round(damage * GUARD_DAMAGE_RATIO));
+      damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
       messages.push(`${target.name} は ぼうぎょで こうげきを うけながした！`);
     }
     target.hp = Math.max(0, target.hp - damage);
@@ -242,6 +253,8 @@ export class BattleScene {
       this.bossState.chargeDamage += damage;
     }
     messages.push(`${target.name} に ${damage} の ダメージ！`);
+    const effMsg = effectivenessMessage(eff);
+    if (effMsg) messages.push(effMsg);
     if (target.hp <= 0) sfxFaint();
     else sfxHit();
   }
@@ -298,13 +311,17 @@ export class BattleScene {
   releaseChargedAttack(messages) {
     const charge = this.bossAI.charge;
     messages.push(`${this.enemy.name} の ${charge.name}！`);
+    const eff = typeEffectiveness(typeOf(this.enemy.speciesId), typeOf(this.ally.speciesId));
     let damage = Math.max(1, Math.round(this.enemy.atk * charge.power - this.ally.def / 2 + (Math.random() * 4 - 2)));
+    damage = eff === 0 ? 0 : Math.max(1, Math.round(damage * eff));
     if (this.allyGuarding) {
-      damage = Math.max(1, Math.round(damage * GUARD_DAMAGE_RATIO));
+      damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
       messages.push(`${this.ally.name} は ぼうぎょで なんとか こらえた！`);
     }
     this.ally.hp = Math.max(0, this.ally.hp - damage);
     messages.push(`${this.ally.name} に ${damage} の ダメージ！`);
+    const effMsg = effectivenessMessage(eff);
+    if (effMsg) messages.push(effMsg);
     if (this.ally.hp <= 0) sfxFaint();
     else sfxHit();
   }
@@ -480,13 +497,14 @@ export class BattleScene {
     ctx.textAlign = "left";
     const rareLabel = SPECIES[this.enemy.speciesId].rare ? "  ★レア" : "";
     const rank = getRank(SPECIES[this.enemy.speciesId]);
-    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}]${rareLabel}`, 30, 40);
+    const enemyType = typeOf(this.enemy.speciesId);
+    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}`, 30, 40);
     hpBar(ctx, 30, 52, 220, 12, this.shownHp.enemy / this.enemy.maxHp);
 
     panel(ctx, 372, 234, 252, 108);
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
-    ctx.fillText(`${this.ally.name}  Lv.${this.ally.level}`, 388, 262);
+    ctx.fillText(`${this.ally.name}  Lv.${this.ally.level}  ${typeOf(this.ally.speciesId)}`, 388, 262);
     hpBar(ctx, 388, 274, 220, 14, this.shownHp.ally / this.ally.maxHp);
     ctx.font = FONT;
     ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))} / ${this.ally.maxHp}`, 388, 310);
@@ -515,7 +533,7 @@ export class BattleScene {
       ctx.font = FONT_BOLD;
       this.ally.skills.forEach((skillId, i) => {
         const y = 402 + i * 26;
-        ctx.fillText(SKILLS[skillId].name, 70, y);
+        ctx.fillText(`${SKILLS[skillId].name}（${SKILLS[skillId].type}）`, 70, y);
         if (this.skillCursor === i) ctx.fillText("▶", 44, y);
       });
     } else if (this.phase === "item") {

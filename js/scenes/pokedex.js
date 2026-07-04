@@ -2,6 +2,7 @@ import { SPECIES } from "../data/monsters.js";
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
+import { typeOf } from "../data/types.js";
 
 const COLS = 4;
 const ROWS = 4;
@@ -127,7 +128,7 @@ export class PokedexScene {
       ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
       ctx.fillText(species.name, x + 50, y + 20);
       ctx.font = '11px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.fillText(species.genus, x + 50, y + 36);
+      ctx.fillText(`${species.genus}（${typeOf(species.id)}）`, x + 50, y + 36);
       if (!isCaught) {
         ctx.fillStyle = "#a8a8c0";
         ctx.fillText("みつけただけ", x + 50, y + 54);
