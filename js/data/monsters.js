@@ -87,7 +87,7 @@ export const SPECIES = {
     growth: { hp: 8, atk: 2.6, def: 3.0, spd: 1.6 },
     exp: 18,
     recruitEase: 0.14,
-    learnset: [{ level: 12, skill: "gantekiotoshi" }],
+    learnset: [{ level: 12, skill: "daichiwari" }],
   },
   bakuhibachi: {
     id: "bakuhibachi",
@@ -270,7 +270,7 @@ export const SPECIES = {
     recruitEase: 0.26,
     learnset: [
       { level: 3, skill: "kouratackle" },
-      { level: 6, skill: "hibiwareGeki" },
+      { level: 6, skill: "daichiwari" },
     ],
   },
   sandango: {
@@ -327,8 +327,8 @@ export const SPECIES = {
     recruitEase: 0.05,
     rare: true,
     learnset: [
-      { level: 1, skill: "gantekiotoshi" },
-      { level: 5, skill: "hibiwareGeki" },
+      { level: 1, skill: "tekkoudan" },
+      { level: 5, skill: "yamiotoshi" },
     ],
   },
   pukurin: {
@@ -386,7 +386,7 @@ export const SPECIES = {
     recruitEase: 0.14,
     learnset: [
       { level: 1, skill: "kouratackle" },
-      { level: 6, skill: "hibiwareGeki" },
+      { level: 6, skill: "tsuraraotoshi" },
     ],
   },
   nejiko: {
@@ -414,7 +414,7 @@ export const SPECIES = {
     recruitEase: 0.14,
     learnset: [
       { level: 1, skill: "kouratackle" },
-      { level: 6, skill: "hibiwareGeki" },
+      { level: 6, skill: "daichiwari" },
     ],
   },
   awairuka: {
@@ -458,7 +458,7 @@ export const SPECIES = {
     recruitEase: 0.09,
     learnset: [
       { level: 1, skill: "hotarubi" },
-      { level: 6, skill: "gantekiotoshi" },
+      { level: 6, skill: "ankokuha" },
     ],
   },
   seaNushi: {
@@ -502,7 +502,7 @@ export const SPECIES = {
     recruitEase: 0.12,
     learnset: [
       { level: 1, skill: "kouratackle" },
-      { level: 6, skill: "hibiwareGeki" },
+      { level: 6, skill: "suishouha" },
     ],
   },
   pengiri: {
@@ -544,7 +544,7 @@ export const SPECIES = {
     boss: true,
     learnset: [
       { level: 1, skill: "hibiwareGeki" },
-      { level: 1, skill: "senpugeki" },
+      { level: 1, skill: "tsuraraotoshi" },
       { level: 1, skill: "daibakuhatsu" },
     ],
   },
@@ -558,7 +558,7 @@ export const SPECIES = {
     exp: 38,
     recruitEase: 0.13,
     learnset: [
-      { level: 1, skill: "gantekiotoshi" },
+      { level: 1, skill: "daichiwari" },
       { level: 6, skill: "jinarashipress" },
     ],
   },
@@ -572,8 +572,8 @@ export const SPECIES = {
     exp: 40,
     recruitEase: 0.09,
     learnset: [
-      { level: 1, skill: "gantekiotoshi" },
-      { level: 6, skill: "hibiwareGeki" },
+      { level: 1, skill: "tekkoudan" },
+      { level: 6, skill: "daichiwari" },
     ],
   },
   rakudan: {
@@ -601,7 +601,7 @@ export const SPECIES = {
     recruitEase: 0.09,
     learnset: [
       { level: 1, skill: "jinarashipress" },
-      { level: 6, skill: "hibiwareGeki" },
+      { level: 6, skill: "yamiotoshi" },
     ],
   },
   sunaNushi: {
@@ -630,7 +630,7 @@ export const SPECIES = {
     recruitEase: 0.1,
     learnset: [
       { level: 1, skill: "jinarashipress" },
-      { level: 6, skill: "gantekiotoshi" },
+      { level: 6, skill: "tekkoudan" },
     ],
   },
   sparkun: {
@@ -673,7 +673,7 @@ export const SPECIES = {
     recruitEase: 0.1,
     learnset: [
       { level: 1, skill: "jinarashipress" },
-      { level: 6, skill: "daibakuhatsu" },
+      { level: 6, skill: "tekkoudan" },
     ],
   },
   koujouNushi: {
@@ -688,7 +688,7 @@ export const SPECIES = {
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
       { level: 1, skill: "hibiwareGeki" },
-      { level: 1, skill: "senpugeki" },
+      { level: 1, skill: "tekkoudan" },
     ],
   },
   akumakko: {
@@ -701,8 +701,8 @@ export const SPECIES = {
     exp: 50,
     recruitEase: 0.08,
     learnset: [
-      { level: 1, skill: "daibakuhatsu" },
-      { level: 6, skill: "senpugeki" },
+      { level: 1, skill: "kageuchi" },
+      { level: 6, skill: "ankokuha" },
     ],
   },
   kokushou: {
@@ -715,8 +715,8 @@ export const SPECIES = {
     exp: 50,
     recruitEase: 0.09,
     learnset: [
-      { level: 1, skill: "hibiwareGeki" },
-      { level: 6, skill: "gantekiotoshi" },
+      { level: 1, skill: "ankokuha" },
+      { level: 6, skill: "yamiotoshi" },
     ],
   },
   maou: {
@@ -746,7 +746,7 @@ export const SPECIES = {
     recruitEase: 0.07,
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
-      { level: 6, skill: "hibiwareGeki" },
+      { level: 6, skill: "akuryouha" },
     ],
   },
   noroigumo: {
@@ -759,7 +759,7 @@ export const SPECIES = {
     exp: 54,
     recruitEase: 0.07,
     learnset: [
-      { level: 1, skill: "hibiwareGeki" },
+      { level: 1, skill: "ankokuha" },
       { level: 6, skill: "daibakuhatsu" },
     ],
   },

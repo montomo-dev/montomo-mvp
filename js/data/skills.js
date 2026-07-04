@@ -23,4 +23,12 @@ export const SKILLS = {
   hibiwareGeki: { name: "ひびわれげき", power: 2.0, accuracy: 75 },
   mitarashihane: { name: "みたらしはねる", power: 1.3, accuracy: 100 },
   dangospin: { name: "だんごスピン", power: 1.75, accuracy: 85 },
+  tsuraraotoshi: { name: "つららおとし", power: 1.9, accuracy: 78 },
+  daichiwari: { name: "だいちわり", power: 2.0, accuracy: 75 },
+  ankokuha: { name: "あんこくは", power: 2.05, accuracy: 78 },
+  kageuchi: { name: "かげうち", power: 1.85, accuracy: 85 },
+  suishouha: { name: "すいしょうは", power: 1.9, accuracy: 85 },
+  tekkoudan: { name: "てっこうだん", power: 2.0, accuracy: 75 },
+  akuryouha: { name: "あくりょうは", power: 2.0, accuracy: 78 },
+  yamiotoshi: { name: "やみおとし", power: 2.15, accuracy: 70 },
 };
