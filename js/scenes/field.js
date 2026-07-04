@@ -216,8 +216,8 @@ export class FieldScene {
       this.showToast("やどやで ぐっすり やすみ、げんきを とりもどした！");
       return;
     }
-    if (tile === T_TOWN_ENTER) {
-      this.moveStage("town1", "fromField", "まちに はいった！");
+    if (tile === T_TOWN_ENTER && this.stage.townStage) {
+      this.moveStage(this.stage.townStage, "fromField", "まちに はいった！");
       return;
     }
     if (tile === T_TOWN_EXIT && this.stage.townExitStage) {
