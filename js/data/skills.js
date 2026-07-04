@@ -31,4 +31,6 @@ export const SKILLS = {
   tekkoudan: { name: "てっこうだん", power: 2.0, accuracy: 75 },
   akuryouha: { name: "あくりょうは", power: 2.0, accuracy: 78 },
   yamiotoshi: { name: "やみおとし", power: 2.15, accuracy: 70 },
+  soyoquiver: { name: "そよかぜアロー", power: 1.5, accuracy: 95 },
+  kazenokiri: { name: "かぜのきり", power: 1.9, accuracy: 82 },
 };

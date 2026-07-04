@@ -2440,15 +2440,725 @@ function paintTakarabox(ctx) {
   shine(ctx, -12, -2, 12, 7);
 }
 
+function paintHanamaro(ctx) {
+  // 花っぽい子犬: ふわふわでやわらかい輪郭。
+  const body = "#ffd3e0";
+  const ear = "#ff9db8";
+  const line = "#7b4b5e";
+  glossOval(ctx, 0, 0, 24, 20, body, "#f7b6c8", line, 4);
+  glossOval(ctx, -18, -12, 10, 14, ear, "#f58fb0", line, 3);
+  glossOval(ctx, 18, -12, 10, 14, ear, "#f58fb0", line, 3);
+  oval(ctx, -10, 18, 8, 6, "#ffffff", line, 3);
+  oval(ctx, 10, 18, 8, 6, "#ffffff", line, 3);
+  circle(ctx, -8, -4, 3.2, "#ffffff", null);
+  circle(ctx, 8, -4, 3.2, "#ffffff", null);
+  circle(ctx, -8, -4, 1.2, line, null);
+  circle(ctx, 8, -4, 1.2, line, null);
+  smile(ctx, 0, 8, 3.5);
+  tinyLeaf(ctx, -20, 20, -0.6, "#8ddf6a");
+  tinyLeaf(ctx, 20, 20, 0.5, "#8ddf6a");
+}
+
+function paintTorimugi(ctx) {
+  // 麦色の渡り鳥: 細身で風を切る。
+  const body = "#f0d27a";
+  const wing = "#fff0b0";
+  const line = "#7c6329";
+  oval(ctx, 0, 0, 18, 14, body, line, 4);
+  oval(ctx, -24, -2, 18, 9, wing, line, 4);
+  oval(ctx, 24, -2, 18, 9, wing, line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 14); ctx.lineTo(-4, 28);
+  ctx.moveTo(0, 14); ctx.lineTo(6, 28);
+  ctx.stroke();
+  circle(ctx, -6, -2, 2.8, "#ffffff", null);
+  circle(ctx, 6, -2, 2.8, "#ffffff", null);
+  circle(ctx, -6, -2, 1.0, line, null);
+  circle(ctx, 6, -2, 1.0, line, null);
+  ctx.fillStyle = "#d88d2f";
+  ctx.beginPath();
+  ctx.moveTo(18, 0);
+  ctx.lineTo(30, 4);
+  ctx.lineTo(18, 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+}
+
+function paintSazanami(ctx) {
+  // 水面のさざなみ: 丸い胴と波みたいな装飾。
+  const body = "#a9eef2";
+  const wave = "#6fd0df";
+  const line = "#2b6e7a";
+  glossCircle(ctx, 0, 0, 24, body, wave, line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0, 12, 14, Math.PI, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-18, -6); ctx.quadraticCurveTo(-8, -12, 0, -6);
+  ctx.quadraticCurveTo(8, 0, 18, -6);
+  ctx.stroke();
+  circle(ctx, -8, -3, 3.2, "#ffffff", null);
+  circle(ctx, 8, -3, 3.2, "#ffffff", null);
+  circle(ctx, -8, -3, 1.2, line, null);
+  circle(ctx, 8, -3, 1.2, line, null);
+  smile(ctx, 0, 8, 3.8);
+}
+
+function paintMizuhane(ctx) {
+  // 水辺の小鳥: すらっとした体と大きめの翼。
+  const body = "#cfefff";
+  const wing = "#84d4ec";
+  const line = "#46798b";
+  oval(ctx, 0, 0, 16, 18, body, line, 4);
+  oval(ctx, -22, -3, 18, 10, wing, line, 4);
+  oval(ctx, 22, -3, 18, 10, wing, line, 4);
+  circle(ctx, -6, -4, 2.8, "#ffffff", null);
+  circle(ctx, 6, -4, 2.8, "#ffffff", null);
+  circle(ctx, -6, -4, 1.0, line, null);
+  circle(ctx, 6, -4, 1.0, line, null);
+  smile(ctx, 0, 7, 3.2);
+  ctx.fillStyle = "#f1c15f";
+  ctx.beginPath();
+  ctx.moveTo(14, -1);
+  ctx.lineTo(26, 2);
+  ctx.lineTo(14, 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+}
+
+function paintKotohana(ctx) {
+  // 花のことり: 丸い胴と花びらの羽。
+  const body = "#ffe0ee";
+  const petal = "#f49ac0";
+  const line = "#8b5771";
+  glossCircle(ctx, 0, 0, 22, body, "#f7b7d1", line, 4);
+  petalFlower(ctx, -18, -3, 7, petal, "#fff2f8");
+  petalFlower(ctx, 18, -3, 7, petal, "#fff2f8");
+  circle(ctx, -7, -3, 2.8, "#ffffff", null);
+  circle(ctx, 7, -3, 2.8, "#ffffff", null);
+  circle(ctx, -7, -3, 1.0, line, null);
+  circle(ctx, 7, -3, 1.0, line, null);
+  smile(ctx, 0, 8, 3.4);
+  tinyLeaf(ctx, -10, -28, -0.4, "#76d96b");
+  tinyLeaf(ctx, 10, -28, 0.5, "#76d96b");
+}
+
+function paintSunaboko(ctx) {
+  // 砂のころがし屋: ころんとした球体のモンスター。
+  const body = "#e0bd7a";
+  const line = "#8a6b3d";
+  glossCircle(ctx, 0, 0, 24, body, "#cfa968", line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-18, 0); ctx.lineTo(18, 0);
+  ctx.moveTo(0, -18); ctx.lineTo(0, 18);
+  ctx.stroke();
+  circle(ctx, -7, -4, 3, "#ffffff", null);
+  circle(ctx, 7, -4, 3, "#ffffff", null);
+  circle(ctx, -7, -4, 1.1, line, null);
+  circle(ctx, 7, -4, 1.1, line, null);
+  smile(ctx, 0, 10, 3.8);
+  ctx.globalAlpha = 0.35;
+  circle(ctx, -28, 18, 5, "#f7e4b0", null);
+  circle(ctx, 28, 18, 4, "#f7e4b0", null);
+  ctx.globalAlpha = 1;
+}
+
+function paintSorane(ctx) {
+  // 空のうさぎ: 軽く浮くような細身シルエット。
+  const body = "#cce6ff";
+  const line = "#53789c";
+  glossOval(ctx, 0, 0, 15, 20, body, "#9fd0ff", line, 4);
+  oval(ctx, -14, -18, 8, 15, "#e9f5ff", line, 3);
+  oval(ctx, 14, -18, 8, 15, "#e9f5ff", line, 3);
+  circle(ctx, -6, -4, 2.6, "#ffffff", null);
+  circle(ctx, 6, -4, 2.6, "#ffffff", null);
+  circle(ctx, -6, -4, 1.0, line, null);
+  circle(ctx, 6, -4, 1.0, line, null);
+  smile(ctx, 0, 8, 3.2);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-8, 16); ctx.lineTo(-10, 28);
+  ctx.moveTo(8, 16); ctx.lineTo(10, 28);
+  ctx.stroke();
+}
+
+function paintMomijiri(ctx) {
+  // もみじぎつね: 尻尾を大きく見せる紅葉系。
+  const body = "#ffd1a3";
+  const tail = "#f47d4b";
+  const line = "#8b4d2f";
+  oval(ctx, 0, 0, 22, 18, body, line, 4);
+  glossOval(ctx, -26, 0, 14, 10, tail, "#e85f38", line, 3);
+  glossOval(ctx, 26, 0, 14, 10, tail, "#e85f38", line, 3);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, 14); ctx.lineTo(-2, 30);
+  ctx.moveTo(0, 14); ctx.lineTo(4, 30);
+  ctx.stroke();
+  circle(ctx, -7, -2, 2.8, "#ffffff", null);
+  circle(ctx, 7, -2, 2.8, "#ffffff", null);
+  circle(ctx, -7, -2, 1.0, line, null);
+  circle(ctx, 7, -2, 1.0, line, null);
+  smile(ctx, 0, 7, 3.4);
+  tinyLeaf(ctx, -18, -24, -0.6, "#ffbf57");
+  tinyLeaf(ctx, 18, -24, 0.5, "#ffbf57");
+}
+
+function paintShizukuya(ctx) {
+  // 雫の宿り手: まるい体にしずく模様。
+  const body = "#96e1ee";
+  const line = "#2d7484";
+  glossCircle(ctx, 0, 0, 23, body, "#64c8da", line, 4);
+  circle(ctx, 0, -8, 7, "#e8fbff", line, 2.5);
+  circle(ctx, -8, 5, 4, "#e8fbff", null);
+  circle(ctx, 8, 5, 4, "#e8fbff", null);
+  circle(ctx, -7, -3, 2.8, "#ffffff", null);
+  circle(ctx, 7, -3, 2.8, "#ffffff", null);
+  circle(ctx, -7, -3, 1.0, line, null);
+  circle(ctx, 7, -3, 1.0, line, null);
+  smile(ctx, 0, 10, 3.6);
+}
+
+function paintKazeneko(ctx) {
+  // 風のねこ: 耳としっぽが長め。
+  const body = "#d9ebff";
+  const ear = "#8fb7ff";
+  const line = "#5a7598";
+  glossCircle(ctx, 0, 0, 22, body, "#b6d4ff", line, 4);
+  tri(ctx, -18, -28, -8, -8, -26, -10, ear, line, 3);
+  tri(ctx, 18, -28, 8, -8, 26, -10, ear, line, 3);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(18, 14); ctx.quadraticCurveTo(34, 20, 28, 34);
+  ctx.stroke();
+  circle(ctx, -7, -3, 2.8, "#ffffff", null);
+  circle(ctx, 7, -3, 2.8, "#ffffff", null);
+  circle(ctx, -7, -3, 1.0, line, null);
+  circle(ctx, 7, -3, 1.0, line, null);
+  smile(ctx, 0, 8, 3.2);
+}
+
+function paintTsuyuhika(ctx) {
+  // 露のひかり: ぽってり丸い体に光る雫。
+  const body = "#e8ffd9";
+  const core = "#9be37f";
+  const line = "#6f9a56";
+  glossCircle(ctx, 0, 0, 22, body, core, line, 4);
+  circle(ctx, 0, -10, 7, "#ffffff", line, 2.5);
+  shine(ctx, -12, -14, 8, 4, -0.2);
+  circle(ctx, -7, -3, 2.8, "#ffffff", null);
+  circle(ctx, 7, -3, 2.8, "#ffffff", null);
+  circle(ctx, -7, -3, 1.0, line, null);
+  circle(ctx, 7, -3, 1.0, line, null);
+  smile(ctx, 0, 8, 3.2);
+}
+
+function paintMoriame(ctx) {
+  // 森の雨つぶ: 丸いしずく型で落ち着いた色。
+  const body = "#9de2cf";
+  const line = "#49786c";
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0, -28);
+  ctx.quadraticCurveTo(20, -4, 14, 16);
+  ctx.quadraticCurveTo(0, 30, -14, 16);
+  ctx.quadraticCurveTo(-20, -4, 0, -28);
+  ctx.closePath();
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.restore();
+  circle(ctx, -6, 0, 2.8, "#ffffff", null);
+  circle(ctx, 6, 0, 2.8, "#ffffff", null);
+  circle(ctx, -6, 0, 1.0, line, null);
+  circle(ctx, 6, 0, 1.0, line, null);
+  smile(ctx, 0, 12, 3.4);
+}
+
+function paintHarune(ctx) {
+  // 春のうさぎ: やわらかい色味の軽いシルエット。
+  const body = "#f8deff";
+  const ear = "#d99ef2";
+  const line = "#7a5a95";
+  glossOval(ctx, 0, 0, 16, 20, body, "#ebbff7", line, 4);
+  oval(ctx, -14, -20, 8, 16, ear, "#cf87ec", line, 3);
+  oval(ctx, 14, -20, 8, 16, ear, "#cf87ec", line, 3);
+  circle(ctx, -6, -4, 2.6, "#ffffff", null);
+  circle(ctx, 6, -4, 2.6, "#ffffff", null);
+  circle(ctx, -6, -4, 1.0, line, null);
+  circle(ctx, 6, -4, 1.0, line, null);
+  smile(ctx, 0, 8, 3.2);
+  tinyLeaf(ctx, -20, 20, -0.5, "#8ee27e");
+  tinyLeaf(ctx, 20, 20, 0.5, "#8ee27e");
+}
+
+function paintMizugoma(ctx) {
+  // 水のごま: 小さな丸い水生生物。
+  const body = "#b8f2f1";
+  const line = "#3d8486";
+  glossCircle(ctx, 0, 0, 22, body, "#7ed8d9", line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-16, -6); ctx.quadraticCurveTo(-8, -14, 0, -8);
+  ctx.quadraticCurveTo(8, -2, 16, -6);
+  ctx.stroke();
+  circle(ctx, -7, -3, 2.6, "#ffffff", null);
+  circle(ctx, 7, -3, 2.6, "#ffffff", null);
+  circle(ctx, -7, -3, 1.0, line, null);
+  circle(ctx, 7, -3, 1.0, line, null);
+  smile(ctx, 0, 8, 3.4);
+}
+
+function paintSunobori(ctx) {
+  // 砂のぼり: 砂山をよじのぼる系。
+  const body = "#ebc686";
+  const line = "#8a6940";
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0, -28);
+  ctx.lineTo(24, 16);
+  ctx.lineTo(-24, 16);
+  ctx.closePath();
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.restore();
+  circle(ctx, -6, -2, 2.8, "#ffffff", null);
+  circle(ctx, 6, -2, 2.8, "#ffffff", null);
+  circle(ctx, -6, -2, 1.0, line, null);
+  circle(ctx, 6, -2, 1.0, line, null);
+  smile(ctx, 0, 8, 3.2);
+}
+
+function paintSakuraneko(ctx) {
+  // 花びらっぽい耳としっぽで、少し華やかなネコ。
+  const body = "#ffd0e3";
+  const line = "#8f5572";
+  glossCircle(ctx, 0, 0, 22, body, "#ffb4d0", line, 4);
+  tri(ctx, -18, -22, -8, -35, -3, -18, "#ffc0db", "#8f5572", 2.2);
+  tri(ctx, 18, -22, 8, -35, 3, -18, "#ffc0db", "#8f5572", 2.2);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(12, 13);
+  ctx.quadraticCurveTo(30, 12, 27, -10);
+  ctx.quadraticCurveTo(24, -25, 10, -20);
+  ctx.stroke();
+  petalFlower(ctx, -20, 6, 5.2, "#f7a8c8", "#fff0a8");
+  petalFlower(ctx, 20, 4, 5.2, "#f7a8c8", "#fff0a8");
+  eye(ctx, -7, -4, 7.2);
+  eye(ctx, 7, -4, 7.2);
+  smile(ctx, 0, 8, 3.3);
+  blush(ctx, -16, 5);
+  blush(ctx, 16, 5);
+}
+
+function paintMizukusa(ctx) {
+  // 水草むし: 葉っぱの衣をまとった、細長い水辺の子。
+  const body = "#94e0d0";
+  const line = "#467f75";
+  glossOval(ctx, 0, 2, 18, 24, body, "#63c5b3", line, 4);
+  tinyLeaf(ctx, -15, -18, -0.9, "#71d7c3");
+  tinyLeaf(ctx, 15, -18, 0.9, "#71d7c3");
+  tinyLeaf(ctx, -19, 10, -0.4, "#5ecab6");
+  tinyLeaf(ctx, 19, 10, 0.4, "#5ecab6");
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3.2;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-3, 18);
+  ctx.quadraticCurveTo(-8, 32, -2, 36);
+  ctx.moveTo(3, 18);
+  ctx.quadraticCurveTo(8, 32, 2, 36);
+  ctx.stroke();
+  eye(ctx, -6, -4, 6.5);
+  eye(ctx, 6, -4, 6.5);
+  smile(ctx, 0, 8, 3.2);
+  scaleMark(ctx, -10, 6, 4, "rgba(255,255,255,0.25)");
+  scaleMark(ctx, 10, 6, 4, "rgba(255,255,255,0.25)");
+}
+
+function paintSunamaru(ctx) {
+  // 砂まる: まるい砂だまのようなシンプルな子。
+  const body = "#e5c27f";
+  const line = "#8b6a39";
+  glossCircle(ctx, 0, 0, 23, body, "#d7af68", line, 4);
+  ctx.fillStyle = "#cfac69";
+  ctx.strokeStyle = "rgba(139, 106, 57, 0.6)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (const [x, y, r] of [[-10, -7, 2.3], [5, -10, 1.8], [10, 4, 2.1], [-4, 10, 1.9]]) {
+    ctx.moveTo(x + r, y);
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+  }
+  ctx.fill();
+  ctx.stroke();
+  eye(ctx, -7, -2, 6.8);
+  eye(ctx, 7, -2, 6.8);
+  smile(ctx, 0, 8, 3.2);
+}
+
+function paintTsukihane(ctx) {
+  // 月羽: 羽っぽい耳を持つ、少し夜色の軽いキャラ。
+  const body = "#d7ccff";
+  const line = "#6e5b99";
+  glossOval(ctx, 0, 2, 18, 22, body, "#bfa8ff", line, 4);
+  tri(ctx, -18, -20, -8, -36, -2, -18, "#eee7ff", "#6e5b99", 2);
+  tri(ctx, 18, -20, 8, -36, 2, -18, "#eee7ff", "#6e5b99", 2);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-10, 12);
+  ctx.quadraticCurveTo(-22, 22, -16, 34);
+  ctx.moveTo(10, 12);
+  ctx.quadraticCurveTo(22, 22, 16, 34);
+  ctx.stroke();
+  starSpark(ctx, -14, -10, 4.2, "#fff1a6");
+  eye(ctx, -6, -3, 6.8);
+  eye(ctx, 6, -3, 6.8);
+  smile(ctx, 0, 8, 3.2);
+}
+
+function paintMizutama(ctx) {
+  // 水玉: ぽこぽこと浮かぶ丸い水のいきもの。
+  const body = "#91e4f2";
+  const line = "#4d8fa0";
+  glossCircle(ctx, -10, -2, 10, "#c9f7ff", "#91e4f2", line, 3);
+  glossCircle(ctx, 10, -2, 10, "#c9f7ff", "#91e4f2", line, 3);
+  glossCircle(ctx, 0, 10, 16, body, "#63cfe3", line, 4);
+  scaleMark(ctx, -5, 6, 3.4, "rgba(255,255,255,0.28)");
+  scaleMark(ctx, 7, 14, 3.4, "rgba(255,255,255,0.28)");
+  eye(ctx, -6, 8, 5.8);
+  eye(ctx, 6, 8, 5.8);
+  smile(ctx, 0, 16, 3.0);
+}
+
+function paintIshimaru(ctx) {
+  // 石まる: かなり素朴な石っころキャラ。フラット寄り。
+  const body = "#c0b09c";
+  const line = "#6f6357";
+  ctx.save();
+  ctx.translate(0, 1);
+  ctx.beginPath();
+  ctx.moveTo(-21, 8);
+  ctx.quadraticCurveTo(-20, -17, -2, -26);
+  ctx.quadraticCurveTo(18, -28, 22, -4);
+  ctx.quadraticCurveTo(26, 18, 2, 24);
+  ctx.quadraticCurveTo(-18, 22, -21, 8);
+  ctx.closePath();
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.restore();
+  ctx.strokeStyle = "rgba(111,99,87,0.45)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-10, -8);
+  ctx.lineTo(3, -14);
+  ctx.moveTo(-7, 4);
+  ctx.lineTo(10, 0);
+  ctx.stroke();
+  eye(ctx, -6, -1, 6.2);
+  eye(ctx, 6, -1, 6.2);
+  smile(ctx, 0, 9, 3.0);
+}
+
+function paintKazepeko(ctx) {
+  // 風の小動物っぽい、ふわっと軽い見た目。
+  const body = "#c9f1ff";
+  const line = "#4f8aa1";
+  glossCircle(ctx, 0, 0, 20, body, "#8fdcff", line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-22, 2);
+  ctx.quadraticCurveTo(-34, -2, -44, -12);
+  ctx.moveTo(-18, 10);
+  ctx.quadraticCurveTo(-31, 16, -42, 18);
+  ctx.stroke();
+  eye(ctx, -6, -3, 6.5);
+  eye(ctx, 6, -3, 6.5);
+  smile(ctx, 0, 7, 3.1);
+}
+
+function paintHikariame(ctx) {
+  // 光のあめだま。やわらかい透明感のある丸型。
+  const body = "#ffe4bf";
+  const line = "#a97b48";
+  glossOval(ctx, 0, 0, 22, 18, body, "#ffd18f", line, 4);
+  starSpark(ctx, -10, -10, 4.3, "#fff1ad");
+  starSpark(ctx, 10, -6, 3.6, "#fff1ad");
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-11, 16);
+  ctx.lineTo(-14, 28);
+  ctx.moveTo(11, 16);
+  ctx.lineTo(14, 28);
+  ctx.stroke();
+  eye(ctx, -6, 0, 6.2);
+  eye(ctx, 6, 0, 6.2);
+  smile(ctx, 0, 10, 3.1);
+}
+
+function paintYamakibi(ctx) {
+  // 山の火種っぽい、少し固めのシルエット。
+  const body = "#d8a06e";
+  const line = "#7b5230";
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0, -26);
+  ctx.lineTo(24, 12);
+  ctx.lineTo(-24, 12);
+  ctx.closePath();
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.restore();
+  tri(ctx, -10, 4, 10, 4, 0, 16, body, line, 3);
+  eye(ctx, -6, -2, 6.5);
+  eye(ctx, 6, -2, 6.5);
+  smile(ctx, 0, 8, 3.1);
+}
+
+function paintShizumegane(ctx) {
+  // しずめがね: 水底のめだまみたいな、少し不思議な子。
+  const body = "#b2ece5";
+  const line = "#4f7f7a";
+  glossCircle(ctx, 0, 0, 21, body, "#7fd2cb", line, 4);
+  circle(ctx, -8, -2, 5.5, "#ffffff", null);
+  circle(ctx, 8, -2, 5.5, "#ffffff", null);
+  circle(ctx, -8, -2, 2.6, line, null);
+  circle(ctx, 8, -2, 2.6, line, null);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-18, -1);
+  ctx.lineTo(-28, -4);
+  ctx.moveTo(18, -1);
+  ctx.lineTo(28, -4);
+  ctx.stroke();
+  smile(ctx, 0, 10, 3.0);
+}
+
+function paintHaribune(ctx) {
+  // 針の船。小さいけれどきりっとした輪郭。
+  const body = "#d9e3ff";
+  const line = "#6575a0";
+  ctx.beginPath();
+  ctx.moveTo(0, -28);
+  ctx.lineTo(24, 12);
+  ctx.lineTo(0, 20);
+  ctx.lineTo(-24, 12);
+  ctx.closePath();
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-14, 0);
+  ctx.lineTo(14, 0);
+  ctx.stroke();
+  eye(ctx, -6, -2, 6.3);
+  eye(ctx, 6, -2, 6.3);
+  smile(ctx, 0, 8, 3.0);
+}
+
+function paintReiseiou(ctx) {
+  // 配合専用のごほうび枠: 氷・星・王冠を合わせた特別シルエット。
+  const body = "#dfeaff";
+  const core = "#8db8ff";
+  const accent = "#fff4c8";
+  const line = "#39567d";
+  ctx.save();
+  ctx.globalAlpha = 0.98;
+  circle(ctx, 0, 0, 30, "#f7fbff", "#b4d2ff", 4);
+  ctx.beginPath();
+  ctx.moveTo(0, -36);
+  ctx.lineTo(12, -24);
+  ctx.lineTo(26, -28);
+  ctx.lineTo(22, -14);
+  ctx.lineTo(34, -2);
+  ctx.lineTo(18, 2);
+  ctx.lineTo(16, 18);
+  ctx.lineTo(0, 10);
+  ctx.lineTo(-16, 18);
+  ctx.lineTo(-18, 2);
+  ctx.lineTo(-34, -2);
+  ctx.lineTo(-22, -14);
+  ctx.lineTo(-26, -28);
+  ctx.lineTo(-12, -24);
+  ctx.closePath();
+  ctx.fillStyle = accent;
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 4;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  ctx.restore();
+
+  oval(ctx, -10, -2, 11, 15, body, line, 4);
+  oval(ctx, 10, -2, 11, 15, body, line, 4);
+  circle(ctx, -12, -4, 3.8, "#ffffff", null);
+  circle(ctx, 8, -4, 3.8, "#ffffff", null);
+  circle(ctx, -10, -4, 1.4, line, null);
+  circle(ctx, 10, -4, 1.4, line, null);
+  smile(ctx, 0, 11, 4.5);
+  ctx.save();
+  ctx.globalAlpha = 0.65;
+  shine(ctx, -20, -20, 8, 4, -0.3);
+  shine(ctx, 20, -15, 7, 3.5, 0.2);
+  circle(ctx, 0, -38, 5, "#ffffff", "#b4d2ff", 2);
+  ctx.restore();
+  ctx.fillStyle = core;
+  ctx.beginPath();
+  ctx.moveTo(0, -28);
+  ctx.lineTo(7, -14);
+  ctx.lineTo(0, -18);
+  ctx.lineTo(-7, -14);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+}
+
+function paintSumiremo(ctx) {
+  // うす紫の夜ちょう: 細身の胴と大きめの羽。
+  const wing = "#b79df0";
+  const wingDark = "#7d61c8";
+  const body = "#efe8ff";
+  const line = "#55407c";
+  oval(ctx, 0, 0, 12, 22, body, line, 4);
+  oval(ctx, -18, -2, 18, 11, wing, line, 4);
+  oval(ctx, 18, -2, 18, 11, wing, line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-6, 18); ctx.lineTo(-10, 33);
+  ctx.moveTo(6, 18); ctx.lineTo(10, 33);
+  ctx.stroke();
+  circle(ctx, -4, -6, 3, "#ffffff", null);
+  circle(ctx, 4, -6, 3, "#ffffff", null);
+  circle(ctx, -4, -6, 1.2, line, null);
+  circle(ctx, 4, -6, 1.2, line, null);
+  smile(ctx, 0, 5, 3.2);
+  shine(ctx, -18, -12, 7, 4, -0.25);
+  ctx.fillStyle = wingDark;
+  ctx.beginPath();
+  ctx.moveTo(-18, -2);
+  ctx.lineTo(-30, -10);
+  ctx.lineTo(-23, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(18, -2);
+  ctx.lineTo(30, -10);
+  ctx.lineTo(23, 0);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function paintYukigamo(ctx) {
+  // 雪の水鳥: ふっくらした胴とくちばし。
+  const body = "#f4fbff";
+  const wing = "#bfdff0";
+  const line = "#58768e";
+  glossOval(ctx, 0, 0, 24, 20, body, wing, line, 4);
+  glossOval(ctx, -18, -2, 10, 14, "#e7f7ff", wing, line, 3);
+  glossOval(ctx, 18, -2, 10, 14, "#e7f7ff", wing, line, 3);
+  oval(ctx, 0, 11, 10, 7, "#ffffff", line, 3);
+  ctx.fillStyle = "#f7c95a";
+  ctx.beginPath();
+  ctx.moveTo(22, -2);
+  ctx.lineTo(34, 2);
+  ctx.lineTo(22, 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  circle(ctx, -7, -6, 2.8, "#2b2b33", null);
+  circle(ctx, 7, -6, 2.8, "#2b2b33", null);
+  shine(ctx, -14, -14, 9, 5, -0.2);
+}
+
+function paintKuroguri(ctx) {
+  // 小さな精霊: ふわっと浮く影玉。
+  const body = "#6b7286";
+  const core = "#aeb6d6";
+  const line = "#343b4b";
+  circle(ctx, 0, 0, 24, body, line, 4);
+  circle(ctx, 0, -2, 14, core, line, 3);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-16, -18); ctx.lineTo(-24, -30);
+  ctx.moveTo(16, -18); ctx.lineTo(24, -30);
+  ctx.stroke();
+  circle(ctx, -7, -2, 3.6, "#f6f8ff", null);
+  circle(ctx, 7, -2, 3.6, "#f6f8ff", null);
+  circle(ctx, -7, -1.5, 1.3, line, null);
+  circle(ctx, 7, -1.5, 1.3, line, null);
+  smile(ctx, 0, 11, 3.4);
+  ctx.globalAlpha = 0.4;
+  circle(ctx, -24, 18, 4, "#cdd6ff", null);
+  circle(ctx, 24, 18, 3, "#cdd6ff", null);
+  ctx.globalAlpha = 1;
+}
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
   hibachi: paintHibachi,
   fuwarisu: paintFuwarisu,
   mofurif: paintMofurif,
+  mofurigarden: paintMofurif,
   borudogura: paintBorudogura,
+  borudrill: paintBorudogura,
   bakuhibachi: paintBakuhibachi,
+  bakuphoenix: paintBakuhibachi,
   tenfuwarisu: paintTenfuwarisu,
+  tenstorm: paintTenfuwarisu,
   pyokotan: paintPyokotan,
   pachikoro: paintPachikoro,
   orihiko: paintOrihiko,
@@ -2467,8 +3177,11 @@ const PAINTERS = {
   maou: paintMaou,
   takarabox: paintTakarabox,
   obako: paintObako,
+  obagale: paintObako,
   kurista: paintKurista,
+  kuricrown: paintKurista,
   hagumon: paintHagumon,
+  hagutitan: paintHagumon,
   hagurumaru: paintHagurumaru,
   sparkun: paintSparkun,
   karakuribat: paintKarakuribat,
@@ -2494,6 +3207,39 @@ const PAINTERS = {
   sunasasori: paintSunasasori,
   rakudan: paintRakudan,
   sunamiira: paintSunamiira,
+  hanamaro: paintHanamaro,
+  torimugi: paintTorimugi,
+  sazanami: paintSazanami,
+  mizuhane: paintMizuhane,
+  kotohana: paintKotohana,
+  sunaboko: paintSunaboko,
+  sorane: paintSorane,
+  momijiri: paintMomijiri,
+  shizukuya: paintShizukuya,
+  kazeneko: paintKazeneko,
+  tsuyuhika: paintTsuyuhika,
+  moriame: paintMoriame,
+  harune: paintHarune,
+  mizugoma: paintMizugoma,
+  sunobori: paintSunobori,
+  sakuraneko: paintSakuraneko,
+  mizukusa: paintMizukusa,
+  sunamaru: paintSunamaru,
+  tsukihane: paintTsukihane,
+  mizutama: paintMizutama,
+  ishimaru: paintIshimaru,
+  kazepeko: paintKazepeko,
+  hikariame: paintHikariame,
+  yamakibi: paintYamakibi,
+  shizumegane: paintShizumegane,
+  haribune: paintHaribune,
+  reiseiou: paintReiseiou,
+  sumiremo: paintSumiremo,
+  yukigamo: paintYukigamo,
+  kuroguri: paintKuroguri,
+  oonamiwhale: paintYukigamo,
+  hoshizora: paintKuroguri,
+  omegazenmaiya: paintReiseiou,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

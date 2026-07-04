@@ -174,7 +174,7 @@ export const STAGES = {
     name: "ウラのはじまり",
     encounterRate: 0.16,
     wildLevels: [15, 18],
-    wildSpecies: ["pukurin", "hoshimogu"],
+    wildSpecies: ["pukurin", "hoshimogu", "shizukuya", "tsuyuhika"],
     prevStage: "stage3",
     nextStage: "reverse_stage2",
     spawns: {
@@ -213,7 +213,7 @@ export const STAGES = {
     name: "ウラのしげみ",
     encounterRate: 0.17,
     wildLevels: [18, 20],
-    wildSpecies: ["kageuri", "nejiko"],
+    wildSpecies: ["kageuri", "nejiko", "moriame", "tsukihane"],
     prevStage: "reverse_stage1",
     nextStage: "reverse_cave",
     spawns: {
@@ -253,7 +253,7 @@ export const STAGES = {
     name: "ウラのどうくつ",
     encounterRate: 0.18,
     wildLevels: [20, 22],
-    wildSpecies: ["fuyudama", "kageuri"],
+    wildSpecies: ["fuyudama", "kageuri", "hikariame", "sumiremo"],
     prevStage: "reverse_stage2",
     nextStage: "reverse_stage3",
     spawns: {
@@ -293,7 +293,7 @@ export const STAGES = {
     name: "ウラのヌシのひろば",
     encounterRate: 0.18,
     wildLevels: [22, 25],
-    wildSpecies: ["pukurin", "kageuri", "hoshimogu", "fuyudama", "nejiko"],
+    wildSpecies: ["pukurin", "kageuri", "hoshimogu", "fuyudama", "nejiko", "shizukuya", "tsuyuhika", "moriame", "tsukihane", "hikariame", "sumiremo"],
     prevStage: "reverse_cave",
     spawns: {
       fromPrev: { x: 2, y: 1 },
@@ -333,7 +333,7 @@ export const STAGES = {
     name: "なぎさのいりぐち",
     encounterRate: 0.16,
     wildLevels: [25, 28],
-    wildSpecies: ["kaigaran", "awairuka"],
+    wildSpecies: ["kaigaran", "awairuka", "sazanami", "mizuhane"],
     prevStage: "reverse_stage3",
     nextStage: "sea_stage2",
     spawns: {
@@ -371,7 +371,7 @@ export const STAGES = {
     name: "さんごのうみ",
     encounterRate: 0.17,
     wildLevels: [27, 30],
-    wildSpecies: ["awairuka", "hikariebi"],
+    wildSpecies: ["awairuka", "hikariebi", "mizugoma", "mizukusa"],
     prevStage: "sea_stage1",
     nextStage: "sea_cave",
     spawns: {
@@ -410,7 +410,7 @@ export const STAGES = {
     name: "しんかいのどうくつ",
     encounterRate: 0.18,
     wildLevels: [29, 32],
-    wildSpecies: ["hikariebi", "yamiankou"],
+    wildSpecies: ["hikariebi", "yamiankou", "mizutama", "shizumegane"],
     prevStage: "sea_stage2",
     nextStage: "sea_stage3",
     spawns: {
@@ -449,7 +449,7 @@ export const STAGES = {
     name: "シンカイヌシのひろば",
     encounterRate: 0.18,
     wildLevels: [30, 33],
-    wildSpecies: ["kaigaran", "awairuka", "hikariebi", "yamiankou"],
+    wildSpecies: ["kaigaran", "awairuka", "hikariebi", "yamiankou", "sazanami", "mizuhane", "mizugoma", "mizukusa", "mizutama", "shizumegane", "haribune"],
     prevStage: "sea_cave",
     spawns: {
       fromPrev: { x: 2, y: 1 },
@@ -488,7 +488,7 @@ export const STAGES = {
     name: "ゆきのおおどおり",
     encounterRate: 0.16,
     wildLevels: [33, 36],
-    wildSpecies: ["yukimaro", "kooritsumu"],
+    wildSpecies: ["yukimaro", "kooritsumu", "yukigamo"],
     prevStage: "sea_stage3",
     nextStage: "snow_stage2",
     spawns: {
@@ -604,7 +604,7 @@ export const STAGES = {
     name: "ヒョウガヌシのひろば",
     encounterRate: 0.18,
     wildLevels: [38, 41],
-    wildSpecies: ["yukimaro", "kooritsumu", "pengiri", "yukibouzu"],
+    wildSpecies: ["yukimaro", "kooritsumu", "pengiri", "yukibouzu", "yukigamo"],
     prevStage: "snow_cave",
     spawns: {
       fromPrev: { x: 2, y: 1 },
@@ -643,7 +643,7 @@ export const STAGES = {
     name: "すなのおおどおり",
     encounterRate: 0.16,
     wildLevels: [40, 43],
-    wildSpecies: ["sabotenko", "sunasasori"],
+    wildSpecies: ["sabotenko", "sunasasori", "sunaboko", "sunobori"],
     prevStage: "snow_stage3",
     nextStage: "desert_stage2",
     spawns: {
@@ -681,7 +681,7 @@ export const STAGES = {
     name: "きょだいサボテンのたに",
     encounterRate: 0.17,
     wildLevels: [42, 45],
-    wildSpecies: ["sunasasori", "rakudan"],
+    wildSpecies: ["sunasasori", "rakudan", "sunamaru"],
     prevStage: "desert_stage1",
     nextStage: "desert_cave",
     spawns: {
@@ -720,7 +720,7 @@ export const STAGES = {
     name: "きゅうでんのいせき",
     encounterRate: 0.18,
     wildLevels: [44, 47],
-    wildSpecies: ["rakudan", "sunamiira"],
+    wildSpecies: ["rakudan", "sunamiira", "ishimaru"],
     prevStage: "desert_stage2",
     nextStage: "desert_stage3",
     spawns: {
@@ -759,7 +759,7 @@ export const STAGES = {
     name: "スナヌシのひろば",
     encounterRate: 0.18,
     wildLevels: [45, 48],
-    wildSpecies: ["sabotenko", "sunasasori", "rakudan", "sunamiira"],
+    wildSpecies: ["sabotenko", "sunasasori", "rakudan", "sunamiira", "sunaboko", "sunobori", "sunamaru", "ishimaru"],
     prevStage: "desert_cave",
     spawns: {
       fromPrev: { x: 2, y: 1 },
@@ -953,7 +953,7 @@ export const STAGES = {
     name: "まおうじょうのおおもん",
     encounterRate: 0.16,
     wildLevels: [53, 56],
-    wildSpecies: ["akumakko", "kokushou"],
+    wildSpecies: ["akumakko", "kokushou", "kuroguri"],
     prevStage: "factory_stage3",
     nextStage: "castle_stage2",
     spawns: {
@@ -1069,7 +1069,7 @@ export const STAGES = {
     name: "マオウのぎょくざ",
     encounterRate: 0.18,
     wildLevels: [58, 61],
-    wildSpecies: ["akumakko", "kokushou", "yuureiking", "noroigumo"],
+    wildSpecies: ["akumakko", "kokushou", "yuureiking", "noroigumo", "kuroguri"],
     prevStage: "castle_cave",
     spawns: {
       fromPrev: { x: 2, y: 1 },
