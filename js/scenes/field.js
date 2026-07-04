@@ -291,11 +291,7 @@ export class FieldScene {
         const py = y * TILE;
         ctx.fillStyle = palette.ground;
         ctx.fillRect(px, py, TILE, TILE);
-        if ((x * 7 + y * 13) % 5 === 0) {
-          ctx.fillStyle = palette.accent;
-          ctx.fillRect(px + 8, py + 26, 4, 4);
-          ctx.fillRect(px + 26, py + 10, 4, 4);
-        }
+        this.drawGroundTexture(ctx, px, py, palette, x, y);
         const tile = this.map[y][x];
         if (tile === T_BUSH) {
           this.drawBush(ctx, px, py, palette, x, y);
@@ -527,6 +523,87 @@ export class FieldScene {
       ctx.fill();
     }
     ctx.restore();
+  }
+
+  drawGroundTexture(ctx, px, py, palette, gx, gy) {
+    const w = this.world;
+    const h = (gx * 7 + gy * 13) % 8;
+    if (w === "sea") {
+      ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(px + 4, py + 12 + h); ctx.quadraticCurveTo(px + 20, py + 8 + h, px + 36, py + 12 + h);
+      ctx.moveTo(px + 4, py + 26 + h); ctx.quadraticCurveTo(px + 20, py + 22 + h, px + 36, py + 26 + h);
+      ctx.stroke();
+      return;
+    }
+    if (w === "snow") {
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.beginPath(); ctx.ellipse(px + 10 + h, py + 22, 6, 2, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(px + 28, py + 8 + h, 5, 1.6, 0, 0, Math.PI * 2); ctx.fill();
+      if (h < 3) {
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.fillRect(px + 18, py + 14, 2, 2);
+      }
+      return;
+    }
+    if (w === "desert") {
+      ctx.strokeStyle = "rgba(0,0,0,0.12)"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(px, py + 10 + h); ctx.quadraticCurveTo(px + 20, py + 6 + h, px + 40, py + 10 + h);
+      ctx.moveTo(px, py + 26 + h); ctx.quadraticCurveTo(px + 20, py + 22 + h, px + 40, py + 26 + h);
+      ctx.stroke();
+      if (h < 2) {
+        ctx.fillStyle = "rgba(120,80,40,0.5)";
+        ctx.fillRect(px + 30, py + 30, 2, 2);
+      }
+      return;
+    }
+    if (w === "factory") {
+      ctx.strokeStyle = "rgba(0,0,0,0.18)"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(px + TILE, py); ctx.lineTo(px + TILE, py + TILE);
+      ctx.moveTo(px, py + TILE); ctx.lineTo(px + TILE, py + TILE);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(0,0,0,0.15)";
+      for (const [dx, dy] of [[6, 6], [34, 6], [6, 34], [34, 34]]) {
+        ctx.beginPath(); ctx.arc(px + dx, py + dy, 1.2, 0, Math.PI * 2); ctx.fill();
+      }
+      return;
+    }
+    if (w === "castle") {
+      ctx.strokeStyle = "rgba(0,0,0,0.28)"; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(px, py); ctx.lineTo(px + TILE, py);
+      ctx.moveTo(px, py); ctx.lineTo(px, py + TILE);
+      ctx.stroke();
+      if (h < 3) {
+        ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(px + 10, py + 8); ctx.lineTo(px + 18, py + 20); ctx.lineTo(px + 14, py + 28);
+        ctx.stroke();
+      }
+      return;
+    }
+    if (w === "reverse") {
+      ctx.fillStyle = "rgba(180, 120, 200, 0.35)";
+      ctx.fillRect(px + 6 + h, py + 8, 3, 3);
+      ctx.fillRect(px + 24, py + 22 + h, 3, 3);
+      if (h < 2) {
+        ctx.fillStyle = "rgba(255, 240, 180, 0.5)";
+        ctx.fillRect(px + 18, py + 30, 2, 2);
+      }
+      return;
+    }
+    ctx.fillStyle = palette.accent;
+    ctx.beginPath(); ctx.ellipse(px + 10, py + 28, 3, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(px + 28, py + 12, 3, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+    if (h < 3) {
+      ctx.strokeStyle = palette.accent; ctx.lineWidth = 1.2; ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(px + 20, py + 22); ctx.lineTo(px + 20, py + 16);
+      ctx.moveTo(px + 18, py + 18); ctx.lineTo(px + 22, py + 18);
+      ctx.stroke();
+    }
   }
 
   drawBush(ctx, px, py, palette, gx, gy) {
