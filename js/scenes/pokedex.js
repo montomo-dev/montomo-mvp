@@ -3,6 +3,7 @@ import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
 import { typeOf } from "../data/types.js";
+import { flavorTextOf } from "../data/flavor.js";
 
 const COLS = 4;
 const ROWS = 4;
@@ -24,6 +25,7 @@ export class PokedexScene {
     this.cursor = 0;
     this.time = 0;
     this.entries = dexEntries();
+    this.detail = false;
   }
 
   get totalPages() {
@@ -43,6 +45,12 @@ export class PokedexScene {
     this.time += dt;
     const input = this.game.input;
     const n = this.entries.length;
+    if (this.detail) {
+      if (input.wasPressed("cancel") || input.wasPressed("ok") || input.wasPressed("dex")) {
+        this.detail = false;
+      }
+      return;
+    }
     if (input.wasPressed("cancel") || input.wasPressed("dex")) {
       this.game.changeScene(this.prev);
       return;
@@ -51,6 +59,10 @@ export class PokedexScene {
     if (input.wasPressed("left")) this.cursor = (this.cursor + n - 1) % n;
     if (input.wasPressed("down") && this.cursor + COLS < n) this.cursor += COLS;
     if (input.wasPressed("up") && this.cursor - COLS >= 0) this.cursor -= COLS;
+    if (input.wasPressed("ok")) {
+      const seen = this.game.dex?.seen || [];
+      if (seen.includes(this.entries[this.cursor].id)) this.detail = true;
+    }
   }
 
   draw(ctx) {
@@ -140,6 +152,51 @@ export class PokedexScene {
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
-    ctx.fillText("↑↓←→: えらぶ・ページ送り ／ X: もどる", 30, 462);
+    ctx.fillText("↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ X: もどる", 30, 462);
+
+    if (this.detail) this.drawDetail(ctx);
+  }
+
+  drawDetail(ctx) {
+    const species = this.entries[this.cursor];
+    const caught = (this.game.dex?.caught || []).includes(species.id);
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+    ctx.fillRect(0, 0, 640, 480);
+
+    panel(ctx, 90, 70, 460, 340);
+    if (!caught) ctx.filter = "grayscale(0.85) brightness(0.9)";
+    drawMonster(ctx, species.id, 190, 150, 0.85, this.time, 0);
+    ctx.filter = "none";
+
+    const rank = getRank(species);
+    ctx.fillStyle = RANK_COLOR[rank];
+    ctx.beginPath();
+    ctx.roundRect(480, 92, 40, 26, 6);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = FONT_BOLD;
+    ctx.textAlign = "center";
+    ctx.fillText(rank, 500, 110);
+    ctx.textAlign = "left";
+
+    ctx.fillStyle = "#3a3a52";
+    ctx.font = 'bold 22px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(species.name, 300, 130);
+    ctx.font = FONT;
+    ctx.fillText(`${species.genus}（${typeOf(species.id)}）`, 300, 158);
+    ctx.fillText(caught ? "なかまにした！" : "みつけただけ", 300, 182);
+
+    ctx.font = FONT;
+    ctx.fillStyle = "#3a3a52";
+    const flavor = flavorTextOf(species.id);
+    const maxChars = 30;
+    for (let i = 0, line = 0; i < flavor.length; i += maxChars, line++) {
+      ctx.fillText(flavor.slice(i, i + maxChars), 120, 260 + line * 26);
+    }
+
+    ctx.font = FONT;
+    ctx.fillStyle = "#5a5a70";
+    ctx.fillText("Z または X で とじる", 120, 380);
   }
 }

@@ -10,6 +10,7 @@ import { ITEMS } from "../js/data/items.js";
 import { SKILLS } from "../js/data/skills.js";
 import { getRank, RANK_ORDER, RANK_COLOR } from "../js/systems/rank.js";
 import { TYPES, SPECIES_TYPE, typeOf, typeEffectiveness } from "../js/data/types.js";
+import { FLAVOR_TEXT } from "../js/data/flavor.js";
 
 test("レア枠は乱数5%未満でツキノネになる", () => {
   assert.equal(rollWildSpecies(undefined, () => 0.049), "tsukinone");
@@ -868,4 +869,10 @@ test("戦闘終了時にパーティ全員の状態異常が解除される", as
   battle.after = "end";
   battle.enterNext();
   assert.equal(ally.status, null, "戦闘終了後もパーティの状態異常が残っている");
+});
+
+test("全モンスターに図鑑用フレーバーテキストが設定されている", () => {
+  for (const id of Object.keys(SPECIES)) {
+    assert.ok(FLAVOR_TEXT[id] && FLAVOR_TEXT[id].length > 0, `${id} にフレーバーテキストが設定されていない`);
+  }
 });
