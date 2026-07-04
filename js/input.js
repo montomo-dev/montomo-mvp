@@ -10,6 +10,7 @@ const KEYMAP = {
   KeyN: "rename",
   KeyX: "cancel",
   Escape: "cancel",
+  KeyM: "mute",
 };
 
 export class Input {

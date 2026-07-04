@@ -9,6 +9,7 @@ import { EndingScene } from "./ending.js";
 import { ChoiceScene } from "./choice.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 import { getRank } from "../systems/rank.js";
+import { sfxHit, sfxFaint, sfxLevelUp, sfxEvolve, sfxCatchSuccess, sfxCatchFail, sfxConfirm, sfxCancel, sfxCry } from "../audio.js";
 
 const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる", "ぼうぎょ"];
 const COMMAND_COLS = [[0, 2, 4], [1, 3, 5]];
@@ -27,6 +28,7 @@ export class BattleScene {
     this.bossState = { phase: 0, turn: 0, charging: false, chargeDamage: 0 };
     this.allyGuarding = false;
     markSeen(game, enemy.speciesId);
+    sfxCry(enemy.speciesId);
     this.time = 0;
     this.cursor = 0;
     this.skillCursor = 0;
@@ -131,13 +133,13 @@ export class BattleScene {
       const skills = this.ally.skills;
       if (input.wasPressed("up")) this.skillCursor = (this.skillCursor + skills.length - 1) % skills.length;
       if (input.wasPressed("down")) this.skillCursor = (this.skillCursor + 1) % skills.length;
-      if (input.wasPressed("cancel")) this.phase = "command";
+      if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; }
       else if (input.wasPressed("ok")) {
         this.resolveTurn({ type: "skill", skillId: skills[this.skillCursor] });
       }
     } else if (this.phase === "item") {
       const owned = this.ownedItemIds();
-      if (input.wasPressed("cancel")) { this.phase = "command"; return; }
+      if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; return; }
       if (owned.length === 0) return;
       if (input.wasPressed("up")) this.itemCursor = (this.itemCursor + owned.length - 1) % owned.length;
       if (input.wasPressed("down")) this.itemCursor = (this.itemCursor + 1) % owned.length;
@@ -171,6 +173,7 @@ export class BattleScene {
   }
 
   chooseCommand(index) {
+    sfxConfirm();
     if (index === 0) {
       this.resolveTurn({ type: "attack" });
     } else if (index === 1) {
@@ -239,6 +242,8 @@ export class BattleScene {
       this.bossState.chargeDamage += damage;
     }
     messages.push(`${target.name} に ${damage} の ダメージ！`);
+    if (target.hp <= 0) sfxFaint();
+    else sfxHit();
   }
 
   enemyAct(messages) {
@@ -300,6 +305,8 @@ export class BattleScene {
     }
     this.ally.hp = Math.max(0, this.ally.hp - damage);
     messages.push(`${this.ally.name} に ${damage} の ダメージ！`);
+    if (this.ally.hp <= 0) sfxFaint();
+    else sfxHit();
   }
 
   checkBossPhase(messages) {
@@ -375,9 +382,11 @@ export class BattleScene {
       if (event.type === "evolve") {
         messages.push(`${event.from} は ${event.to} に しんかした！`);
         markCaught(this.game, event.speciesId);
+        sfxEvolve();
         continue;
       }
       messages.push(`${event.name} は レベル ${event.level} に あがった！`);
+      sfxLevelUp();
       const g = event.gains;
       messages.push(`HP+${g.maxHp}  こうげき+${g.atk}  ぼうぎょ+${g.def}  すばやさ+${g.spd}`);
       for (const skillId of event.learned) {
@@ -425,9 +434,11 @@ export class BattleScene {
         `${this.enemy.name} が なかまに くわわった！`
       );
       this.recruitedMonster = this.enemy;
+      sfxCatchSuccess();
       this.say(messages, "chooseRoster");
     } else {
       messages.push(`${this.enemy.name} は そっぽを むいてしまった…`);
+      sfxCatchFail();
       this.enemyAct(messages);
       this.finishTurn(messages);
     }

@@ -5,6 +5,7 @@ import { FieldScene } from "./scenes/field.js";
 import { TitleScene } from "./scenes/title.js";
 import { saveGame } from "./systems/save.js";
 import { markCaught } from "./systems/dex.js";
+import { toggleMute, isMuted } from "./audio.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -116,8 +117,16 @@ let last = 0;
 function loop(t) {
   const dt = Math.min((t - last) / 1000, 0.05);
   last = t;
+  if (game.input.wasPressed("mute")) toggleMute();
   game.scene.update(dt);
   game.scene.draw(ctx);
+  if (isMuted()) {
+    ctx.fillStyle = "#f0ead8";
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.textAlign = "right";
+    ctx.fillText("♪ ミュート中 (M)", 630, 20);
+    ctx.textAlign = "left";
+  }
   game.input.endFrame();
   requestAnimationFrame(loop);
 }

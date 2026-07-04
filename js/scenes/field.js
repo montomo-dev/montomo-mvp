@@ -8,6 +8,7 @@ import { createMonster, rollWildSpecies } from "../data/monsters.js";
 import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS, parseTileChar } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
 import { panel, hpBar, FONT_BOLD } from "../ui.js";
+import { sfxSave, sfxItemGet } from "../audio.js";
 
 const TILE = 40;
 const T_BUSH = TILE_TYPES.BUSH;
@@ -138,6 +139,7 @@ export class FieldScene {
     const input = this.game.input;
     if (input.wasPressed("save")) {
       const ok = this.game.save();
+      if (ok) sfxSave();
       this.showToast(ok ? "ぼうけんを セーブしたよ！" : "セーブに しっぱいした…");
       return;
     }
@@ -274,6 +276,7 @@ export class FieldScene {
           } else {
             this.game.money += treasure.money;
             this.showToast(`お金を ${treasure.money} えた！`);
+            sfxItemGet();
           }
           this.game.save();
         }
@@ -291,6 +294,7 @@ export class FieldScene {
           this.game.groundItemState[itemKey] = true;
           this.game.items[item.itemId] = (this.game.items[item.itemId] || 0) + 1;
           this.showToast(`${item.itemId} を てにいれた！`);
+          sfxItemGet();
           this.game.save();
         }
         return;

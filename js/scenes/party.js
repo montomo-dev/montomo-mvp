@@ -7,6 +7,7 @@ import { markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
+import { sfxBreed, sfxConfirm } from "../audio.js";
 
 const nameInput = document.getElementById("name-input");
 
@@ -136,6 +137,7 @@ export class PartyScene {
     const selected = this.game.party[index];
     if (!this.firstParent) {
       this.firstParent = selected;
+      sfxConfirm();
       return;
     }
     if (selected.uid === this.firstParent.uid) {
@@ -155,6 +157,7 @@ export class PartyScene {
     this.mode = "list";
     this.firstParent = null;
     this.cursor = this.game.party.length - 1;
+    sfxBreed();
     this.game.save();
   }
 

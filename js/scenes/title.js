@@ -1,6 +1,7 @@
 import { hasSave, loadSave, clearSave } from "../systems/save.js";
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
+import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
 
 export class TitleScene {
   constructor(game) {
@@ -36,10 +37,12 @@ export class TitleScene {
         this.confirm.yes = !this.confirm.yes;
       }
       if (input.wasPressed("cancel")) {
+        sfxCancel();
         this.confirm = null;
         return;
       }
       if (input.wasPressed("ok")) {
+        sfxConfirm();
         const { action, yes } = this.confirm;
         this.confirm = null;
         if (!yes) return;
@@ -58,14 +61,17 @@ export class TitleScene {
 
     if (input.wasPressed("up")) {
       this.cursor = (this.cursor + this.options.length - 1) % this.options.length;
+      sfxSelect();
     }
     if (input.wasPressed("down")) {
       this.cursor = (this.cursor + 1) % this.options.length;
+      sfxSelect();
     }
     if (input.wasPressed("ok")) this.select();
   }
 
   select() {
+    sfxConfirm();
     const opt = this.options[this.cursor];
     if (opt === "つづきから") {
       this.game.startAdventure(loadSave());
