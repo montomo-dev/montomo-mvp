@@ -6,6 +6,7 @@ import { expToNext } from "../systems/growth.js";
 import { markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
+import { getRank, RANK_COLOR } from "../systems/rank.js";
 
 const nameInput = document.getElementById("name-input");
 
@@ -194,9 +195,20 @@ export class PartyScene {
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
+      const rank = getRank(SPECIES[monster.speciesId]);
+      ctx.fillStyle = RANK_COLOR[rank];
+      ctx.beginPath();
+      ctx.roundRect(130, y + 8, 22, 18, 4);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = 'bold 13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText(rank, 141, y + 21);
+      ctx.textAlign = "left";
+
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText(`${monster.name}  Lv.${monster.level}`, 130, y + 32);
+      ctx.fillText(`${monster.name}  Lv.${monster.level}`, 160, y + 32);
       ctx.font = FONT;
       ctx.fillText(SPECIES[monster.speciesId].genus, 300, y + 32);
       hpBar(ctx, 130, y + 46, 190, 12, monster.hp / monster.maxHp);

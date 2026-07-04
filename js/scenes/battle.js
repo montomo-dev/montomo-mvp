@@ -8,6 +8,7 @@ import { drawMonster } from "../sprites.js";
 import { EndingScene } from "./ending.js";
 import { ChoiceScene } from "./choice.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
+import { getRank } from "../systems/rank.js";
 
 const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる", "ぼうぎょ"];
 const COMMAND_COLS = [[0, 2, 4], [1, 3, 5]];
@@ -439,7 +440,8 @@ export class BattleScene {
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
     const rareLabel = SPECIES[this.enemy.speciesId].rare ? "  ★レア" : "";
-    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}${rareLabel}`, 30, 40);
+    const rank = getRank(SPECIES[this.enemy.speciesId]);
+    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}]${rareLabel}`, 30, 40);
     hpBar(ctx, 30, 52, 220, 12, this.shownHp.enemy / this.enemy.maxHp);
 
     panel(ctx, 372, 234, 252, 108);

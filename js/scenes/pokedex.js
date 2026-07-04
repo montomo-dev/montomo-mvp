@@ -1,6 +1,7 @@
 import { SPECIES } from "../data/monsters.js";
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
+import { getRank, RANK_COLOR } from "../systems/rank.js";
 
 const COLS = 4;
 const ROWS = 4;
@@ -110,6 +111,17 @@ export class PokedexScene {
       if (!isCaught) ctx.filter = "grayscale(0.85) brightness(0.9)";
       drawMonster(ctx, species.id, x + 26, y + 42, 0.28, this.time, 0);
       ctx.filter = "none";
+
+      const rank = getRank(species);
+      ctx.fillStyle = RANK_COLOR[rank];
+      ctx.beginPath();
+      ctx.roundRect(x + CELL_W - 22, y + 4, 18, 16, 4);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = 'bold 12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText(rank, x + CELL_W - 13, y + 16);
+      ctx.textAlign = "left";
 
       ctx.fillStyle = "#3a3a52";
       ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';

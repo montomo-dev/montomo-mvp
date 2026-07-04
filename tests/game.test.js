@@ -8,6 +8,7 @@ import { breedMonsters } from "../js/systems/breeding.js";
 import { depositToRanch } from "../js/systems/party.js";
 import { ITEMS } from "../js/data/items.js";
 import { SKILLS } from "../js/data/skills.js";
+import { getRank, RANK_ORDER, RANK_COLOR } from "../js/systems/rank.js";
 
 test("レア枠は乱数5%未満でツキノネになる", () => {
   assert.equal(rollWildSpecies(undefined, () => 0.049), "tsukinone");
@@ -706,4 +707,33 @@ test("ぼうぎょ中は受けるダメージが大きく軽減される", async
   } finally {
     Math.random = originalRandom;
   }
+});
+
+test("全モンスターにE〜Sいずれかのランクが付与されている", () => {
+  for (const species of Object.values(SPECIES)) {
+    const rank = getRank(species);
+    assert.ok(RANK_ORDER.includes(rank), `${species.id} のランク '${rank}' が想定外`);
+    assert.ok(RANK_COLOR[rank], `${species.id} のランク '${rank}' に表示色が定義されていない`);
+  }
+});
+
+test("ボスと配合専用のレア個体はSランクになる", () => {
+  assert.equal(getRank(SPECIES.maou), "S");
+  assert.equal(getRank(SPECIES.nushi), "S");
+  assert.equal(getRank(SPECIES.reiseiou), "S", "breedOnly かつ rare の個体はSランクになるべき");
+});
+
+test("配合専用モンスター(reiseiou以外)はAランクになる", () => {
+  assert.equal(getRank(SPECIES.obako), "A");
+  assert.equal(getRank(SPECIES.mofurigarden), "A");
+});
+
+test("野生でrare指定のモンスターはBランクになる", () => {
+  assert.equal(getRank(SPECIES.tsukinone), "B");
+  assert.equal(getRank(SPECIES.takarabox), "B");
+});
+
+test("通常の野生モンスターはrecruitEaseに応じてC〜Eに分かれる", () => {
+  assert.equal(getRank(SPECIES.dogura), "E", "recruitEaseが高い(捕まえやすい)ほど低ランクになるべき");
+  assert.equal(getRank(SPECIES.mofurif), "C", "recruitEaseが低い(捕まえにくい)ほど高ランクになるべき");
 });
