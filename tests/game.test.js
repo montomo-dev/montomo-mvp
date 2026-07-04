@@ -502,3 +502,151 @@ test("hibiwareGeki/gantekiotoshiはボス専用の必殺技として使い回し
   assert.ok(countUsers("hibiwareGeki") <= 5, "hibiwareGekiの使用モンスターが再び増えすぎている");
   assert.ok(countUsers("gantekiotoshi") <= 5, "gantekiotoshiの使用モンスターが再び増えすぎている");
 });
+
+test("全ボスにbossAI(フェーズ変化・ため技)が定義されている", () => {
+  const bosses = Object.values(SPECIES).filter((s) => s.boss);
+  assert.ok(bosses.length >= 7);
+  for (const boss of bosses) {
+    const ai = boss.bossAI;
+    assert.ok(ai, `${boss.id} に bossAI が定義されていない`);
+    assert.ok(Array.isArray(ai.phases) && ai.phases.length >= 1, `${boss.id} の phases が不正`);
+    for (const phase of ai.phases) {
+      assert.ok(phase.below > 0 && phase.below < 1, `${boss.id} の phase.below が不正`);
+      assert.ok(phase.atkMul > 1, `${boss.id} の atkMul は1より大きい必要がある`);
+      assert.ok(phase.spdMul >= 1, `${boss.id} の spdMul が不正`);
+      assert.ok(typeof phase.message === "string" && phase.message.length > 0, `${boss.id} の phase.message が空`);
+    }
+    assert.ok(ai.charge.interval >= 2, `${boss.id} の charge.interval が短すぎる`);
+    assert.ok(ai.charge.power > 1, `${boss.id} の charge.power が不正`);
+    assert.ok(typeof ai.charge.name === "string" && ai.charge.name.length > 0, `${boss.id} の charge.name が空`);
+    assert.ok(ai.charge.breakRatio > 0 && ai.charge.breakRatio < 1, `${boss.id} の charge.breakRatio が不正`);
+  }
+});
+
+function makeBattleGame() {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  return {
+    party: [createMonster("mofuri", 50)],
+    items: {},
+    money: 0,
+    flags: { stageClearedFlags: {} },
+    dex: { seen: [], caught: [] },
+    input: { wasPressed: () => false, isHeld: () => false },
+    save() { return true; },
+    changeScene(s) { this.scene = s; },
+  };
+}
+
+test("ボスはHP50%以下で第2形態になり攻撃力・素早さが上がる", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const game = makeBattleGame();
+  const boss = createMonster("nushi", 15);
+  const battle = new BattleScene(game, boss, { isBoss: true, stageId: "stage3" });
+  const atkBefore = boss.atk;
+  const spdBefore = boss.spd;
+
+  boss.hp = Math.floor(boss.maxHp * 0.4);
+  const messages = [];
+  battle.checkBossPhase(messages);
+
+  assert.equal(battle.bossState.phase, 1);
+  assert.ok(boss.atk > atkBefore, "第2形態で攻撃力が上がっていない");
+  assert.ok(boss.spd > spdBefore, "第2形態で素早さが上がっていない");
+  assert.ok(messages.includes("モリノヌシの けが さかだった！"));
+
+  // 再チェックしても二重適用されない
+  const atkAfter = boss.atk;
+  battle.checkBossPhase([]);
+  assert.equal(boss.atk, atkAfter, "フェーズ変化が二重適用されている");
+});
+
+test("マオウはHP25%以下でさらに第3形態(発狂)になる", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const game = makeBattleGame();
+  const boss = createMonster("maou", 55);
+  const battle = new BattleScene(game, boss, { isBoss: true, stageId: "castle_stage3" });
+
+  boss.hp = Math.floor(boss.maxHp * 0.2);
+  const messages = [];
+  battle.checkBossPhase(messages);
+
+  assert.equal(battle.bossState.phase, 2, "2段階のフェーズが一気に適用されるべき");
+  assert.ok(messages.includes("マオウは はっきょうした！ くらやみが うずまく！"));
+});
+
+test("ボスは一定ターンごとに、ため→大技のサイクルで行動する", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const game = makeBattleGame();
+  const boss = createMonster("nushi", 15);
+  const battle = new BattleScene(game, boss, { isBoss: true, stageId: "stage3" });
+  const originalRandom = Math.random;
+  Math.random = () => 0.99;
+  try {
+    for (let turn = 1; turn <= 3; turn++) {
+      const messages = [];
+      battle.bossEnemyAct(messages);
+      assert.equal(battle.bossState.charging, false, `ターン${turn}でため状態になるのは早すぎる`);
+    }
+    const chargeMessages = [];
+    battle.bossEnemyAct(chargeMessages);
+    assert.equal(battle.bossState.charging, true, "interval=4ターン目でため状態になっていない");
+    assert.ok(chargeMessages.some((m) => m.includes("ためはじめた")));
+
+    const allyHpBefore = battle.ally.hp;
+    const releaseMessages = [];
+    battle.bossEnemyAct(releaseMessages);
+    assert.equal(battle.bossState.charging, false);
+    assert.ok(releaseMessages.some((m) => m.includes("もりのおたけび")), "大技名が表示されていない");
+    assert.ok(battle.ally.hp < allyHpBefore, "大技でダメージが入っていない");
+  } finally {
+    Math.random = originalRandom;
+  }
+});
+
+test("ため中に一定ダメージを与えるとひるんで大技が不発になる", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const game = makeBattleGame();
+  const boss = createMonster("nushi", 15);
+  const battle = new BattleScene(game, boss, { isBoss: true, stageId: "stage3" });
+  battle.bossState.charging = true;
+  battle.bossState.chargeDamage = Math.round(boss.maxHp * 0.5);
+
+  const allyHpBefore = battle.ally.hp;
+  const messages = [];
+  battle.bossEnemyAct(messages);
+
+  assert.equal(battle.bossState.charging, false);
+  assert.ok(messages.some((m) => m.includes("ひるんで")), "ひるみメッセージが出ていない");
+  assert.equal(battle.ally.hp, allyHpBefore, "ひるんだのにダメージが入っている");
+});
+
+test("ぼうぎょ中は受けるダメージが大きく軽減される", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const game = makeBattleGame();
+  const boss = createMonster("maou", 55);
+  const battle = new BattleScene(game, boss, { isBoss: true, stageId: "castle_stage3" });
+  const originalRandom = Math.random;
+  Math.random = () => 0.5;
+  try {
+    const hpStart = battle.ally.hp;
+    battle.performAction(boss, battle.ally, { type: "attack" }, []);
+    const normalDamage = hpStart - battle.ally.hp;
+
+    battle.allyGuarding = true;
+    const hpMid = battle.ally.hp;
+    battle.performAction(boss, battle.ally, { type: "attack" }, []);
+    const guardedDamage = hpMid - battle.ally.hp;
+    battle.allyGuarding = false;
+
+    assert.ok(guardedDamage < normalDamage * 0.5, `ぼうぎょの軽減が効いていない (通常${normalDamage} / ぼうぎょ${guardedDamage})`);
+  } finally {
+    Math.random = originalRandom;
+  }
+});

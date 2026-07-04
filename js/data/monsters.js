@@ -296,6 +296,12 @@ export const SPECIES = {
     exp: 30,
     recruitEase: 0,
     boss: true,
+    bossAI: {
+      phases: [
+        { below: 0.5, atkMul: 1.2, spdMul: 1.1, message: "モリノヌシの けが さかだった！" },
+      ],
+      charge: { interval: 4, power: 2.0, name: "もりのおたけび", breakRatio: 0.12 },
+    },
     learnset: [
       { level: 1, skill: "seiryokuha" },
       { level: 1, skill: "gantekiotoshi" },
@@ -310,6 +316,12 @@ export const SPECIES = {
     exp: 100,
     recruitEase: 0,
     boss: true,
+    bossAI: {
+      phases: [
+        { below: 0.5, atkMul: 1.25, spdMul: 1.15, message: "ウラノヌシの かげが おおきく ゆらいだ！" },
+      ],
+      charge: { interval: 4, power: 2.2, name: "うらがえしの ほうこう", breakRatio: 0.12 },
+    },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
       { level: 1, skill: "senpugeki" },
@@ -470,6 +482,12 @@ export const SPECIES = {
     exp: 130,
     recruitEase: 0,
     boss: true,
+    bossAI: {
+      phases: [
+        { below: 0.5, atkMul: 1.25, spdMul: 1.2, message: "シンカイヌシの まわりに うずが まきおこった！" },
+      ],
+      charge: { interval: 3, power: 2.2, name: "しんかいの うず", breakRatio: 0.1 },
+    },
     learnset: [
       { level: 1, skill: "gantekiotoshi" },
       { level: 1, skill: "hibiwareGeki" },
@@ -542,6 +560,12 @@ export const SPECIES = {
     exp: 140,
     recruitEase: 0,
     boss: true,
+    bossAI: {
+      phases: [
+        { below: 0.5, atkMul: 1.3, spdMul: 1.2, message: "ヒョウガヌシの ひとみが あおく こおりついた！" },
+      ],
+      charge: { interval: 3, power: 2.3, name: "ぜったいれいどの いき", breakRatio: 0.1 },
+    },
     learnset: [
       { level: 1, skill: "hibiwareGeki" },
       { level: 1, skill: "tsuraraotoshi" },
@@ -613,6 +637,12 @@ export const SPECIES = {
     exp: 150,
     recruitEase: 0,
     boss: true,
+    bossAI: {
+      phases: [
+        { below: 0.5, atkMul: 1.3, spdMul: 1.25, message: "スナヌシの からだから すなが ふきあれた！" },
+      ],
+      charge: { interval: 3, power: 2.3, name: "さばくの すなあらし", breakRatio: 0.1 },
+    },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
       { level: 1, skill: "hibiwareGeki" },
@@ -685,6 +715,12 @@ export const SPECIES = {
     exp: 160,
     recruitEase: 0,
     boss: true,
+    bossAI: {
+      phases: [
+        { below: 0.5, atkMul: 1.35, spdMul: 1.25, message: "コウジョウヌシの はぐるまが まっかに かそくした！" },
+      ],
+      charge: { interval: 3, power: 2.4, name: "ばくねつプレス", breakRatio: 0.1 },
+    },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
       { level: 1, skill: "hibiwareGeki" },
@@ -728,6 +764,13 @@ export const SPECIES = {
     exp: 220,
     recruitEase: 0,
     boss: true,
+    bossAI: {
+      phases: [
+        { below: 0.5, atkMul: 1.3, spdMul: 1.2, message: "マオウの ほんとうの ちからが めざめはじめた！" },
+        { below: 0.25, atkMul: 1.25, spdMul: 1.2, message: "マオウは はっきょうした！ くらやみが うずまく！" },
+      ],
+      charge: { interval: 3, power: 2.6, name: "まおうの ごうか", breakRatio: 0.08 },
+    },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
       { level: 1, skill: "hibiwareGeki" },

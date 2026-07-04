@@ -9,9 +9,10 @@ import { EndingScene } from "./ending.js";
 import { ChoiceScene } from "./choice.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 
-const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる"];
-const COMMAND_COLS = [[0, 2, 4], [1, 3]];
-const COMMAND_POS = [[70, 402], [330, 402], [70, 424], [330, 424], [70, 446]];
+const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる", "ぼうぎょ"];
+const COMMAND_COLS = [[0, 2, 4], [1, 3, 5]];
+const COMMAND_POS = [[70, 402], [330, 402], [70, 424], [330, 424], [70, 446], [330, 446]];
+const GUARD_DAMAGE_RATIO = 0.4;
 
 export class BattleScene {
   constructor(game, enemy, opts = {}) {
@@ -21,6 +22,9 @@ export class BattleScene {
     this.enemy = enemy;
     this.isBoss = !!opts.isBoss;
     this.stageId = opts.stageId;
+    this.bossAI = this.isBoss ? SPECIES[enemy.speciesId].bossAI || null : null;
+    this.bossState = { phase: 0, turn: 0, charging: false, chargeDamage: 0 };
+    this.allyGuarding = false;
     markSeen(game, enemy.speciesId);
     this.time = 0;
     this.cursor = 0;
@@ -156,8 +160,10 @@ export class BattleScene {
         this.phase = "item";
         this.itemCursor = 0;
       }
-    } else {
+    } else if (index === 4) {
       this.tryFlee();
+    } else {
+      this.resolveTurn({ type: "guard" });
     }
   }
 
@@ -194,12 +200,23 @@ export class BattleScene {
       return;
     }
     const power = skill ? skill.power : 1.0;
-    const damage = Math.max(1, Math.round(actor.atk * power - target.def / 2 + (Math.random() * 4 - 2)));
+    let damage = Math.max(1, Math.round(actor.atk * power - target.def / 2 + (Math.random() * 4 - 2)));
+    if (target === this.ally && this.allyGuarding) {
+      damage = Math.max(1, Math.round(damage * GUARD_DAMAGE_RATIO));
+      messages.push(`${target.name} は ぼうぎょで こうげきを うけながした！`);
+    }
     target.hp = Math.max(0, target.hp - damage);
+    if (target === this.enemy && this.bossState.charging) {
+      this.bossState.chargeDamage += damage;
+    }
     messages.push(`${target.name} に ${damage} の ダメージ！`);
   }
 
   enemyAct(messages) {
+    if (this.bossAI) {
+      this.bossEnemyAct(messages);
+      return;
+    }
     const useSkill = this.enemy.skills.length > 0 && Math.random() < 0.5;
     const action = useSkill
       ? { type: "skill", skillId: this.enemy.skills[Math.floor(Math.random() * this.enemy.skills.length)] }
@@ -207,17 +224,88 @@ export class BattleScene {
     this.performAction(this.enemy, this.ally, action, messages);
   }
 
+  bossEnemyAct(messages) {
+    const state = this.bossState;
+    const charge = this.bossAI.charge;
+    if (state.charging) {
+      const breakLine = Math.round(this.enemy.maxHp * charge.breakRatio);
+      state.charging = false;
+      if (state.chargeDamage >= breakLine) {
+        state.chargeDamage = 0;
+        messages.push(`${this.enemy.name} は ひるんで ためた ちからが きえてしまった！`);
+        return;
+      }
+      state.chargeDamage = 0;
+      this.releaseChargedAttack(messages);
+      return;
+    }
+    state.turn += 1;
+    if (charge && state.turn % charge.interval === 0) {
+      state.charging = true;
+      state.chargeDamage = 0;
+      messages.push(`${this.enemy.name} は ちからを ためはじめた…！`);
+      if (state.turn === charge.interval) {
+        messages.push("「ぼうぎょ」で みをまもるか、こうげきを あてて ひるませろ！");
+      }
+      return;
+    }
+    const enraged = state.phase > 0;
+    const skills = this.enemy.skills;
+    let action = { type: "attack" };
+    if (skills.length > 0 && Math.random() < (enraged ? 0.75 : 0.5)) {
+      const skillId = enraged && Math.random() < 0.7
+        ? skills.reduce((a, b) => (SKILLS[a].power >= SKILLS[b].power ? a : b))
+        : skills[Math.floor(Math.random() * skills.length)];
+      action = { type: "skill", skillId };
+    }
+    this.performAction(this.enemy, this.ally, action, messages);
+  }
+
+  releaseChargedAttack(messages) {
+    const charge = this.bossAI.charge;
+    messages.push(`${this.enemy.name} の ${charge.name}！`);
+    let damage = Math.max(1, Math.round(this.enemy.atk * charge.power - this.ally.def / 2 + (Math.random() * 4 - 2)));
+    if (this.allyGuarding) {
+      damage = Math.max(1, Math.round(damage * GUARD_DAMAGE_RATIO));
+      messages.push(`${this.ally.name} は ぼうぎょで なんとか こらえた！`);
+    }
+    this.ally.hp = Math.max(0, this.ally.hp - damage);
+    messages.push(`${this.ally.name} に ${damage} の ダメージ！`);
+  }
+
+  checkBossPhase(messages) {
+    if (!this.bossAI?.phases || this.enemy.hp <= 0) return;
+    while (this.bossState.phase < this.bossAI.phases.length) {
+      const next = this.bossAI.phases[this.bossState.phase];
+      if (this.enemy.hp / this.enemy.maxHp > next.below) break;
+      this.bossState.phase += 1;
+      this.enemy.atk = Math.round(this.enemy.atk * next.atkMul);
+      this.enemy.spd = Math.round(this.enemy.spd * next.spdMul);
+      messages.push(next.message);
+    }
+  }
+
   resolveTurn(playerAction) {
     const messages = [];
+    this.allyGuarding = playerAction.type === "guard";
+    if (this.allyGuarding) {
+      messages.push(`${this.ally.name} は みを まもっている！`);
+    }
     const allyFirst =
       this.ally.spd > this.enemy.spd ||
       (this.ally.spd === this.enemy.spd && Math.random() < 0.5);
     const order = allyFirst ? ["ally", "enemy"] : ["enemy", "ally"];
     for (const side of order) {
       if (this.ally.hp <= 0 || this.enemy.hp <= 0) break;
-      if (side === "ally") this.performAction(this.ally, this.enemy, playerAction, messages);
-      else this.enemyAct(messages);
+      if (side === "ally") {
+        if (playerAction.type === "guard") continue;
+        this.performAction(this.ally, this.enemy, playerAction, messages);
+        this.checkBossPhase(messages);
+      } else {
+        this.enemyAct(messages);
+      }
     }
+    this.allyGuarding = false;
     this.finishTurn(messages);
   }
 
