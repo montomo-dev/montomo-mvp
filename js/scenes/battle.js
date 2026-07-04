@@ -11,6 +11,7 @@ import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 import { getRank } from "../systems/rank.js";
 import { sfxHit, sfxFaint, sfxLevelUp, sfxEvolve, sfxCatchSuccess, sfxCatchFail, sfxConfirm, sfxCancel, sfxCry } from "../audio.js";
 import { typeOf, typeEffectiveness } from "../data/types.js";
+import { STATUS_LABEL, maybeInflictStatus, canAct, applyEndOfTurnStatus, clearStatus } from "../systems/status.js";
 
 function effectivenessMessage(eff) {
   if (eff === 0) return "こうかが ないようだ…";
@@ -110,6 +111,7 @@ export class BattleScene {
       this.game.field.resetPosition();
       this.game.field.showToast("いえまで はこばれて かいふくした…");
     }
+    for (const m of this.game.party) clearStatus(m);
     this.game.save();
     this.game.changeScene(this.game.field);
   }
@@ -243,6 +245,7 @@ export class BattleScene {
     const atkType = skill ? skill.type : typeOf(actor.speciesId);
     const eff = typeEffectiveness(atkType, typeOf(target.speciesId));
     let damage = Math.max(1, Math.round(actor.atk * power - target.def / 2 + (Math.random() * 4 - 2)));
+    if (actor.status === "burn") damage = Math.round(damage * 0.5);
     damage = eff === 0 ? 0 : Math.max(1, Math.round(damage * eff));
     if (target === this.ally && this.allyGuarding) {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
@@ -257,6 +260,7 @@ export class BattleScene {
     if (effMsg) messages.push(effMsg);
     if (target.hp <= 0) sfxFaint();
     else sfxHit();
+    if (eff > 0) maybeInflictStatus(atkType, target, messages);
   }
 
   enemyAct(messages) {
@@ -352,13 +356,17 @@ export class BattleScene {
       if (this.ally.hp <= 0 || this.enemy.hp <= 0) break;
       if (side === "ally") {
         if (playerAction.type === "guard") continue;
+        if (!canAct(this.ally, messages)) continue;
         this.performAction(this.ally, this.enemy, playerAction, messages);
         this.checkBossPhase(messages);
       } else {
+        if (!canAct(this.enemy, messages)) continue;
         this.enemyAct(messages);
       }
     }
     this.allyGuarding = false;
+    if (this.ally.hp > 0) applyEndOfTurnStatus(this.ally, messages);
+    if (this.enemy.hp > 0) applyEndOfTurnStatus(this.enemy, messages);
     this.finishTurn(messages);
   }
 
@@ -445,6 +453,7 @@ export class BattleScene {
     ];
     if (Math.random() < chance) {
       this.enemy.hp = this.enemy.maxHp;
+      clearStatus(this.enemy);
       markCaught(this.game, this.enemy.speciesId);
       messages.push(
         `${this.enemy.name} は うれしそうに ちかづいてきた！`,
@@ -498,13 +507,15 @@ export class BattleScene {
     const rareLabel = SPECIES[this.enemy.speciesId].rare ? "  ★レア" : "";
     const rank = getRank(SPECIES[this.enemy.speciesId]);
     const enemyType = typeOf(this.enemy.speciesId);
-    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}`, 30, 40);
+    const enemyStatus = this.enemy.status ? `  [${STATUS_LABEL[this.enemy.status]}]` : "";
+    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}`, 30, 40);
     hpBar(ctx, 30, 52, 220, 12, this.shownHp.enemy / this.enemy.maxHp);
 
     panel(ctx, 372, 234, 252, 108);
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
-    ctx.fillText(`${this.ally.name}  Lv.${this.ally.level}  ${typeOf(this.ally.speciesId)}`, 388, 262);
+    const allyStatus = this.ally.status ? `  [${STATUS_LABEL[this.ally.status]}]` : "";
+    ctx.fillText(`${this.ally.name}  Lv.${this.ally.level}  ${typeOf(this.ally.speciesId)}${allyStatus}`, 388, 262);
     hpBar(ctx, 388, 274, 220, 14, this.shownHp.ally / this.ally.maxHp);
     ctx.font = FONT;
     ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))} / ${this.ally.maxHp}`, 388, 310);
