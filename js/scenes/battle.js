@@ -2,7 +2,7 @@ import { SKILLS } from "../data/skills.js";
 import { SPECIES } from "../data/monsters.js";
 import { ITEMS } from "../data/items.js";
 import { gainExp, expToNext } from "../systems/growth.js";
-import { MAX_PARTY, moveToFront } from "../systems/party.js";
+import { MAX_PARTY, moveToFront, depositToRanch } from "../systems/party.js";
 import { markSeen, markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { EndingScene } from "./ending.js";
@@ -33,6 +33,8 @@ export class BattleScene {
     this.shownHp = { ally: this.ally.hp, enemy: enemy.hp };
     this.phase = "message";
     this.after = "command";
+    this.recruitedMonster = null;
+    this.rosterChoice = null;
     this.queue = [
       this.isBoss
         ? `もりの ${enemy.name} が たちはだかった！`
@@ -49,6 +51,11 @@ export class BattleScene {
   enterNext() {
     if (this.after === "command") {
       this.phase = "command";
+      return;
+    }
+    if (this.after === "chooseRoster") {
+      this.phase = "chooseRoster";
+      this.rosterChoice = null;
       return;
     }
     if (this.after === "ending") {
@@ -135,7 +142,28 @@ export class BattleScene {
       if (input.wasPressed("up")) this.itemCursor = (this.itemCursor + owned.length - 1) % owned.length;
       if (input.wasPressed("down")) this.itemCursor = (this.itemCursor + 1) % owned.length;
       if (input.wasPressed("ok")) this.useItem(owned[this.itemCursor]);
+    } else if (this.phase === "chooseRoster") {
+      if (input.wasPressed("ok") || input.wasPressed("left")) {
+        this.rosterChoice = "party";
+        this.confirmRosterChoice();
+      } else if (input.wasPressed("cancel") || input.wasPressed("right")) {
+        this.rosterChoice = "ranch";
+        this.confirmRosterChoice();
+      }
     }
+  }
+
+  confirmRosterChoice() {
+    const name = this.recruitedMonster.name;
+    if (this.rosterChoice === "party") {
+      this.game.party.push(this.recruitedMonster);
+      this.say([`${name} が なかまに くわわった！`], "end");
+    } else {
+      this.game.ranch.push(this.recruitedMonster);
+      this.say([`${name} を まきばに おくった。`], "end");
+    }
+    this.recruitedMonster = null;
+    this.game.save();
   }
 
   ownedItemIds() {
@@ -391,13 +419,13 @@ export class BattleScene {
     ];
     if (Math.random() < chance) {
       this.enemy.hp = this.enemy.maxHp;
-      this.game.party.push(this.enemy);
       markCaught(this.game, this.enemy.speciesId);
       messages.push(
         `${this.enemy.name} は うれしそうに ちかづいてきた！`,
         `${this.enemy.name} が なかまに くわわった！`
       );
-      this.say(messages, "end");
+      this.recruitedMonster = this.enemy;
+      this.say(messages, "chooseRoster");
     } else {
       messages.push(`${this.enemy.name} は そっぽを むいてしまった…`);
       this.enemyAct(messages);
@@ -489,6 +517,18 @@ export class BattleScene {
         const item = ITEMS[itemId];
         ctx.fillText(`${item.name} × ${this.game.items[itemId]}`, 70, y);
         if (this.itemCursor === i) ctx.fillText("▶", 44, y);
+      });
+    } else if (this.phase === "chooseRoster") {
+      ctx.font = FONT;
+      ctx.fillText("どこに いれますか？", 36, 374);
+      ctx.font = FONT_BOLD;
+      const choices = [
+        { label: "てもちに いれる", y: 402, key: "Z" },
+        { label: "まきばに おくる", y: 428, key: "X" },
+      ];
+      choices.forEach(({ label, y, key }) => {
+        ctx.fillText(label, 70, y);
+        ctx.fillText(`(${key})`, 240, y);
       });
     }
   }
