@@ -8,7 +8,20 @@ export const TILE_TYPES = {
   NEXT: 6,
   PREV: 7,
   SHOP: 8,
+  HOUSE: 10,
+  NPC: 11,
+  INN: 12,
+  TOWN_ENTER: 13,
+  TOWN_EXIT: 14,
 };
+
+// レイアウト文字は36進数(0-9, a-z)で解釈する。0-9は既存タイルと完全互換。
+export const TILE_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+export function parseTileChar(ch) {
+  const idx = TILE_CHARS.indexOf(ch);
+  return idx === -1 ? 0 : idx;
+}
 
 export const START_STAGE_ID = "stage1";
 
@@ -23,6 +36,7 @@ export const STAGES = {
     spawns: {
       start: { x: 2, y: 10 },
       fromNext: { x: 13, y: 1 },
+      fromTown: { x: 5, y: 9 },
     },
     palette: {
       ground: "#a9d977",
@@ -43,12 +57,50 @@ export const STAGES = {
       "2000000111000002",
       "2001100000000022",
       "2001100000220002",
-      "2000000000000802",
+      "20000d0000000802",
       "2222222222222222",
     ],
     treasures: [{ id: "t1", money: 150, x: 8, y: 5, trap: false }],
     groundItems: [{ id: "i1", itemId: "potion", x: 10, y: 3 }],
     rareSpecies: [{ speciesId: "tsukinone", level: 8 }],
+  },
+  town1: {
+    id: "town1",
+    shortName: "town1",
+    name: "はじまりのまち",
+    encounterRate: 0,
+    townExitStage: "stage1",
+    spawns: {
+      start: { x: 8, y: 9 },
+      fromField: { x: 8, y: 9 },
+    },
+    palette: {
+      ground: "#d9c9a3",
+      accent: "#c2b189",
+      bushFill: "#7bbb4d",
+      bushStroke: "#5fa03e",
+      treeLeaf: "#4e8f43",
+      treeFruit: "#66a858",
+    },
+    layout: [
+      "2222222222222222",
+      "2000000000000002",
+      "20aa00aa000aa002",
+      "20aa00aa000aa002",
+      "20b000b0000c0002",
+      "2000000000000002",
+      "2000000000000002",
+      "200000000b000002",
+      "2000000000000002",
+      "2000000000000002",
+      "20000000e0000002",
+      "2222222222222222",
+    ],
+    npcs: [
+      { x: 2, y: 4, line: "ここは はじまりのまち。 やどやで つかれを いやせるよ。" },
+      { x: 6, y: 4, line: "ぼうけんの ちょうしは どうだい？ たまには まちで やすむのも いいものさ。" },
+      { x: 9, y: 7, line: "むらの おくには まだ みたことのない せかいが ひろがっているらしい…" },
+    ],
   },
   stage2: {
     id: "stage2",

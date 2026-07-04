@@ -5,7 +5,7 @@ import { PokedexScene } from "./pokedex.js";
 import { ShopScene } from "./shop.js";
 import { ChoiceScene } from "./choice.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
-import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS } from "../data/stages.js";
+import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS, parseTileChar } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
 import { panel, hpBar, FONT_BOLD } from "../ui.js";
 
@@ -18,6 +18,11 @@ const T_RANCH = TILE_TYPES.RANCH;
 const T_NEXT = TILE_TYPES.NEXT;
 const T_PREV = TILE_TYPES.PREV;
 const T_SHOP = TILE_TYPES.SHOP;
+const T_HOUSE = TILE_TYPES.HOUSE;
+const T_NPC = TILE_TYPES.NPC;
+const T_INN = TILE_TYPES.INN;
+const T_TOWN_ENTER = TILE_TYPES.TOWN_ENTER;
+const T_TOWN_EXIT = TILE_TYPES.TOWN_EXIT;
 
 const WORLD_PREFIXES = [
   ["reverse_", "reverse"],
@@ -70,7 +75,7 @@ export class FieldScene {
   setStage(stageId, spawnKey = "start", keepFacing = true) {
     this.stage = getStage(stageId);
     this.stageId = this.stage.id;
-    this.map = this.stage.layout.map((row) => [...row].map(Number));
+    this.map = this.stage.layout.map((row) => [...row].map(parseTileChar));
     const spawn = this.stage.spawns[spawnKey] || this.stage.spawns.start;
     this.player = { ...spawn };
     if (!keepFacing) this.facing = "down";
@@ -157,11 +162,17 @@ export class FieldScene {
 
     const nx = this.player.x + dx;
     const ny = this.player.y + dy;
-    if (this.tileAt(nx, ny) === T_TREE) return;
+    const targetTile = this.tileAt(nx, ny);
+    if (targetTile === T_TREE || targetTile === T_HOUSE) return;
+    if (targetTile === T_NPC) {
+      this.moveCooldown = 0.14;
+      this.talkToNpc(nx, ny);
+      return;
+    }
     this.player.x = nx;
     this.player.y = ny;
     this.moveCooldown = 0.14;
-    this.onStep(this.tileAt(nx, ny));
+    this.onStep(targetTile);
   }
 
   onStep(tile) {
@@ -199,6 +210,21 @@ export class FieldScene {
       this.game.changeScene(new ShopScene(this.game, this));
       return;
     }
+    if (tile === T_INN) {
+      for (const m of this.game.party) m.hp = m.maxHp;
+      this.game.save();
+      this.showToast("やどやで ぐっすり やすみ、げんきを とりもどした！");
+      return;
+    }
+    if (tile === T_TOWN_ENTER) {
+      this.moveStage("town1", "fromField", "まちに はいった！");
+      return;
+    }
+    if (tile === T_TOWN_EXIT && this.stage.townExitStage) {
+      const exitStage = getStage(this.stage.townExitStage);
+      this.moveStage(exitStage.id, "fromTown", `${exitStage.shortName} に もどった`);
+      return;
+    }
     if (tile === T_NEXT && this.stage.nextStage) {
       const nextStage = getStage(this.stage.nextStage);
       this.moveStage(nextStage.id, "fromPrev", `${nextStage.shortName} に すすんだ！`);
@@ -225,6 +251,11 @@ export class FieldScene {
 
     this.checkTreasureAt(this.player.x, this.player.y);
     this.checkGroundItemAt(this.player.x, this.player.y);
+  }
+
+  talkToNpc(x, y) {
+    const npc = (this.stage.npcs || []).find((n) => n.x === x && n.y === y);
+    this.showToast(npc ? npc.line : "……");
   }
 
   checkTreasureAt(x, y) {
@@ -273,6 +304,9 @@ export class FieldScene {
     if (tile === T_SPRING) return "いずみ: HP ぜんかいふく";
     if (tile === T_RANCH) return "まきば: なかまの いれかえ";
     if (tile === T_SHOP) return "どうぐや: アイテムを かえる";
+    if (tile === T_INN) return "やどや: HP ぜんかいふく + セーブ";
+    if (tile === T_TOWN_ENTER) return "まちの いりぐち";
+    if (tile === T_TOWN_EXIT) return "まちの でぐち";
     if (tile === T_NEXT && this.stage.nextStage) return `${getStage(this.stage.nextStage).shortName}: つぎへ すすむ`;
     if (tile === T_PREV && this.stage.prevStage) return `${getStage(this.stage.prevStage).shortName}: ひとつ もどる`;
     if (tile === T_BOSS) {
@@ -324,9 +358,10 @@ export class FieldScene {
           ctx.fillStyle = "#6b4e2e";
           ctx.fillRect(px + 6, py + 14, 4, 22);
           ctx.fillRect(px + TILE - 10, py + 14, 4, 22);
-        } else if (tile === T_NEXT || tile === T_PREV) {
-          const gateColor = tile === T_NEXT ? "#5d8ce3" : "#c9814d";
-          const clothColor = tile === T_NEXT ? "#dce9ff" : "#ffe0c4";
+        } else if (tile === T_NEXT || tile === T_PREV || tile === T_TOWN_ENTER || tile === T_TOWN_EXIT) {
+          const forward = tile === T_NEXT || tile === T_TOWN_ENTER;
+          const gateColor = forward ? "#5d8ce3" : "#c9814d";
+          const clothColor = forward ? "#dce9ff" : "#ffe0c4";
           ctx.fillStyle = "#86603b";
           ctx.fillRect(px + 8, py + 10, 5, 24);
           ctx.fillRect(px + 27, py + 10, 5, 24);
@@ -334,7 +369,7 @@ export class FieldScene {
           ctx.fillRect(px + 8, py + 8, 24, 5);
           ctx.fillStyle = clothColor;
           ctx.beginPath();
-          if (tile === T_NEXT) {
+          if (forward) {
             ctx.moveTo(px + 15, py + 17);
             ctx.lineTo(px + 27, py + 20);
             ctx.lineTo(px + 15, py + 23);
@@ -343,6 +378,59 @@ export class FieldScene {
             ctx.lineTo(px + 13, py + 20);
             ctx.lineTo(px + 25, py + 23);
           }
+          ctx.closePath();
+          ctx.fill();
+        } else if (tile === T_HOUSE) {
+          ctx.fillStyle = "#d97a4a";
+          ctx.beginPath();
+          ctx.moveTo(px + 3, py + 18);
+          ctx.lineTo(px + 20, py + 4);
+          ctx.lineTo(px + 37, py + 18);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = "#f0cf9a";
+          ctx.fillRect(px + 7, py + 18, 26, 18);
+          ctx.fillStyle = "#8a5a35";
+          ctx.fillRect(px + 17, py + 24, 6, 12);
+          ctx.fillStyle = "#bfe0f0";
+          ctx.fillRect(px + 9, py + 22, 5, 5);
+          ctx.fillRect(px + 26, py + 22, 5, 5);
+          ctx.strokeStyle = "#8a5a35";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(px + 7, py + 18, 26, 18);
+        } else if (tile === T_NPC) {
+          const bob = Math.sin(this.time * 3 + px) * 1.5;
+          ctx.fillStyle = "#5d8ce3";
+          ctx.beginPath();
+          ctx.roundRect(px + 12, py + 16 + bob, 16, 18, 6);
+          ctx.fill();
+          ctx.fillStyle = "#f4c89a";
+          ctx.beginPath();
+          ctx.arc(px + 20, py + 12 + bob, 8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#3a3a52";
+          ctx.beginPath(); ctx.arc(px + 17, py + 11 + bob, 1.3, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(px + 23, py + 11 + bob, 1.3, 0, Math.PI * 2); ctx.fill();
+        } else if (tile === T_INN) {
+          ctx.fillStyle = "#8a5a2a";
+          ctx.beginPath();
+          ctx.moveTo(px + 4, py + 16);
+          ctx.lineTo(px + 20, py + 5);
+          ctx.lineTo(px + 36, py + 16);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = "#f7e2b8";
+          ctx.fillRect(px + 8, py + 16, 24, 20);
+          ctx.strokeStyle = "#8a5a2a";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(px + 8, py + 16, 24, 20);
+          const glow = 0.5 + 0.5 * Math.sin(this.time * 3);
+          ctx.fillStyle = `rgba(255, 200, 90, ${0.6 + glow * 0.4})`;
+          ctx.beginPath();
+          ctx.moveTo(px + 20, py + 20);
+          ctx.lineTo(px + 24, py + 27);
+          ctx.lineTo(px + 20, py + 32);
+          ctx.lineTo(px + 16, py + 27);
           ctx.closePath();
           ctx.fill();
         } else if (tile === T_SHOP) {
