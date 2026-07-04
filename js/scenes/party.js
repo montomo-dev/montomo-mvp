@@ -1,5 +1,5 @@
 import { SPECIES } from "../data/monsters.js";
-import { MAX_PARTY, moveToFront } from "../systems/party.js";
+import { moveToFront } from "../systems/party.js";
 import { breedMonsters } from "../systems/breeding.js";
 import { SKILLS } from "../data/skills.js";
 import { expToNext } from "../systems/growth.js";
@@ -111,10 +111,6 @@ export class PartyScene {
       this.message = "配合には なかまが 2体 ひつようだよ。";
       return;
     }
-    if (this.game.party.length >= MAX_PARTY) {
-      this.message = "子どもを むかえる あきが ないよ。";
-      return;
-    }
     this.mode = "breed";
     this.firstParent = null;
     this.cursor = 0;
@@ -147,11 +143,14 @@ export class PartyScene {
     }
 
     const { child, inheritedSkill } = breedMonsters(this.firstParent, selected);
+    this.game.party = this.game.party.filter(
+      (m) => m.uid !== this.firstParent.uid && m.uid !== selected.uid
+    );
     this.game.party.push(child);
     markCaught(this.game, child.speciesId);
     const skillMessage = inheritedSkill ? ` ${SKILLS[inheritedSkill].name}を うけついだ！` : "";
     const colorMessage = child.tintName ? ` からだが ${child.tintName}いろに そまった！` : "";
-    this.message = `${child.name}が うまれた！${colorMessage}${skillMessage}`;
+    this.message = `おやは ${child.name}を のこして きえていった…${colorMessage}${skillMessage}`;
     this.mode = "list";
     this.firstParent = null;
     this.cursor = this.game.party.length - 1;

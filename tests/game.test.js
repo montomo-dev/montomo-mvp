@@ -22,7 +22,7 @@ test("新しい野生モンスターが出現表に入っている", () => {
   assert.equal(rollWildSpecies(undefined, () => 0.999), "kazepeko");
 });
 
-test("配合で親を残したままLv.1の子と継承技が生まれる", () => {
+test("breedMonstersの計算自体は親オブジェクトを変更せず、Lv.1の子と継承技を返す", () => {
   const parentA = createMonster("mofuri", 3);
   const parentB = createMonster("hibachi", 3);
   const { child, inheritedSkill } = breedMonsters(parentA, parentB);
@@ -33,6 +33,37 @@ test("配合で親を残したままLv.1の子と継承技が生まれる", () =
   assert.ok(child.skills.includes(inheritedSkill));
   assert.equal(parentA.level, 3);
   assert.equal(parentB.level, 3);
+});
+
+test("PartySceneで配合すると親2体はパーティから消え、子だけが残る", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { PartyScene } = await import("../js/scenes/party.js");
+
+  const parentA = createMonster("mofuri", 3);
+  const parentB = createMonster("hibachi", 3);
+  const bystander = createMonster("fuwarisu", 5);
+  const game = {
+    party: [parentA, parentB, bystander],
+    dex: { seen: [], caught: [] },
+    save: () => true,
+  };
+  const scene = new PartyScene(game, null);
+  scene.startBreeding();
+  scene.chooseParent(0);
+  scene.chooseParent(1);
+
+  const uids = game.party.map((m) => m.uid);
+  assert.ok(!uids.includes(parentA.uid), "配合後も親Aがパーティに残っている");
+  assert.ok(!uids.includes(parentB.uid), "配合後も親Bがパーティに残っている");
+  assert.ok(uids.includes(bystander.uid), "配合に関与していないなかまが消えてしまった");
+  assert.equal(game.party.length, 2, "パーティ人数が 親2体消滅+子1体誕生 の想定と一致しない");
 });
 
 test("追加した3体も個体生成できる", () => {
