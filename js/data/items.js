@@ -75,3 +75,33 @@ export const ITEMS = {
     value: 0.5,
   },
 };
+
+// 各街の「どうぐや」は進行度に応じて品揃えが増えていく(累積解禁)。
+// 街ではない序盤のフィールド(stage1のショップ等)は最初の街と同じ基本品揃えにする
+const SHOP_TOWN_ORDER = [
+  "town1",
+  "sea_town1",
+  "snow_town1",
+  "desert_town1",
+  "factory_town1",
+  "castle_town1",
+];
+
+const SHOP_NEW_ITEMS_BY_TOWN = {
+  town1: ["potionS", "potionM", "bait", "atkSeed", "defSeed"],
+  sea_town1: ["potionL"],
+  snow_town1: ["premiumBait"],
+  desert_town1: ["potionLL"],
+  factory_town1: [],
+  castle_town1: ["potionX"],
+};
+
+export function shopInventoryFor(stageId) {
+  const townIndex = SHOP_TOWN_ORDER.indexOf(stageId);
+  const unlockedThrough = townIndex === -1 ? 0 : townIndex;
+  const ids = [];
+  for (let i = 0; i <= unlockedThrough; i++) {
+    ids.push(...SHOP_NEW_ITEMS_BY_TOWN[SHOP_TOWN_ORDER[i]]);
+  }
+  return ids;
+}

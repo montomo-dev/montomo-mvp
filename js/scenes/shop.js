@@ -1,10 +1,9 @@
-import { ITEMS } from "../data/items.js";
+import { ITEMS, shopInventoryFor } from "../data/items.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { sfxCancel, sfxSelect, sfxItemGet } from "../audio.js";
 
 const ROW_H = 56;
 const ROW_GAP = 8;
-const ITEM_IDS = Object.keys(ITEMS);
 
 export class ShopScene {
   constructor(game, prevScene) {
@@ -13,6 +12,7 @@ export class ShopScene {
     this.cursor = 0;
     this.time = 0;
     this.message = null;
+    this.itemIds = shopInventoryFor(prevScene?.stageId);
   }
 
   update(dt) {
@@ -28,9 +28,9 @@ export class ShopScene {
       this.game.changeScene(this.prev);
       return;
     }
-    if (input.wasPressed("up")) { this.cursor = (this.cursor + ITEM_IDS.length - 1) % ITEM_IDS.length; sfxSelect(); }
-    if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % ITEM_IDS.length; sfxSelect(); }
-    if (input.wasPressed("ok")) this.buy(ITEM_IDS[this.cursor]);
+    if (input.wasPressed("up")) { this.cursor = (this.cursor + this.itemIds.length - 1) % this.itemIds.length; sfxSelect(); }
+    if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % this.itemIds.length; sfxSelect(); }
+    if (input.wasPressed("ok")) this.buy(this.itemIds[this.cursor]);
   }
 
   buy(itemId) {
@@ -59,7 +59,7 @@ export class ShopScene {
     ctx.fillText(`しょじきん ${this.game.money || 0}円`, 610, 44);
     ctx.textAlign = "left";
 
-    ITEM_IDS.forEach((itemId, i) => {
+    this.itemIds.forEach((itemId, i) => {
       const item = ITEMS[itemId];
       const y = 66 + i * (ROW_H + ROW_GAP);
       panel(ctx, 30, y, 580, ROW_H);

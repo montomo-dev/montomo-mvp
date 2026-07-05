@@ -6,7 +6,7 @@ import { createMonster, rollWildSpecies, SPECIES } from "../js/data/monsters.js"
 import { getStage, STAGES, TILE_TYPES, WORLD_TRANSITIONS } from "../js/data/stages.js";
 import { breedMonsters } from "../js/systems/breeding.js";
 import { depositToRanch } from "../js/systems/party.js";
-import { ITEMS } from "../js/data/items.js";
+import { ITEMS, shopInventoryFor } from "../js/data/items.js";
 import { SKILLS } from "../js/data/skills.js";
 import { getRank, RANK_ORDER, RANK_COLOR } from "../js/systems/rank.js";
 import { TYPES, SPECIES_TYPE, typeOf, typeEffectiveness } from "../js/data/types.js";
@@ -1515,4 +1515,50 @@ test("ポーションの価格は効果の上昇にきれいに比例する(3倍
 
 test("エサはポーションと同じ「3倍」の価格ルールに既に沿っている", () => {
   assert.equal(ITEMS.premiumBait.price, ITEMS.bait.price * 3);
+});
+
+test("序盤(stage1・森の街)のショップではポーションLL/Xを購入できない", () => {
+  for (const stageId of ["stage1", "town1"]) {
+    const inventory = shopInventoryFor(stageId);
+    assert.ok(!inventory.includes("potionLL"), `${stageId} でポーションLLが買えてしまう`);
+    assert.ok(!inventory.includes("potionX"), `${stageId} でポーションXが買えてしまう`);
+  }
+});
+
+test("ショップの品揃えはワールド進行に応じて累積で増えていく", () => {
+  const town1 = shopInventoryFor("town1");
+  const sea = shopInventoryFor("sea_town1");
+  const snow = shopInventoryFor("snow_town1");
+  const desert = shopInventoryFor("desert_town1");
+  const castle = shopInventoryFor("castle_town1");
+
+  for (const id of town1) assert.ok(sea.includes(id), `sea_town1で${id}が消えている`);
+  assert.ok(sea.includes("potionL") && !town1.includes("potionL"));
+  assert.ok(snow.includes("premiumBait") && !sea.includes("premiumBait"));
+  assert.ok(desert.includes("potionLL") && !snow.includes("potionLL"));
+  assert.ok(castle.includes("potionX") && !desert.includes("potionX"));
+});
+
+test("街ではないフィールド(stage1)のショップは最初の街と同じ基本品揃えになる", () => {
+  assert.deepEqual(shopInventoryFor("stage1"), shopInventoryFor("town1"));
+});
+
+test("ShopSceneはprevSceneのstageIdに応じて品揃えを絞り込む", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { ShopScene } = await import("../js/scenes/shop.js");
+
+  const game = { money: 0, items: {}, save: () => true, changeScene() {}, input: { wasPressed: () => false, isHeld: () => false } };
+  const earlyShop = new ShopScene(game, { stageId: "stage1" });
+  assert.ok(!earlyShop.itemIds.includes("potionLL"));
+
+  const lateShop = new ShopScene(game, { stageId: "castle_town1" });
+  assert.ok(lateShop.itemIds.includes("potionLL"));
+  assert.ok(lateShop.itemIds.includes("potionX"));
 });
