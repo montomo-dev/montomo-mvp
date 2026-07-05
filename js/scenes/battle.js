@@ -12,6 +12,7 @@ import { getRank } from "../systems/rank.js";
 import { sfxHit, sfxFaint, sfxLevelUp, sfxEvolve, sfxCatchSuccess, sfxCatchFail, sfxConfirm, sfxCancel, sfxCry } from "../audio.js";
 import { typeOf, typeEffectiveness } from "../data/types.js";
 import { STATUS_LABEL, maybeInflictStatus, canAct, applyEndOfTurnStatus, clearStatus } from "../systems/status.js";
+import { bossIntroText, bossVictoryLines } from "../data/story.js";
 
 function effectivenessMessage(eff) {
   if (eff === 0) return "こうかが ないようだ…";
@@ -56,7 +57,7 @@ export class BattleScene {
     this.rosterChoice = null;
     this.queue = [
       this.isBoss
-        ? `もりの ${enemy.name} が たちはだかった！`
+        ? bossIntroText(enemy.speciesId, enemy.name)
         : `やせいの ${enemy.name} が とびだしてきた！`,
     ];
   }
@@ -491,7 +492,7 @@ export class BattleScene {
       this.game.flags.stageClearedFlags[this.stageId] = true;
       this.game.flags.bossDefeated = true;
       this.game.save();
-      messages.push(`${this.enemy.name} を のりこえた…！`);
+      messages.push(...bossVictoryLines(this.enemy.speciesId, this.enemy.name));
       this.say(messages, "ending");
     } else {
       this.say(messages, "end");

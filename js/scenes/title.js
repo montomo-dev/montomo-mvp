@@ -106,7 +106,7 @@ export class TitleScene {
     ctx.fillText("であう → たたかう → さそう → そだてる", 320, 302);
     ctx.fillStyle = "#5c7d58";
     ctx.font = FONT;
-    ctx.fillText("あたらしい なかま: オリヒコ・キボコ・ツボコ", 320, 322);
+    ctx.fillText("世界を守る「ヌシ」たちに、歪みの影が しのびよる…", 320, 322);
 
     if (this.notice) {
       ctx.fillStyle = "#2e7d32";
