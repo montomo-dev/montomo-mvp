@@ -1,3 +1,5 @@
+import { applyCombos } from "./skillCombo.js";
+
 export function expToNext(level) {
   return level * 20;
 }
@@ -35,6 +37,7 @@ export function gainExp(monster, speciesTable, amount) {
         learned.push(entry.skill);
       }
     }
+    learned.push(...applyCombos(monster));
     events.push({
       type: "levelup",
       level: monster.level,

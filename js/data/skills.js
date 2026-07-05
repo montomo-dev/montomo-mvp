@@ -33,4 +33,14 @@ export const SKILLS = {
   yamiotoshi: { name: "やみおとし", power: 2.15, accuracy: 70, type: "あく" },
   soyoquiver: { name: "そよかぜアロー", power: 1.5, accuracy: 95, type: "ひこう" },
   kazenokiri: { name: "かぜのきり", power: 1.9, accuracy: 82, type: "ひこう" },
+
+  // 組み合わせ技: 2つの特技を両方おぼえていると自動で習得する上位技
+  reinetsubakuha: { name: "れいねつばくは", power: 2.3, accuracy: 78, type: "ノーマル" },
+  kandenshokku: { name: "かんでんショック", power: 2.2, accuracy: 80, type: "でんき" },
+  daichinonekko: { name: "だいちのねっこ", power: 2.15, accuracy: 82, type: "くさ" },
+  tatsumakikessho: { name: "たつまきけっしょう", power: 2.2, accuracy: 80, type: "ひこう" },
+  ankokunouta: { name: "あんこくのうた", power: 2.25, accuracy: 78, type: "あく" },
+  denjihou: { name: "でんじほう", power: 2.35, accuracy: 75, type: "でんき" },
+  yomosugaranohikari: { name: "よもすがらのひかり", power: 2.1, accuracy: 85, type: "ゴースト" },
+  mitarashisenpu: { name: "みたらしせんぷう", power: 2.0, accuracy: 88, type: "ひこう" },
 };

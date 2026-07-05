@@ -150,15 +150,20 @@ export class PartyScene {
       return;
     }
 
-    const { child, inheritedSkill } = breedMonsters(this.firstParent, selected);
+    const { child, inheritedSkills, comboSkills } = breedMonsters(this.firstParent, selected);
     this.game.party = this.game.party.filter(
       (m) => m.uid !== this.firstParent.uid && m.uid !== selected.uid
     );
     this.game.party.push(child);
     markCaught(this.game, child.speciesId);
-    const skillMessage = inheritedSkill ? ` ${SKILLS[inheritedSkill].name}を うけついだ！` : "";
+    const skillMessage = inheritedSkills.length > 0
+      ? ` ${inheritedSkills.map((id) => SKILLS[id].name).join("、")}を うけついだ！`
+      : "";
+    const comboMessage = comboSkills.length > 0
+      ? ` ぎじゅつの くみあわせで「${comboSkills.map((id) => SKILLS[id].name).join("、")}」を おぼえた！`
+      : "";
     const colorMessage = child.tintName ? ` からだが ${child.tintName}いろに そまった！` : "";
-    this.message = `おやは ${child.name}を のこして きえていった…${colorMessage}${skillMessage}`;
+    this.message = `おやは ${child.name}を のこして きえていった…${colorMessage}${skillMessage}${comboMessage}`;
     this.mode = "list";
     this.firstParent = null;
     this.cursor = this.game.party.length - 1;

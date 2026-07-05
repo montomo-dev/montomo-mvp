@@ -1,4 +1,5 @@
 import { createMonster, SPECIES } from "../data/monsters.js";
+import { applyCombos } from "./skillCombo.js";
 
 export const BASE_SPECIES = {
   mofurif: "mofuri",
@@ -73,6 +74,25 @@ function mixColors(speciesA, speciesB) {
   return { color: averageColor(speciesA.color, speciesB.color), name: null };
 }
 
+// ステータス引き継ぎ(1/4ルール): 親のステータスの合計を4で割った値(端数切り捨て)が子の初期値になる。
+// 親をレベルアップさせてから配合するほど、子は強い初期値で生まれる
+function inheritStat(a, b) {
+  return Math.max(1, Math.floor((a + b) / 4));
+}
+
+// seedを基にした決定論的シャッフル。連続インデックスの切り出しだと配列内で隣接しない
+// 要素の組を絶対に選べない(=特定の技の組み合わせが永久に揃わない)ため、全体をシャッフルしてから選ぶ
+function seededShuffle(array, seed) {
+  const arr = [...array];
+  let s = seed % 2147483647 || 1;
+  for (let i = arr.length - 1; i > 0; i--) {
+    s = (s * 48271) % 2147483647;
+    const j = s % (i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export function breedMonsters(parentA, parentB) {
   const idA = baseSpeciesId(parentA);
   const idB = baseSpeciesId(parentB);
@@ -81,6 +101,12 @@ export function breedMonsters(parentA, parentB) {
   const speciesId = SPECIAL_RESULTS[pairKey] || [idA, idB].sort()[seed % 2];
   const child = createMonster(speciesId, 1);
 
+  child.maxHp = inheritStat(parentA.maxHp, parentB.maxHp);
+  child.hp = child.maxHp;
+  child.atk = inheritStat(parentA.atk, parentB.atk);
+  child.def = inheritStat(parentA.def, parentB.def);
+  child.spd = inheritStat(parentA.spd, parentB.spd);
+
   const mixed = mixColors(SPECIES[idA], SPECIES[idB]);
   if (mixed) {
     child.tintColor = mixed.color;
@@ -88,17 +114,18 @@ export function breedMonsters(parentA, parentB) {
     child.tintName = mixed.name;
   }
 
-  const inheritedSkills = [...new Set([...parentA.skills, ...parentB.skills])]
+  // スキル引き継ぎ(半分ルール): 親が持つ技のうち子がまだ知らないものの、およそ半分を引き継ぐ
+  const candidateSkills = [...new Set([...parentA.skills, ...parentB.skills])]
     .filter((skillId) => !child.skills.includes(skillId));
-  if (inheritedSkills.length > 0) {
-    child.skills.push(inheritedSkills[seed % inheritedSkills.length]);
-  }
+  const inheritCount = candidateSkills.length > 0
+    ? Math.max(1, Math.ceil(candidateSkills.length / 2))
+    : 0;
+  const inheritedSkills = seededShuffle(candidateSkills, seed).slice(0, inheritCount);
+  child.skills.push(...inheritedSkills);
+
+  // 組み合わせ技: 引き継いだ技同士が揃っていれば、上位の組み合わせ技も習得する
+  const comboSkills = applyCombos(child);
 
   child.parents = [parentA.uid, parentB.uid];
-  return {
-    child,
-    inheritedSkill: child.skills.find(
-      (skillId) => !SPECIES[speciesId].learnset.some((entry) => entry.level <= 1 && entry.skill === skillId)
-    ) || null,
-  };
+  return { child, inheritedSkills, comboSkills };
 }
