@@ -60,7 +60,6 @@ export class BattleScene {
     this.bossAI = this.isBoss ? SPECIES[enemy.speciesId].bossAI || null : null;
     this.bossState = { phase: 0, turn: 0, charging: false, chargeDamage: 0 };
     this.allyGuarding = false;
-    this.totalDamageDealt = 0;
     markSeen(game, enemy.speciesId);
     sfxCry(enemy.speciesId);
     this.time = 0;
@@ -315,9 +314,8 @@ export class BattleScene {
       messages.push(`${target.name} は ぼうぎょで こうげきを うけながした！`);
     }
     target.hp = Math.max(0, target.hp - damage);
-    if (target === this.enemy) {
-      this.totalDamageDealt += damage;
-      if (this.bossState.charging) this.bossState.chargeDamage += damage;
+    if (target === this.enemy && this.bossState.charging) {
+      this.bossState.chargeDamage += damage;
     }
     messages.push(`${target.name} に ${damage} の ダメージ！`);
     const effMsg = effectivenessMessage(eff);
@@ -536,16 +534,17 @@ export class BattleScene {
     const species = SPECIES[this.enemy.speciesId];
     const baitMultiplier = this.pendingBaitBonus || 1;
     this.pendingBaitBonus = 0;
-    // なかまにさそう率(%) = (総与ダメージ ÷ 敵の最大HP) × 50 × 肉ボーナス × レア度倍率 ÷ (所持数+1)
+    // なかまにさそう率(%) = (さそう なかまの こうげき力 ÷ 敵のこうげき力) × 50 × 肉ボーナス × レア度倍率 ÷ (所持数+1)
     // レア度倍率は recruitEase を基準値(0.15)で正規化したもの。
-    // 敵の最大HPと同じだけダメージを与えれば基準50%、2倍与えれば確定(100%)になる。
+    // こうげき力が互角なら基準50%、2倍あれば確定(100%)になる。一撃も与えていなくても
+    // 自分の実力(こうげき力)そのものに応じてチャンスがあるようにする
     // 同じ種族を既に持っているほど成功率が下がり、図鑑コンプリートへの意欲を保つ
     const rarityMultiplier = species.recruitEase / REFERENCE_RECRUIT_EASE;
     const ownedCount = [...this.game.party, ...(this.game.ranch || [])]
       .filter((m) => m.speciesId === this.enemy.speciesId).length;
-    const damageRate = (this.totalDamageDealt / this.enemy.maxHp) * 50;
+    const powerRate = (this.ally.atk / this.enemy.atk) * 50;
     const chance = Math.max(0, Math.min(1,
-      (damageRate * baitMultiplier * rarityMultiplier) / 100 / (ownedCount + 1)
+      (powerRate * baitMultiplier * rarityMultiplier) / 100 / (ownedCount + 1)
     ));
     const percentage = Math.round(chance * 100);
     const messages = [
