@@ -1,7 +1,25 @@
 export const SAVE_SLOT_COUNT = 3;
 
+// スロット制になる前の旧セーブキー。スロット0にのみ、一度だけ自動移行する
+const LEGACY_SAVE_KEY = "montomo-save-v1";
+
 function saveKey(slot) {
   return `montomo-save-v1-slot${slot}`;
+}
+
+// スロット0を最初に読み書きする際、旧キーにデータが残っていれば
+// スロット0として引き継ぐ(そうしないと更新後にセーブが消えたように見えてしまう)
+function migrateLegacySaveIfNeeded() {
+  try {
+    const legacy = localStorage.getItem(LEGACY_SAVE_KEY);
+    if (!legacy) return;
+    if (localStorage.getItem(saveKey(0)) === null) {
+      localStorage.setItem(saveKey(0), legacy);
+    }
+    localStorage.removeItem(LEGACY_SAVE_KEY);
+  } catch (e) {
+    console.warn("旧セーブデータの移行に失敗しました", e);
+  }
 }
 
 export function saveGame(game, slot = 0) {
@@ -37,6 +55,7 @@ export function saveGame(game, slot = 0) {
 
 export function loadSave(slot = 0) {
   try {
+    if (slot === 0) migrateLegacySaveIfNeeded();
     const raw = localStorage.getItem(saveKey(slot));
     if (!raw) return null;
     return JSON.parse(raw);
@@ -48,6 +67,7 @@ export function loadSave(slot = 0) {
 
 export function hasSave(slot = 0) {
   try {
+    if (slot === 0) migrateLegacySaveIfNeeded();
     return localStorage.getItem(saveKey(slot)) !== null;
   } catch (e) {
     return false;
