@@ -8,6 +8,7 @@ import { drawMonster } from "../sprites.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
 import { sfxBreed, sfxConfirm } from "../audio.js";
+import { BreedingChartScene } from "./breedingChart.js";
 
 const nameInput = document.getElementById("name-input");
 
@@ -87,6 +88,10 @@ export class PartyScene {
       }
       this.game.save();
       this.game.changeScene(this.prev);
+      return;
+    }
+    if (input.wasPressed("dex")) {
+      this.game.changeScene(new BreedingChartScene(this.game, this));
       return;
     }
     if (count === 0) {
@@ -234,7 +239,7 @@ export class PartyScene {
       ? this.firstParent
         ? "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる"
         : "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる"
-      : "↑↓: えらぶ ／ Z: せんとう ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ X: もどる";
+      : "↑↓: えらぶ ／ Z: せんとう ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ D: 配合表 ／ X: もどる";
     ctx.fillText(hint, 30, 462);
 
     if (this.message) {

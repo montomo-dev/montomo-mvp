@@ -1,16 +1,27 @@
 import { createMonster, SPECIES } from "../data/monsters.js";
 
-const BASE_SPECIES = {
+export const BASE_SPECIES = {
   mofurif: "mofuri",
   borudogura: "dogura",
   bakuhibachi: "hibachi",
   tenfuwarisu: "fuwarisu",
 };
 
-const SPECIAL_RESULTS = {
+export const SPECIAL_RESULTS = {
   "mofuri+pyokotan": "obako",
   "hibachi+pachikoro": "kurista",
   "dogura+fuwarisu": "hagumon",
+  "obako+tsukinone": "obagale",
+  "kaigaran+kurista": "kuricrown",
+  "hagumon+hagurumaru": "hagutitan",
+  "mofuri+sakuraneko": "mofurigarden",
+  "dogura+ishimaru": "borudrill",
+  "hibachi+sandango": "bakuphoenix",
+  "fuwarisu+torimugi": "tenstorm",
+  "awairuka+sazanami": "oonamiwhale",
+  "hikariebi+sumiremo": "hoshizora",
+  "karakuribat+nejiko": "omegazenmaiya",
+  "tsukinone+yukibouzu": "reiseiou",
 };
 
 const PRIMARY_BLENDS = {
