@@ -11,6 +11,7 @@ import { sfxBreed, sfxConfirm } from "../audio.js";
 import { BreedingChartScene } from "./breedingChart.js";
 
 const nameInput = document.getElementById("name-input");
+const MIN_BREED_LEVEL = 10;
 
 export class PartyScene {
   constructor(game, prevScene) {
@@ -118,6 +119,11 @@ export class PartyScene {
       this.message = "配合には なかまが 2体 ひつようだよ。";
       return;
     }
+    const eligible = this.game.party.filter((m) => m.level >= MIN_BREED_LEVEL);
+    if (eligible.length < 2) {
+      this.message = `配合には Lv.${MIN_BREED_LEVEL}いじょうの なかまが 2体 ひつようだよ。`;
+      return;
+    }
     this.mode = "breed";
     this.firstParent = null;
     this.cursor = 0;
@@ -140,6 +146,10 @@ export class PartyScene {
 
   chooseParent(index) {
     const selected = this.game.party[index];
+    if (selected.level < MIN_BREED_LEVEL) {
+      this.message = `Lv.${MIN_BREED_LEVEL}みまんは まだ 配合できないよ。`;
+      return;
+    }
     if (!this.firstParent) {
       this.firstParent = selected;
       sfxConfirm();

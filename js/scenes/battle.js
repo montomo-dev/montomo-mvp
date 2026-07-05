@@ -20,9 +20,14 @@ function effectivenessMessage(eff) {
   return null;
 }
 
-const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "にげる", "ぼうぎょ"];
-const COMMAND_COLS = [[0, 2, 4], [1, 3, 5]];
-const COMMAND_POS = [[70, 402], [330, 402], [70, 424], [330, 424], [70, 446], [330, 446]];
+const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "こうかん", "にげる", "ぼうぎょ"];
+const COMMAND_COLS = [[0, 2, 4, 6], [1, 3, 5]];
+const COMMAND_POS = [
+  [70, 398], [330, 398],
+  [70, 418], [330, 418],
+  [70, 438], [330, 438],
+  [70, 458],
+];
 const GUARD_DAMAGE_RATIO = 0.4;
 
 export class BattleScene {
@@ -41,6 +46,7 @@ export class BattleScene {
     this.time = 0;
     this.cursor = 0;
     this.skillCursor = 0;
+    this.switchCursor = 0;
     this.shownHp = { ally: this.ally.hp, enemy: enemy.hp };
     this.phase = "message";
     this.after = "command";
@@ -162,7 +168,21 @@ export class BattleScene {
         this.rosterChoice = "ranch";
         this.confirmRosterChoice();
       }
+    } else if (this.phase === "switch") {
+      const entries = this.switchableEntries();
+      if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; return; }
+      if (entries.length === 0) return;
+      if (input.wasPressed("up")) this.switchCursor = (this.switchCursor + entries.length - 1) % entries.length;
+      if (input.wasPressed("down")) this.switchCursor = (this.switchCursor + 1) % entries.length;
+      if (input.wasPressed("ok")) this.resolveTurn({ type: "switch", index: entries[this.switchCursor].i });
     }
+  }
+
+  switchableEntries() {
+    const activeIndex = this.game.party.indexOf(this.ally);
+    return this.game.party
+      .map((m, i) => ({ m, i }))
+      .filter(({ m, i }) => i !== activeIndex && m.hp > 0);
   }
 
   confirmRosterChoice() {
@@ -203,6 +223,13 @@ export class BattleScene {
         this.itemCursor = 0;
       }
     } else if (index === 4) {
+      if (this.switchableEntries().length === 0) {
+        this.say(["ほかに たたかえる なかまが いない！"], "command");
+      } else {
+        this.phase = "switch";
+        this.switchCursor = 0;
+      }
+    } else if (index === 5) {
       this.tryFlee();
     } else {
       this.resolveTurn({ type: "guard" });
@@ -345,7 +372,12 @@ export class BattleScene {
   resolveTurn(playerAction) {
     const messages = [];
     this.allyGuarding = playerAction.type === "guard";
-    if (this.allyGuarding) {
+    if (playerAction.type === "switch") {
+      moveToFront(this.game.party, playerAction.index);
+      this.ally = this.game.party[0];
+      this.shownHp.ally = this.ally.hp;
+      messages.push(`${this.ally.name} に こうたいした！`);
+    } else if (this.allyGuarding) {
       messages.push(`${this.ally.name} は みを まもっている！`);
     }
     const allyFirst =
@@ -355,7 +387,7 @@ export class BattleScene {
     for (const side of order) {
       if (this.ally.hp <= 0 || this.enemy.hp <= 0) break;
       if (side === "ally") {
-        if (playerAction.type === "guard") continue;
+        if (playerAction.type === "guard" || playerAction.type === "switch") continue;
         if (!canAct(this.ally, messages)) continue;
         this.performAction(this.ally, this.enemy, playerAction, messages);
         this.checkBossPhase(messages);
@@ -521,7 +553,7 @@ export class BattleScene {
     ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))} / ${this.ally.maxHp}`, 388, 310);
     ctx.fillText(`つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`, 388, 332);
 
-    panel(ctx, 12, 344, 616, 124);
+    panel(ctx, 12, 344, 616, 128);
     ctx.fillStyle = "#3a3a52";
     if (this.phase === "message") {
       ctx.font = FONT_BOLD;
@@ -569,6 +601,16 @@ export class BattleScene {
       choices.forEach(({ label, y, key }) => {
         ctx.fillText(label, 70, y);
         ctx.fillText(`(${key})`, 240, y);
+      });
+    } else if (this.phase === "switch") {
+      ctx.font = FONT;
+      ctx.fillText("だれと こうたいする？（X: もどる）", 36, 374);
+      ctx.font = FONT_BOLD;
+      this.switchableEntries().forEach(({ m }, i) => {
+        const y = 400 + i * 24;
+        const statusLabel = m.status ? `［${STATUS_LABEL[m.status]}］` : "";
+        ctx.fillText(`${m.name}  Lv.${m.level}  HP ${m.hp}/${m.maxHp} ${statusLabel}`, 70, y);
+        if (this.switchCursor === i) ctx.fillText("▶", 44, y);
       });
     }
   }
