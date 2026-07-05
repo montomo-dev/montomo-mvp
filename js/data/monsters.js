@@ -1,4 +1,4 @@
-import { statsFor } from "../systems/growth.js";
+import { statsFor, MAX_LEVEL } from "../systems/growth.js";
 
 export const SPECIES = {
   mofuri: {
@@ -1419,18 +1419,19 @@ export function ensureUidAbove(maxUid) {
 
 export function createMonster(speciesId, level) {
   const species = SPECIES[speciesId];
-  const stats = statsFor(species, level);
+  const clampedLevel = Math.min(MAX_LEVEL, Math.max(1, level));
+  const stats = statsFor(species, clampedLevel);
   return {
     uid: uidCounter++,
     speciesId,
     name: species.name,
-    level,
+    level: clampedLevel,
     exp: 0,
     maxHp: stats.maxHp,
     hp: stats.maxHp,
     atk: stats.atk,
     def: stats.def,
     spd: stats.spd,
-    skills: species.learnset.filter((e) => e.level <= level).map((e) => e.skill),
+    skills: species.learnset.filter((e) => e.level <= clampedLevel).map((e) => e.skill),
   };
 }

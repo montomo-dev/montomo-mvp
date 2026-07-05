@@ -2,7 +2,7 @@ import { SPECIES } from "../data/monsters.js";
 import { moveToFront } from "../systems/party.js";
 import { breedMonsters } from "../systems/breeding.js";
 import { SKILLS } from "../data/skills.js";
-import { expToNext } from "../systems/growth.js";
+import { expToNext, MAX_LEVEL } from "../systems/growth.js";
 import { markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
@@ -236,7 +236,10 @@ export class PartyScene {
       ctx.fillText(SPECIES[monster.speciesId].genus, 300, y + 32);
       hpBar(ctx, 130, y + 46, 190, 12, monster.hp / monster.maxHp);
       ctx.fillText(`${monster.hp} / ${monster.maxHp}`, 335, y + 58);
-      ctx.fillText(`つぎのレベルまで あと ${expToNext(monster.level) - monster.exp}`, 130, y + 76);
+      ctx.fillText(
+        monster.level >= MAX_LEVEL ? "レベル MAX" : `つぎのレベルまで あと ${expToNext(monster.level) - monster.exp}`,
+        130, y + 76
+      );
       if (i === 0) {
         ctx.fillStyle = "#e8842e";
         ctx.beginPath();

@@ -1,5 +1,7 @@
 import { applyCombos } from "./skillCombo.js";
 
+export const MAX_LEVEL = 100;
+
 export function expToNext(level) {
   return level * 20;
 }
@@ -18,9 +20,10 @@ export function statsFor(species, level) {
 
 export function gainExp(monster, speciesTable, amount) {
   const events = [];
+  if (monster.level >= MAX_LEVEL) return events;
   let species = speciesTable[monster.speciesId];
   monster.exp += amount;
-  while (monster.exp >= expToNext(monster.level)) {
+  while (monster.level < MAX_LEVEL && monster.exp >= expToNext(monster.level)) {
     monster.exp -= expToNext(monster.level);
     monster.level += 1;
     const before = { maxHp: monster.maxHp, atk: monster.atk, def: monster.def, spd: monster.spd };
@@ -67,5 +70,6 @@ export function gainExp(monster, speciesTable, amount) {
       events.push({ type: "evolve", level: monster.level, from: fromName, to: evolved.name, speciesId: evolved.id });
     }
   }
+  if (monster.level >= MAX_LEVEL) monster.exp = 0;
   return events;
 }

@@ -1,7 +1,7 @@
 import { SKILLS } from "../data/skills.js";
 import { SPECIES } from "../data/monsters.js";
 import { ITEMS } from "../data/items.js";
-import { gainExp, expToNext } from "../systems/growth.js";
+import { gainExp, expToNext, MAX_LEVEL } from "../systems/growth.js";
 import { MAX_PARTY, moveToFront, depositToRanch } from "../systems/party.js";
 import { markSeen, markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
@@ -596,7 +596,10 @@ export class BattleScene {
     hpBar(ctx, 388, 274, 220, 14, this.shownHp.ally / this.ally.maxHp);
     ctx.font = FONT;
     ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))} / ${this.ally.maxHp}`, 388, 310);
-    ctx.fillText(`つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`, 388, 332);
+    ctx.fillText(
+      this.ally.level >= MAX_LEVEL ? "レベル MAX" : `つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`,
+      388, 332
+    );
 
     panel(ctx, 12, 344, 616, 128);
     ctx.fillStyle = "#3a3a52";
