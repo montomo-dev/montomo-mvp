@@ -6,6 +6,7 @@ import { TitleScene } from "./scenes/title.js";
 import { saveGame } from "./systems/save.js";
 import { markCaught } from "./systems/dex.js";
 import { toggleMute, isMuted } from "./audio.js";
+import { clearStatus } from "./systems/status.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -22,9 +23,16 @@ function setupTouchControls(input) {
   });
 }
 
+// 状態異常(やけど・まひ・こおり)は戦闘限定の仕組みで治療手段がないため、
+// 戦闘中にタブを閉じてセーブされた場合に備えて読み込み時に必ず解除する
+function withClearedStatus(monster) {
+  clearStatus(monster);
+  return monster;
+}
+
 function buildParty(save) {
   if (save && Array.isArray(save.party)) {
-    const restored = save.party.filter((m) => m && SPECIES[m.speciesId]);
+    const restored = save.party.filter((m) => m && SPECIES[m.speciesId]).map(withClearedStatus);
     if (restored.length > 0) return restored;
   }
   return [createMonster("mofuri", 3)];
@@ -32,7 +40,7 @@ function buildParty(save) {
 
 function buildRanch(save) {
   if (save && Array.isArray(save.ranch)) {
-    return save.ranch.filter((m) => m && SPECIES[m.speciesId]);
+    return save.ranch.filter((m) => m && SPECIES[m.speciesId]).map(withClearedStatus);
   }
   return [];
 }
