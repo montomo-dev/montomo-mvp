@@ -571,7 +571,8 @@ export class BattleScene {
     const rank = getRank(SPECIES[this.enemy.speciesId]);
     const enemyType = typeOf(this.enemy.speciesId);
     const enemyStatus = this.enemy.status ? `  [${STATUS_LABEL[this.enemy.status]}]` : "";
-    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}`, 30, 40);
+    const ownedLabel = (this.game.dex?.caught || []).includes(this.enemy.speciesId) ? "  ✓なかまずみ" : "";
+    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 40);
     hpBar(ctx, 30, 52, 220, 12, this.shownHp.enemy / this.enemy.maxHp);
 
     panel(ctx, 372, 234, 252, 108);
