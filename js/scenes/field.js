@@ -4,6 +4,7 @@ import { RanchScene } from "./ranch.js";
 import { PokedexScene } from "./pokedex.js";
 import { ShopScene } from "./shop.js";
 import { ChoiceScene } from "./choice.js";
+import { WarpScene } from "./warp.js";
 import { createMonster, rollWildSpecies } from "../data/monsters.js";
 import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS, parseTileChar } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
@@ -149,6 +150,10 @@ export class FieldScene {
     }
     if (input.wasPressed("dex")) {
       this.game.changeScene(new PokedexScene(this.game, this));
+      return;
+    }
+    if (input.wasPressed("warp")) {
+      this.game.changeScene(new WarpScene(this.game, this));
       return;
     }
 
