@@ -23,6 +23,18 @@ export const SPECIAL_RESULTS = {
   "hikariebi+sumiremo": "hoshizora",
   "karakuribat+nejiko": "omegazenmaiya",
   "tsukinone+yukibouzu": "reiseiou",
+
+  // ここから下は「特殊配合」を増やすために追加したレシピ。
+  // 新しいモンスターは作らず、既存の野生種同士の組み合わせで
+  // 別の既存種が生まれるようにして、配合表の手応えを増やしている
+  "hibachi+sunasasori": "rakudan", // 炎+砂漠のさそり → 砂漠のふたこぶ
+  "kaigaran+pyokotan": "awairuka", // 水系どうしがとけあい → あわ吹きいるか
+  "fuwarisu+kazeneko": "sorane", // 空+風 → そらうさぎ
+  "hagurumaru+pachikoro": "karakuribat", // 歯車+でんき → からくりこうもり
+  "fuyudama+yukimaro": "kooritsumu", // 雪玉+雪うさぎ → つららの結晶
+  "akumakko+kageuri": "kokushou", // 小悪魔+かげのうり → やみのよろい
+  "sunamiira+yuureiking": "tsukihane", // いにしえの布+さまようゆうれい → つきかげの獣
+  "mizukusa+noroigumo": "sumiremo", // 水草の虫+のろいのくも → よるちょう(羽化のイメージ)
 };
 
 const PRIMARY_BLENDS = {
