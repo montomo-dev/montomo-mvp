@@ -450,6 +450,33 @@ export class BattleScene {
         messages.push(`あたらしい スキル「${SKILLS[skillId].name}」を おぼえた！`);
       }
     }
+
+    // 控え(パーティの他のメンバー)は50%、牧場は10%のけいけんちを分けあう
+    const reserveExp = Math.round(exp * 0.5);
+    const reserveEvolutions = [];
+    for (const member of this.game.party) {
+      if (member === this.ally) continue;
+      for (const event of gainExp(member, SPECIES, reserveExp)) {
+        if (event.type === "evolve") {
+          reserveEvolutions.push(event);
+          markCaught(this.game, event.speciesId);
+        }
+      }
+    }
+    for (const event of reserveEvolutions) {
+      messages.push(`ひかえの ${event.from} は ${event.to} に しんかした！`);
+    }
+    if (reserveEvolutions.length === 0 && this.game.party.length > 1) {
+      messages.push("ひかえの なかまも けいけんちを わけあった。");
+    }
+
+    const ranchExp = Math.round(exp * 0.1);
+    for (const member of this.game.ranch || []) {
+      for (const event of gainExp(member, SPECIES, ranchExp)) {
+        if (event.type === "evolve") markCaught(this.game, event.speciesId);
+      }
+    }
+
     if (this.isBoss) {
       if (!this.game.flags.stageClearedFlags) {
         this.game.flags.stageClearedFlags = {};

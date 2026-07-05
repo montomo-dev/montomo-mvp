@@ -1100,3 +1100,39 @@ test("Lv.10以上のなかまが2体いれば配合モードに入れ、Lv未満
   scene.chooseParent(0); // Lv.5のmofuriを選ぼうとする
   assert.equal(scene.firstParent, null, "Lv.10未満のなかまが親として選べてしまっている");
 });
+
+test("戦闘勝利の経験値は 手持ち100% / 控え50% / 牧場10% の割合で分配される", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { BattleScene } = await import("../js/scenes/battle.js");
+
+  const front = createMonster("mofuri", 50);
+  const reserve = createMonster("hibachi", 50);
+  const ranchMon = createMonster("fuwarisu", 50);
+  const game = {
+    party: [front, reserve],
+    ranch: [ranchMon],
+    dex: { seen: [], caught: [] },
+    money: 0,
+    flags: {},
+    input: { wasPressed: () => false, isHeld: () => false },
+    save: () => true,
+    changeScene() {},
+  };
+  const enemy = createMonster("pyokotan", 5);
+  const battle = new BattleScene(game, enemy, {});
+
+  // レベル50でexpToNext=1000のため、小さいexp(45前後)ならレベルアップを跨がずそのまま比較できる
+  const expectedExp = SPECIES.pyokotan.exp * enemy.level;
+  battle.victory([]);
+
+  assert.equal(front.exp, expectedExp, "手持ち(先頭)が100%のけいけんちを得ていない");
+  assert.equal(reserve.exp, Math.round(expectedExp * 0.5), "控えが50%のけいけんちを得ていない");
+  assert.equal(ranchMon.exp, Math.round(expectedExp * 0.1), "牧場が10%のけいけんちを得ていない");
+});
