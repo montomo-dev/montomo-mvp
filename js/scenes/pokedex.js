@@ -4,6 +4,7 @@ import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
 import { typeOf } from "../data/types.js";
 import { flavorTextOf } from "../data/flavor.js";
+import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
 
 const COLS = 4;
 const ROWS = 4;
@@ -47,21 +48,26 @@ export class PokedexScene {
     const n = this.entries.length;
     if (this.detail) {
       if (input.wasPressed("cancel") || input.wasPressed("ok") || input.wasPressed("dex")) {
+        sfxCancel();
         this.detail = false;
       }
       return;
     }
     if (input.wasPressed("cancel") || input.wasPressed("dex")) {
+      sfxCancel();
       this.game.changeScene(this.prev);
       return;
     }
-    if (input.wasPressed("right")) this.cursor = (this.cursor + 1) % n;
-    if (input.wasPressed("left")) this.cursor = (this.cursor + n - 1) % n;
-    if (input.wasPressed("down") && this.cursor + COLS < n) this.cursor += COLS;
-    if (input.wasPressed("up") && this.cursor - COLS >= 0) this.cursor -= COLS;
+    if (input.wasPressed("right")) { this.cursor = (this.cursor + 1) % n; sfxSelect(); }
+    if (input.wasPressed("left")) { this.cursor = (this.cursor + n - 1) % n; sfxSelect(); }
+    if (input.wasPressed("down") && this.cursor + COLS < n) { this.cursor += COLS; sfxSelect(); }
+    if (input.wasPressed("up") && this.cursor - COLS >= 0) { this.cursor -= COLS; sfxSelect(); }
     if (input.wasPressed("ok")) {
       const seen = this.game.dex?.seen || [];
-      if (seen.includes(this.entries[this.cursor].id)) this.detail = true;
+      if (seen.includes(this.entries[this.cursor].id)) {
+        sfxConfirm();
+        this.detail = true;
+      }
     }
   }
 

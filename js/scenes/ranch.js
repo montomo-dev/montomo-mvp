@@ -1,6 +1,7 @@
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { MAX_PARTY, depositToRanch, withdrawFromRanch } from "../systems/party.js";
+import { sfxCancel, sfxSelect, sfxConfirm } from "../audio.js";
 
 const ICON_SIZE = 36;
 const ICON_GAP = 14;
@@ -29,14 +30,15 @@ export class RanchScene {
       return;
     }
     if (input.wasPressed("cancel")) {
+      sfxCancel();
       this.game.save();
       this.game.changeScene(this.prev);
       return;
     }
     const list = this.entries();
     if (list.length === 0) return;
-    if (input.wasPressed("up")) this.cursor = (this.cursor + list.length - 1) % list.length;
-    if (input.wasPressed("down")) this.cursor = (this.cursor + 1) % list.length;
+    if (input.wasPressed("up")) { this.cursor = (this.cursor + list.length - 1) % list.length; sfxSelect(); }
+    if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % list.length; sfxSelect(); }
     if (input.wasPressed("ok")) this.toggle(list[this.cursor]);
   }
 
@@ -45,14 +47,17 @@ export class RanchScene {
       const name = entry.m.name;
       depositToRanch(this.game.party, this.game.ranch, entry.i);
       this.message = `${name}を 牧場に あずけた。`;
+      sfxConfirm();
     } else {
       if (this.game.party.length >= MAX_PARTY) {
         this.message = "パーティが いっぱいだよ。";
+        sfxCancel();
         return;
       }
       const name = entry.m.name;
       withdrawFromRanch(this.game.party, this.game.ranch, entry.i);
       this.message = `${name}を むかえいれた！`;
+      sfxConfirm();
     }
     this.cursor = 0;
     this.game.save();

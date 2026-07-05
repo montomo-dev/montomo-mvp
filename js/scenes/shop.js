@@ -1,5 +1,6 @@
 import { ITEMS } from "../data/items.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
+import { sfxCancel, sfxSelect, sfxItemGet } from "../audio.js";
 
 const ROW_H = 56;
 const ROW_GAP = 8;
@@ -22,12 +23,13 @@ export class ShopScene {
       return;
     }
     if (input.wasPressed("cancel")) {
+      sfxCancel();
       this.game.save();
       this.game.changeScene(this.prev);
       return;
     }
-    if (input.wasPressed("up")) this.cursor = (this.cursor + ITEM_IDS.length - 1) % ITEM_IDS.length;
-    if (input.wasPressed("down")) this.cursor = (this.cursor + 1) % ITEM_IDS.length;
+    if (input.wasPressed("up")) { this.cursor = (this.cursor + ITEM_IDS.length - 1) % ITEM_IDS.length; sfxSelect(); }
+    if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % ITEM_IDS.length; sfxSelect(); }
     if (input.wasPressed("ok")) this.buy(ITEM_IDS[this.cursor]);
   }
 
@@ -35,11 +37,13 @@ export class ShopScene {
     const item = ITEMS[itemId];
     if ((this.game.money || 0) < item.price) {
       this.message = "おかねが たりないよ。";
+      sfxCancel();
       return;
     }
     this.game.money -= item.price;
     this.game.items[itemId] = (this.game.items[itemId] || 0) + 1;
     this.message = `${item.name}を かった！`;
+    sfxItemGet();
     this.game.save();
   }
 
