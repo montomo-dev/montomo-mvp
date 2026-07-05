@@ -1,10 +1,15 @@
-const SAVE_KEY = "montomo-save-v1";
+export const SAVE_SLOT_COUNT = 3;
 
-export function saveGame(game) {
+function saveKey(slot) {
+  return `montomo-save-v1-slot${slot}`;
+}
+
+export function saveGame(game, slot = 0) {
   try {
     const data = {
       v: 1,
       savedAt: Date.now(),
+      playerName: game.playerName || "",
       party: game.party,
       ranch: game.ranch || [],
       dex: game.dex || { seen: [], caught: [] },
@@ -22,7 +27,7 @@ export function saveGame(game) {
       treasureState: game.treasureState || {},
       groundItemState: game.groundItemState || {},
     };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    localStorage.setItem(saveKey(slot), JSON.stringify(data));
     return true;
   } catch (e) {
     console.warn("セーブに失敗しました", e);
@@ -30,9 +35,9 @@ export function saveGame(game) {
   }
 }
 
-export function loadSave() {
+export function loadSave(slot = 0) {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
+    const raw = localStorage.getItem(saveKey(slot));
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (e) {
@@ -41,17 +46,17 @@ export function loadSave() {
   }
 }
 
-export function hasSave() {
+export function hasSave(slot = 0) {
   try {
-    return localStorage.getItem(SAVE_KEY) !== null;
+    return localStorage.getItem(saveKey(slot)) !== null;
   } catch (e) {
     return false;
   }
 }
 
-export function clearSave() {
+export function clearSave(slot = 0) {
   try {
-    localStorage.removeItem(SAVE_KEY);
+    localStorage.removeItem(saveKey(slot));
     return true;
   } catch (e) {
     return false;

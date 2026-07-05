@@ -1746,3 +1746,80 @@ test("BreedingChartSceneは22件のレシピを3ページで表示できる", as
   assert.equal(chart.recipes.length, 22);
   assert.equal(chart.totalPages, 3);
 });
+
+test("セーブは3つのスロットに独立して保存・読み込みできる", async () => {
+  globalThis.localStorage ??= (() => {
+    const store = {};
+    return {
+      getItem: (k) => (k in store ? store[k] : null),
+      setItem: (k, v) => { store[k] = v; },
+      removeItem: (k) => { delete store[k]; },
+    };
+  })();
+  const { saveGame, loadSave, hasSave, clearSave, SAVE_SLOT_COUNT } = await import("../js/systems/save.js");
+
+  assert.equal(SAVE_SLOT_COUNT, 3);
+  for (let i = 0; i < SAVE_SLOT_COUNT; i++) clearSave(i);
+
+  const monsterA = createMonster("mofuri", 5);
+  const monsterB = createMonster("hibachi", 8);
+  saveGame({ playerName: "スロット0", party: [monsterA], dex: { seen: [], caught: [] }, items: {}, money: 10, flags: {} }, 0);
+  saveGame({ playerName: "スロット2", party: [monsterB], dex: { seen: [], caught: [] }, items: {}, money: 20, flags: {} }, 2);
+
+  assert.equal(hasSave(0), true);
+  assert.equal(hasSave(1), false, "何もセーブしていないスロット1にデータがあることになっている");
+  assert.equal(hasSave(2), true);
+
+  assert.equal(loadSave(0).playerName, "スロット0");
+  assert.equal(loadSave(2).playerName, "スロット2");
+  assert.equal(loadSave(0).party[0].speciesId, "mofuri");
+  assert.equal(loadSave(2).party[0].speciesId, "hibachi");
+
+  clearSave(0);
+  assert.equal(hasSave(0), false);
+  assert.equal(hasSave(2), true, "無関係なスロット2まで消えてしまっている");
+});
+
+test("空きスロットを選ぶと名前入力モードになり、埋まっているスロットはメニューが開く", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  globalThis.localStorage ??= (() => {
+    const store = {};
+    return {
+      getItem: (k) => (k in store ? store[k] : null),
+      setItem: (k, v) => { store[k] = v; },
+      removeItem: (k) => { delete store[k]; },
+    };
+  })();
+
+  const { TitleScene } = await import("../js/scenes/title.js");
+  const { saveGame, clearSave } = await import("../js/systems/save.js");
+  clearSave(0);
+  clearSave(1);
+  saveGame({ playerName: "既存", party: [createMonster("mofuri", 5)], dex: { seen: [], caught: [] }, items: {}, money: 0, flags: {} }, 1);
+
+  const game = {
+    input: { wasPressed: () => false, isHeld: () => false },
+    canvas: { getBoundingClientRect: () => ({ width: 640 }) },
+    changeScene() {},
+    startAdventure() {},
+  };
+  const title = new TitleScene(game);
+
+  title.cursor = 0; // スロット0は空きのはず
+  title.chooseSlot();
+  assert.equal(title.renamingSlot, 0, "空きスロットを選んでも名前入力モードにならない");
+
+  title.renamingSlot = null;
+  title.phase = "slots";
+  title.cursor = 1; // スロット1はセーブ済みのはず
+  title.chooseSlot();
+  assert.equal(title.phase, "menu", "セーブ済みスロットを選んでもメニューが開かない");
+  assert.equal(title.menuSlot, 1);
+});

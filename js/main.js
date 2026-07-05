@@ -78,9 +78,11 @@ const game = {
   },
   save() {
     if (!this.field) return false;
-    return saveGame(this);
+    return saveGame(this, this.currentSlot);
   },
-  startAdventure(save) {
+  startAdventure(save, slot = 0, playerName = "") {
+    this.currentSlot = slot;
+    this.playerName = playerName || (save && save.playerName) || "";
     this.flags = {
       bossDefeated: !!(save && save.flags && save.flags.bossDefeated),
       stageClearedFlags: (save && save.flags && save.flags.stageClearedFlags) || {},
