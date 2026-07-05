@@ -10,6 +10,7 @@ import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS, parseTileChar 
 import { drawCompanion, drawPlayer } from "../sprites.js";
 import { panel, hpBar, FONT_BOLD } from "../ui.js";
 import { sfxSave, sfxItemGet } from "../audio.js";
+import { canClaimLegend, grantLegendReward } from "../systems/legend.js";
 
 const TILE = 40;
 const T_BUSH = TILE_TYPES.BUSH;
@@ -126,6 +127,10 @@ export class FieldScene {
   update(dt) {
     this.time += dt;
     this.updateParticles(dt);
+    if (canClaimLegend(this.game)) {
+      const gained = grantLegendReward(this.game, createMonster);
+      if (gained) this.showToast(`レジェンド解放！ ${gained.name} を てにいれた！`);
+    }
     if (this.toast && (this.toast.timer -= dt) <= 0) this.toast = null;
     if (this.flash > 0) {
       this.flash -= dt;

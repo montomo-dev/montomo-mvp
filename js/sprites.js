@@ -3146,6 +3146,40 @@ function paintKuroguri(ctx) {
   ctx.globalAlpha = 1;
 }
 
+function paintKazaribi(ctx) {
+  // でんせつのひかり: 金色に光る小さな精霊。柔らかい後光をまとう。
+  const glow = "rgba(246, 211, 92, 0.35)";
+  const core = "#fff3c4";
+  const body = "#f6d35c";
+  const line = "#a8791f";
+  ctx.beginPath();
+  ctx.arc(0, 0, 34, 0, Math.PI * 2);
+  ctx.fillStyle = glow;
+  ctx.fill();
+  glossCircle(ctx, 0, 0, 20, core, body, line, 4);
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-14, -16); ctx.lineTo(-20, -27);
+  ctx.moveTo(14, -16); ctx.lineTo(20, -27);
+  ctx.stroke();
+  circle(ctx, -18, -28, 3, "#fff3c4", null);
+  circle(ctx, 18, -28, 3, "#fff3c4", null);
+  circle(ctx, -6, -2, 3.4, "#ffffff", null);
+  circle(ctx, 6, -2, 3.4, "#ffffff", null);
+  circle(ctx, -6, -2, 1.3, line, null);
+  circle(ctx, 6, -2, 1.3, line, null);
+  smile(ctx, 0, 8, 3.2);
+  shine(ctx, -8, -10, 6, 3.5, -0.3);
+  ctx.fillStyle = "#fff3c4";
+  for (const [sx, sy, r] of [[-26, 8, 2.4], [26, 6, 2], [0, 30, 2.2], [-16, 24, 1.6]]) {
+    ctx.globalAlpha = 0.7;
+    circle(ctx, sx, sy, r, "#fff3c4", null);
+  }
+  ctx.globalAlpha = 1;
+}
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
@@ -3240,6 +3274,7 @@ const PAINTERS = {
   oonamiwhale: paintYukigamo,
   hoshizora: paintKuroguri,
   omegazenmaiya: paintReiseiou,
+  kazaribi: paintKazaribi,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {

@@ -84,6 +84,7 @@ const game = {
     this.flags = {
       bossDefeated: !!(save && save.flags && save.flags.bossDefeated),
       stageClearedFlags: (save && save.flags && save.flags.stageClearedFlags) || {},
+      legendClaimed: !!(save && save.flags && save.flags.legendClaimed),
     };
     this.party = buildParty(save);
     this.ranch = buildRanch(save);

@@ -92,6 +92,7 @@ export const FLAVOR_TEXT = {
   oonamiwhale: "大海原そのものを思わせる巨躯で、その一声が大波を呼ぶという。",
   hoshizora: "羽に星空のような模様を持ち、夜になるとほのかに輝いて見える。",
   omegazenmaiya: "森の意思そのものが、太古の機械仕掛けに宿ったといわれる守り神。",
+  kazaribi: "6体の仲間との絆の証として現れる、金色の光をまとった伝説の精霊。",
 };
 
 export function flavorTextOf(speciesId) {

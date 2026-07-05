@@ -118,6 +118,7 @@ export const SPECIES_TYPE = {
   oonamiwhale: "みず",
   hoshizora: "むし",
   omegazenmaiya: "はがね",
+  kazaribi: "でんき",
 };
 
 export function typeOf(speciesId) {

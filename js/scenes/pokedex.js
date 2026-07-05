@@ -5,6 +5,7 @@ import { getRank, RANK_COLOR } from "../systems/rank.js";
 import { typeOf } from "../data/types.js";
 import { flavorTextOf } from "../data/flavor.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
+import { LEGEND_REQUIREMENT, legendProgress, hasLegendReward } from "../systems/legend.js";
 
 const COLS = 4;
 const ROWS = 4;
@@ -13,7 +14,7 @@ const CELL_W = 136;
 const CELL_H = 78;
 const GAP = 8;
 const ORIGIN_X = 30;
-const ORIGIN_Y = 78;
+const ORIGIN_Y = 92;
 
 function dexEntries() {
   return Object.values(SPECIES).filter((s) => !s.boss);
@@ -90,6 +91,22 @@ export class PokedexScene {
       ctx.textAlign = "right";
       ctx.fillText(`${this.page + 1} / ${this.totalPages} ページ`, 610, 44);
       ctx.textAlign = "left";
+    }
+
+    const caughtSet = new Set(caught);
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    if (hasLegendReward(this.game)) {
+      ctx.fillStyle = "#ffd75e";
+      ctx.fillText("★ レジェンド解放ずみ: カザリビ を なかまにした！", 30, 64);
+    } else {
+      ctx.fillStyle = "#a8a8c0";
+      const requirementText = LEGEND_REQUIREMENT
+        .map((id) => `${SPECIES[id].name}${caughtSet.has(id) ? "✓" : ""}`)
+        .join("・");
+      ctx.fillText(
+        `★ レジェンド条件(${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`,
+        30, 64
+      );
     }
 
     this.pageEntries().forEach((species, i) => {
