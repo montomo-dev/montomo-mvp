@@ -244,6 +244,10 @@ export class BattleScene {
       this.ally.hp = Math.min(this.ally.maxHp, this.ally.hp + item.value);
       const healed = this.ally.hp - before;
       const messages = [`${this.ally.name} に ${item.name}を つかった！`, `HPが ${healed} かいふくした！`];
+      if (item.cureStatus && this.ally.status) {
+        messages.push(`${this.ally.name} の じょうたいいじょうが なおった！`);
+        clearStatus(this.ally);
+      }
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "bait") {

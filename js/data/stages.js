@@ -62,7 +62,7 @@ export const STAGES = {
       "2222222222222222",
     ],
     treasures: [{ id: "t1", money: 150, x: 8, y: 5, trap: false }],
-    groundItems: [{ id: "i1", itemId: "potion", x: 10, y: 3 }],
+    groundItems: [{ id: "i1", itemId: "potionM", x: 10, y: 3 }],
     rareSpecies: [{ speciesId: "tsukinone", level: 8 }],
   },
   town1: {
@@ -178,7 +178,7 @@ export const STAGES = {
       "2222222222222222",
     ],
     treasures: [{ id: "t3", money: 250, x: 7, y: 4, trap: true }],
-    groundItems: [{ id: "i3", itemId: "potion", x: 10, y: 7 }],
+    groundItems: [{ id: "i3", itemId: "potionM", x: 10, y: 7 }],
     rareSpecies: [{ speciesId: "tsukinone", level: 12 }],
   },
   stage3: {
