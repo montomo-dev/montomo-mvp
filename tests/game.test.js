@@ -1218,3 +1218,177 @@ test("ポーションLL/Sは状態異常を治さずHPだけ回復する", async
   assert.equal(ally.hp, ally.maxHp, "ポーションLLでHPが全回復していない");
   assert.equal(ally.status, "paralysis", "ポーションLLで状態異常まで治ってしまっている");
 });
+
+test("スカウト成功率は総与ダメージ÷敵最大HP×50×肉ボーナス×レア度倍率で計算される", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { BattleScene } = await import("../js/scenes/battle.js");
+
+  const enemy = createMonster("dogura", 10);
+  enemy.maxHp = 200;
+  enemy.hp = 200;
+  const originalRecruitEase = SPECIES.dogura.recruitEase;
+  SPECIES.dogura.recruitEase = 0.15; // 基準レア度(等倍)で式そのものを検証する
+  try {
+    const game = {
+      party: [createMonster("mofuri", 30)],
+      dex: { seen: [], caught: [] },
+      money: 0,
+      items: {},
+      save: () => true,
+      changeScene() {},
+    };
+    const battle = new BattleScene(game, enemy, {});
+    const originalRandom = Math.random;
+
+    battle.totalDamageDealt = 200; // 敵の最大HPと同等のダメージ
+    Math.random = () => 0.99; // 失敗させてメッセージだけ確認する
+    battle.tryRecruit();
+    assert.ok(battle.queue.some((m) => m.includes("せいこうりつ 50%")), "HPと同量のダメージで50%になっていない");
+
+    battle.totalDamageDealt = 400; // 敵の最大HPの2倍のダメージ
+    battle.tryRecruit();
+    assert.ok(battle.queue.some((m) => m.includes("せいこうりつ 100%")), "HPの2倍のダメージで100%(確定)になっていない");
+
+    Math.random = originalRandom;
+  } finally {
+    SPECIES.dogura.recruitEase = originalRecruitEase;
+  }
+});
+
+test("スカウト成功率はレア度(recruitEase)が高いほど有利、低いほど不利になる", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { BattleScene } = await import("../js/scenes/battle.js");
+
+  function chanceFor(speciesId, recruitEase) {
+    const enemy = createMonster(speciesId, 10);
+    enemy.maxHp = 200;
+    enemy.hp = 200;
+    const original = SPECIES[speciesId].recruitEase;
+    SPECIES[speciesId].recruitEase = recruitEase;
+    const game = {
+      party: [createMonster("mofuri", 30)],
+      dex: { seen: [], caught: [] },
+      money: 0,
+      items: {},
+      save: () => true,
+      changeScene() {},
+    };
+    const battle = new BattleScene(game, enemy, {});
+    battle.totalDamageDealt = 200;
+    Math.random = () => 0.99;
+    battle.tryRecruit();
+    SPECIES[speciesId].recruitEase = original;
+    const msg = battle.queue.find((m) => m.includes("せいこうりつ"));
+    return Number(msg.match(/(\d+)%/)[1]);
+  }
+
+  const originalRandom = Math.random;
+  try {
+    const easyChance = chanceFor("dogura", 0.3);
+    const hardChance = chanceFor("mofurif", 0.05);
+    assert.ok(easyChance > hardChance, `レア度が高い(0.3)方が低い成功率になってしまっている: easy=${easyChance} hard=${hardChance}`);
+  } finally {
+    Math.random = originalRandom;
+  }
+});
+
+test("なかよしエサ/とくべつなエサはスカウト成功率に倍率としてかかる", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { BattleScene } = await import("../js/scenes/battle.js");
+
+  const enemy = createMonster("dogura", 10);
+  enemy.maxHp = 200;
+  enemy.hp = 200;
+  const original = SPECIES.dogura.recruitEase;
+  SPECIES.dogura.recruitEase = 0.15;
+  try {
+    const game = {
+      party: [createMonster("mofuri", 30)],
+      dex: { seen: [], caught: [] },
+      money: 0,
+      items: { bait: 1 },
+      save: () => true,
+      changeScene() {},
+    };
+    const battle = new BattleScene(game, enemy, {});
+    const originalRandom = Math.random;
+    Math.random = () => 0.99;
+    battle.totalDamageDealt = 200;
+    battle.useItem("bait"); // 1.3倍のエサを使う(この時点で行動権を1ターン消費する)
+    battle.tryRecruit();
+    Math.random = originalRandom;
+
+    const msg = battle.queue.find((m) => m.includes("せいこうりつ"));
+    const percent = Number(msg.match(/(\d+)%/)[1]);
+    assert.equal(percent, 65, `エサの1.3倍が反映されていない(期待65%): ${msg}`);
+  } finally {
+    SPECIES.dogura.recruitEase = original;
+  }
+});
+
+test("スカウト成功率は同じ種族を持っているほど下がる(所持数+1で割る)", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { BattleScene } = await import("../js/scenes/battle.js");
+
+  const original = SPECIES.dogura.recruitEase;
+  SPECIES.dogura.recruitEase = 0.15;
+  const originalRandom = Math.random;
+  try {
+    function chanceWithOwned(ownedCount) {
+      const enemy = createMonster("dogura", 10);
+      enemy.maxHp = 200;
+      enemy.hp = 200;
+      const party = [createMonster("mofuri", 30)];
+      for (let i = 0; i < ownedCount; i++) party.push(createMonster("dogura", 10));
+      const game = {
+        party,
+        dex: { seen: [], caught: [] },
+        money: 0,
+        items: {},
+        save: () => true,
+        changeScene() {},
+      };
+      const battle = new BattleScene(game, enemy, {});
+      battle.totalDamageDealt = 200;
+      Math.random = () => 0.99;
+      battle.tryRecruit();
+      const msg = battle.queue.find((m) => m.includes("せいこうりつ"));
+      return Number(msg.match(/(\d+)%/)[1]);
+    }
+
+    assert.equal(chanceWithOwned(0), 50);
+    assert.equal(chanceWithOwned(1), 25);
+    assert.equal(chanceWithOwned(2), Math.round(50 / 3));
+  } finally {
+    SPECIES.dogura.recruitEase = original;
+    Math.random = originalRandom;
+  }
+});

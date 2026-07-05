@@ -29,6 +29,7 @@ const COMMAND_POS = [
   [70, 458],
 ];
 const GUARD_DAMAGE_RATIO = 0.4;
+const REFERENCE_RECRUIT_EASE = 0.15;
 
 export class BattleScene {
   constructor(game, enemy, opts = {}) {
@@ -41,6 +42,7 @@ export class BattleScene {
     this.bossAI = this.isBoss ? SPECIES[enemy.speciesId].bossAI || null : null;
     this.bossState = { phase: 0, turn: 0, charging: false, chargeDamage: 0 };
     this.allyGuarding = false;
+    this.totalDamageDealt = 0;
     markSeen(game, enemy.speciesId);
     sfxCry(enemy.speciesId);
     this.time = 0;
@@ -251,7 +253,7 @@ export class BattleScene {
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "bait") {
-      this.pendingBaitBonus = item.value;
+      this.pendingBaitBonus = 1 + item.value;
       const messages = [`${item.name}を なげた！`, `${this.enemy.name}が きょうみを しめしている…`];
       this.enemyAct(messages);
       this.finishTurn(messages);
@@ -283,8 +285,9 @@ export class BattleScene {
       messages.push(`${target.name} は ぼうぎょで こうげきを うけながした！`);
     }
     target.hp = Math.max(0, target.hp - damage);
-    if (target === this.enemy && this.bossState.charging) {
-      this.bossState.chargeDamage += damage;
+    if (target === this.enemy) {
+      this.totalDamageDealt += damage;
+      if (this.bossState.charging) this.bossState.chargeDamage += damage;
     }
     messages.push(`${target.name} に ${damage} の ダメージ！`);
     const effMsg = effectivenessMessage(eff);
@@ -505,10 +508,19 @@ export class BattleScene {
       return;
     }
     const species = SPECIES[this.enemy.speciesId];
-    const hpBonus = (1 - this.enemy.hp / this.enemy.maxHp) * 0.55;
-    const baitBonus = this.pendingBaitBonus || 0;
+    const baitMultiplier = this.pendingBaitBonus || 1;
     this.pendingBaitBonus = 0;
-    const chance = Math.min(0.9, species.recruitEase + hpBonus + baitBonus);
+    // なかまにさそう率(%) = (総与ダメージ ÷ 敵の最大HP) × 50 × 肉ボーナス × レア度倍率 ÷ (所持数+1)
+    // レア度倍率は recruitEase を基準値(0.15)で正規化したもの。
+    // 敵の最大HPと同じだけダメージを与えれば基準50%、2倍与えれば確定(100%)になる。
+    // 同じ種族を既に持っているほど成功率が下がり、図鑑コンプリートへの意欲を保つ
+    const rarityMultiplier = species.recruitEase / REFERENCE_RECRUIT_EASE;
+    const ownedCount = [...this.game.party, ...(this.game.ranch || [])]
+      .filter((m) => m.speciesId === this.enemy.speciesId).length;
+    const damageRate = (this.totalDamageDealt / this.enemy.maxHp) * 50;
+    const chance = Math.max(0, Math.min(1,
+      (damageRate * baitMultiplier * rarityMultiplier) / 100 / (ownedCount + 1)
+    ));
     const percentage = Math.round(chance * 100);
     const messages = [
       `${this.ally.name} は ${this.enemy.name} を なかまに さそった！`,

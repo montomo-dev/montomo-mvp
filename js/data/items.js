@@ -43,7 +43,7 @@ export const ITEMS = {
   bait: {
     id: "bait",
     name: "なかよしエサ",
-    description: "つぎに さそう せいこうりつが あがる",
+    description: "つぎに さそう せいこうりつが 1.3ばいに なる",
     price: 40,
     kind: "bait",
     value: 0.3,
@@ -69,7 +69,7 @@ export const ITEMS = {
   premiumBait: {
     id: "premiumBait",
     name: "とくべつなエサ",
-    description: "つぎに さそう せいこうりつが おおきく あがる",
+    description: "つぎに さそう せいこうりつが 1.5ばいに なる",
     price: 120,
     kind: "bait",
     value: 0.5,
