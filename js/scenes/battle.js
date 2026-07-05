@@ -2,7 +2,7 @@ import { SKILLS } from "../data/skills.js";
 import { SPECIES } from "../data/monsters.js";
 import { ITEMS } from "../data/items.js";
 import { gainExp, expToNext, MAX_LEVEL } from "../systems/growth.js";
-import { MAX_PARTY, moveToFront, depositToRanch } from "../systems/party.js";
+import { MAX_PARTY, moveToFront } from "../systems/party.js";
 import { markSeen, markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { EndingScene } from "./ending.js";
@@ -216,12 +216,15 @@ export class BattleScene {
 
   confirmRosterChoice() {
     const name = this.recruitedMonster.name;
-    if (this.rosterChoice === "party") {
+    if (this.rosterChoice === "party" && this.game.party.length < MAX_PARTY) {
       this.game.party.push(this.recruitedMonster);
       this.say([`${name} が なかまに くわわった！`], "end");
     } else {
       this.game.ranch.push(this.recruitedMonster);
-      this.say([`${name} を まきばに おくった。`], "end");
+      const message = this.rosterChoice === "party"
+        ? `てもちが いっぱいなので、${name} を まきばに おくった。`
+        : `${name} を まきばに おくった。`;
+      this.say([message], "end");
     }
     this.recruitedMonster = null;
     this.game.save();
@@ -528,10 +531,6 @@ export class BattleScene {
   tryRecruit() {
     if (this.isBoss) {
       this.say(["ヌシは なかまに なる きは なさそうだ！"], "command");
-      return;
-    }
-    if (this.game.party.length >= MAX_PARTY) {
-      this.say(["これいじょう なかまは つれて いけない！"], "command");
       return;
     }
     const species = SPECIES[this.enemy.speciesId];
