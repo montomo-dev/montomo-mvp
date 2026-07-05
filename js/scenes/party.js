@@ -7,8 +7,10 @@ import { markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
-import { sfxBreed, sfxConfirm } from "../audio.js";
+import { sfxBreed, sfxConfirm, sfxCancel, sfxItemGet } from "../audio.js";
 import { BreedingChartScene } from "./breedingChart.js";
+import { ITEMS } from "../data/items.js";
+import { clearStatus } from "../systems/status.js";
 
 const nameInput = document.getElementById("name-input");
 const MIN_BREED_LEVEL = 10;
@@ -98,20 +100,95 @@ export class PartyScene {
     if (count === 0) {
       return;
     }
+    if (this.mode === "action") {
+      const options = this.actionOptions();
+      if (input.wasPressed("up")) this.actionCursor = (this.actionCursor + options.length - 1) % options.length;
+      if (input.wasPressed("down")) this.actionCursor = (this.actionCursor + 1) % options.length;
+      if (input.wasPressed("cancel")) { sfxCancel(); this.mode = "list"; return; }
+      if (input.wasPressed("ok")) this.chooseAction(options[this.actionCursor]);
+      return;
+    }
+    if (this.mode === "item") {
+      const owned = this.usableItemIds();
+      if (input.wasPressed("cancel")) { sfxCancel(); this.mode = "action"; this.actionCursor = 0; return; }
+      if (owned.length === 0) return;
+      if (input.wasPressed("up")) this.itemCursor = (this.itemCursor + owned.length - 1) % owned.length;
+      if (input.wasPressed("down")) this.itemCursor = (this.itemCursor + 1) % owned.length;
+      if (input.wasPressed("ok")) this.useItemOn(this.game.party[this.actionTarget], owned[this.itemCursor]);
+      return;
+    }
+
     if (input.wasPressed("up")) this.cursor = (this.cursor + count - 1) % count;
     if (input.wasPressed("down")) this.cursor = (this.cursor + 1) % count;
     if (this.mode === "list") {
       if (input.wasPressed("right")) this.startBreeding();
       if (input.wasPressed("left")) this.askRelease();
       if (input.wasPressed("rename")) { this.startRename(this.cursor); return; }
-      if (input.wasPressed("ok") && this.cursor > 0) {
-        moveToFront(this.game.party, this.cursor);
-        this.cursor = 0;
-        this.game.save();
+      if (input.wasPressed("ok")) {
+        sfxConfirm();
+        this.actionTarget = this.cursor;
+        this.mode = "action";
+        this.actionCursor = 0;
       }
     } else if (input.wasPressed("ok")) {
       this.chooseParent(this.cursor);
     }
+  }
+
+  actionOptions() {
+    const options = [];
+    if (this.actionTarget > 0) options.push("front");
+    options.push("item");
+    options.push("cancel");
+    return options;
+  }
+
+  chooseAction(action) {
+    sfxConfirm();
+    if (action === "front") {
+      moveToFront(this.game.party, this.actionTarget);
+      this.cursor = 0;
+      this.mode = "list";
+      this.game.save();
+    } else if (action === "item") {
+      if (this.usableItemIds().length === 0) {
+        this.message = "つかえる どうぐが ないよ。";
+        this.mode = "list";
+        return;
+      }
+      this.mode = "item";
+      this.itemCursor = 0;
+    } else {
+      this.mode = "list";
+    }
+  }
+
+  usableItemIds() {
+    return Object.keys(this.game.items || {})
+      .filter((id) => (this.game.items[id] || 0) > 0 && ITEMS[id].kind !== "bait");
+  }
+
+  useItemOn(monster, itemId) {
+    const item = ITEMS[itemId];
+    this.game.items[itemId]--;
+    if (item.kind === "heal") {
+      const before = monster.hp;
+      monster.hp = Math.min(monster.maxHp, monster.hp + item.value);
+      const healed = monster.hp - before;
+      let msg = `${monster.name}に ${item.name}を つかった！HPが ${healed} かいふくした！`;
+      if (item.cureStatus && monster.status) {
+        clearStatus(monster);
+        msg += ` じょうたいいじょうも なおった！`;
+      }
+      this.message = msg;
+    } else if (item.kind === "stat_boost") {
+      monster[item.stat] += item.value;
+      const label = item.stat === "atk" ? "こうげき" : item.stat === "def" ? "ぼうぎょ" : item.stat;
+      this.message = `${monster.name}に ${item.name}を つかった！${label}が ${item.value} あがった！`;
+    }
+    sfxItemGet();
+    this.mode = "list";
+    this.game.save();
   }
 
   startBreeding() {
@@ -257,7 +334,7 @@ export class PartyScene {
       ? this.firstParent
         ? "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる"
         : "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる"
-      : "↑↓: えらぶ ／ Z: せんとう ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ D: 配合表 ／ X: もどる";
+      : "↑↓: えらぶ ／ Z: メニュー ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ D: 配合表 ／ X: もどる";
     ctx.fillText(hint, 30, 462);
 
     if (this.message) {
@@ -269,6 +346,51 @@ export class PartyScene {
       ctx.font = FONT;
       ctx.fillText("Z または X で とじる", 320, 264);
       ctx.textAlign = "left";
+    }
+
+    if (this.mode === "action") {
+      const target = this.game.party[this.actionTarget];
+      const options = this.actionOptions();
+      const labels = { front: "せんとうに する", item: "どうぐを つかう", cancel: "やめる" };
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillRect(0, 0, 640, 480);
+      panel(ctx, 190, 150, 260, 40 + options.length * 34);
+      ctx.fillStyle = "#3a3a52";
+      ctx.font = FONT_BOLD;
+      ctx.textAlign = "center";
+      ctx.fillText(`${target.name} に する こと`, 320, 176);
+      options.forEach((opt, i) => {
+        const y = 210 + i * 34;
+        ctx.fillStyle = this.actionCursor === i ? "#e8842e" : "#3a3a52";
+        ctx.fillText(labels[opt], 320, y);
+      });
+      ctx.font = FONT;
+      ctx.fillStyle = "#5a5a70";
+      ctx.fillText("↑↓: えらぶ ／ Z: けってい ／ X: もどる", 320, 210 + options.length * 34 + 20);
+      ctx.textAlign = "left";
+    }
+
+    if (this.mode === "item") {
+      const target = this.game.party[this.actionTarget];
+      const owned = this.usableItemIds();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillRect(0, 0, 640, 480);
+      panel(ctx, 90, 130, 460, 60 + owned.length * 28);
+      ctx.fillStyle = "#3a3a52";
+      ctx.font = FONT_BOLD;
+      ctx.textAlign = "center";
+      ctx.fillText(`${target.name} に つかう どうぐ`, 320, 158);
+      ctx.textAlign = "left";
+      owned.forEach((itemId, i) => {
+        const item = ITEMS[itemId];
+        const y = 186 + i * 28;
+        ctx.fillStyle = this.itemCursor === i ? "#e8842e" : "#3a3a52";
+        ctx.fillText(`${item.name}（${this.game.items[itemId]}こ）`, 120, y);
+        if (this.itemCursor === i) ctx.fillText("▶", 100, y);
+      });
+      ctx.font = FONT;
+      ctx.fillStyle = "#5a5a70";
+      ctx.fillText("↑↓: えらぶ ／ Z: つかう ／ X: もどる", 320, 186 + owned.length * 28 + 20);
     }
 
     if (this.confirm) {
