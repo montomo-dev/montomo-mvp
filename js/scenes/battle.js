@@ -32,6 +32,23 @@ const COMMAND_POS = [
 const GUARD_DAMAGE_RATIO = 0.4;
 const REFERENCE_RECRUIT_EASE = 0.15;
 
+// 全滅時に失う「重要でない」回復アイテム。安価なポーションから優先して失う
+const UNIMPORTANT_HEAL_ITEMS = ["potionS", "potionM"];
+
+function loseUnimportantItems(game, count) {
+  let remaining = count;
+  let lostTotal = 0;
+  for (const itemId of UNIMPORTANT_HEAL_ITEMS) {
+    if (remaining <= 0) break;
+    const have = game.items[itemId] || 0;
+    const lose = Math.min(have, remaining);
+    game.items[itemId] = have - lose;
+    remaining -= lose;
+    lostTotal += lose;
+  }
+  return lostTotal;
+}
+
 export class BattleScene {
   constructor(game, enemy, opts = {}) {
     this.game = game;
@@ -118,7 +135,16 @@ export class BattleScene {
     if (this.after === "gameover") {
       for (const m of this.game.party) m.hp = m.maxHp;
       this.game.field.resetPosition();
-      this.game.field.showToast("いえまで はこばれて かいふくした…");
+
+      const moneyBefore = this.game.money || 0;
+      this.game.money = Math.floor(moneyBefore / 2);
+      const lostMoney = moneyBefore - this.game.money;
+      const lostItems = loseUnimportantItems(this.game, 3);
+
+      let message = "いえまで はこばれて かいふくした…";
+      if (lostMoney > 0) message += ` おかねを ${lostMoney}えん おとした…`;
+      if (lostItems > 0) message += ` どうぐを ${lostItems}こ なくした…`;
+      this.game.field.showToast(message);
     }
     for (const m of this.game.party) clearStatus(m);
     this.game.save();
