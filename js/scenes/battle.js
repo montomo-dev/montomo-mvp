@@ -602,6 +602,9 @@ export class BattleScene {
       drawMonster(ctx, this.enemy.speciesId, 470, 150, 1.6, this.time);
     }
     drawMonster(ctx, this.ally.speciesId, 170, 305, 1.3, this.time + 1.7, this.ally.tintHue || 0);
+    if (this.phase === "message" && (this.queue[0] || "").includes("しんかした")) {
+      this.drawEvolveSparkle(ctx, 170, 305);
+    }
 
     panel(ctx, 16, 14, 250, 64);
     ctx.fillStyle = "#3a3a52";
@@ -649,21 +652,17 @@ export class BattleScene {
       ctx.font = FONT;
       ctx.fillText("どの スキルを つかう？（X: もどる）", 36, 374);
       ctx.font = FONT_BOLD;
-      this.ally.skills.forEach((skillId, i) => {
-        const y = 402 + i * 26;
-        ctx.fillText(`${SKILLS[skillId].name}（${SKILLS[skillId].type}）`, 70, y);
-        if (this.skillCursor === i) ctx.fillText("▶", 44, y);
+      this.drawScrollList(ctx, this.ally.skills, this.skillCursor, (skillId, x, y) => {
+        ctx.fillText(`${SKILLS[skillId].name}（${SKILLS[skillId].type}）`, x, y);
       });
     } else if (this.phase === "item") {
       ctx.font = FONT;
       ctx.fillText("どの どうぐを つかう？（X: もどる）", 36, 374);
       ctx.font = FONT_BOLD;
       const owned = this.ownedItemIds();
-      owned.forEach((itemId, i) => {
-        const y = 402 + i * 26;
+      this.drawScrollList(ctx, owned, this.itemCursor, (itemId, x, y) => {
         const item = ITEMS[itemId];
-        ctx.fillText(`${item.name} × ${this.game.items[itemId]}`, 70, y);
-        if (this.itemCursor === i) ctx.fillText("▶", 44, y);
+        ctx.fillText(`${item.name} × ${this.game.items[itemId]}`, x, y);
       });
     } else if (this.phase === "chooseRoster") {
       ctx.font = FONT;
@@ -694,5 +693,43 @@ export class BattleScene {
     for (let i = 0, line = 0; i < text.length; i += maxChars, line++) {
       ctx.fillText(text.slice(i, i + maxChars), x, y + line * 28);
     }
+  }
+
+  // コマンド欄(y:402〜472)に収まる件数だけ表示し、カーソルに追従してスクロールする
+  drawScrollList(ctx, list, cursor, drawRow) {
+    const visibleRows = 3;
+    const maxScroll = Math.max(0, list.length - visibleRows);
+    const scroll = Math.min(maxScroll, Math.max(0, cursor - (visibleRows - 1)));
+    list.slice(scroll, scroll + visibleRows).forEach((entry, i) => {
+      const y = 402 + i * 26;
+      drawRow(entry, 70, y);
+      if (cursor === scroll + i) ctx.fillText("▶", 44, y);
+    });
+    if (scroll > 0) ctx.fillText("▲", 340, 400);
+    if (scroll + visibleRows < list.length) ctx.fillText("▼", 340, 460);
+  }
+
+  // 進化メッセージの表示中、モンスターの周りにきらめきを演出する
+  drawEvolveSparkle(ctx, x, y) {
+    const t = this.time;
+    ctx.save();
+    const glow = ctx.createRadialGradient(x, y, 4, x, y, 74);
+    glow.addColorStop(0, "rgba(255,250,210,0.55)");
+    glow.addColorStop(1, "rgba(255,250,210,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, 74, 0, Math.PI * 2);
+    ctx.fill();
+    for (let i = 0; i < 7; i++) {
+      const angle = t * 1.6 + (i / 7) * Math.PI * 2;
+      const r = 48 + Math.sin(t * 3 + i) * 6;
+      const sx = x + Math.cos(angle) * r;
+      const sy = y + Math.sin(angle) * r * 0.55;
+      ctx.fillStyle = "#fff3a0";
+      ctx.beginPath();
+      ctx.arc(sx, sy, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 }
