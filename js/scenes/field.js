@@ -36,6 +36,15 @@ const WORLD_PREFIXES = [
   ["castle_", "castle"],
 ];
 
+// タイル座標から0〜1の決定論的な疑似乱数を作る(毎フレーム変わらず、
+// マス目ごとに固定のバリエーションを持たせるため)
+function tileRandom(gx, gy, salt = 0) {
+  let h = (gx * 374761393 + gy * 668265263 + salt * 2654435761) >>> 0;
+  h = (h ^ (h >>> 13)) * 1274126177;
+  h = (h ^ (h >>> 16)) >>> 0;
+  return h / 4294967295;
+}
+
 function worldOf(stageId) {
   for (const [prefix, world] of WORLD_PREFIXES) {
     if (stageId.startsWith(prefix)) return world;
@@ -786,6 +795,30 @@ export class FieldScene {
   }
 
   drawTree(ctx, px, py, palette, gx, gy) {
+    const scale = 0.86 + tileRandom(gx, gy, 1) * 0.28;
+    const flip = tileRandom(gx, gy, 2) > 0.5 ? -1 : 1;
+    const rotate = (tileRandom(gx, gy, 3) - 0.5) * 0.3;
+    const brightness = 0.9 + tileRandom(gx, gy, 4) * 0.2;
+    const baseX = px + 20;
+    const baseY = py + 36;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+    ctx.beginPath();
+    ctx.ellipse(baseX, baseY + 2, 13 * scale, 4.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.translate(baseX, baseY);
+    ctx.rotate(rotate);
+    ctx.scale(flip * scale, scale);
+    ctx.translate(-baseX, -baseY);
+    ctx.filter = `brightness(${brightness})`;
+    this.drawTreeShape(ctx, px, py, palette, gx, gy);
+    ctx.filter = "none";
+    ctx.restore();
+  }
+
+  drawTreeShape(ctx, px, py, palette, gx, gy) {
     const w = this.world;
     if (w === "sea") {
       ctx.fillStyle = "#e57373";
