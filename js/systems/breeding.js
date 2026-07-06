@@ -47,6 +47,70 @@ export const SPECIAL_RESULTS = {
   "bakuhibachi+hikariame": "shizukuya", // バクヒバチ+ヒカリアメ → シズクヤ
   "sorane+tenfuwarisu": "kazepeko", // テンフワリス+ソラネ → カゼペコ
   "kazeneko+tenfuwarisu": "torimugi", // テンフワリス+カゼネコ → トリムギ
+
+  // ここから下は配合表のパターンを大幅に増やすために追加したレシピ。
+  // これまで一度も配合レシピに登場していなかった種族を中心に、
+  // 既存種同士の組み合わせで別の既存種が生まれるようにしている
+  "fuwarisu+orihiko": "tenfuwarisu", // 折り紙飛行機+空ことり→進化後の空ことり
+  "orihiko+sorane": "kazepeko", // 紙飛行機+空うさぎ→かぜのこ
+  "kiboko+sabotenko": "yamakibi", // 木彫り+さぼてん→やまきび
+  "kiboko+tsuboco": "tsubogame", // 木彫り+つぼ→やきものがめ
+  "kaigaran+tsuboco": "haribune", // つぼ+やどかり→はりぶね
+  "honbori+yuureiking": "shizumegane", // あんどん+ゆうれい王→しずめめだま
+  "akumakko+honbori": "takarabox", // あんどん+こあくま→ばけばこ
+  "sunamaru+tsubogame": "hoshimogu", // やきものがめ+すなまる→ほしずなもぐら
+  "kuroguri+takarabox": "yuureiking", // ばけばこ+くろちいさま→ゆうれい王
+  "awairuka+pukurin": "sazanami", // みずぶくろくらげ+いるか→さざなみまんぼう
+  "mizutama+pukurin": "mizugoma", // みずぶくろくらげ+みずだまがい→みずごま
+  "hoshimogu+sunasasori": "sunamaru", // ほしずなもぐら+さそり→すなまる
+  "hoshimogu+sunamiira": "hoshizora", // ほしずなもぐら+いにしえの布→ほしぞらむし
+  "shizumegane+yamiankou": "shizukuya", // やみひかりうお+しずめめだま→しずくやどり
+  "kuroguri+yamiankou": "noroigumo", // やみひかりうお+くろちいさま→のろいのくも
+  "pengiri+yukigamo": "yukimaro", // ペンギン+しらかも→ゆきごろもうさぎ
+  "fuyudama+pengiri": "kooritsumu", // ペンギン+ゆきむすびだま→つららけっしょう
+  "rakudan+sabotenko": "sunasasori", // さぼてん+らくだ→すなばのさそり
+  "momijiri+sabotenko": "harune", // さぼてん+もみじぎつね→はるうさぎ
+  "nejiko+sparkun": "hagurumaru", // でんきスパーク+ぜんまいねこ→がんじょうはぐるま
+  "pachikoro+sparkun": "paipon", // でんきスパーク+でんこうむし→はいかんロボ
+  "hagurumaru+paipon": "nejiko", // はいかんロボ+がんじょうはぐるま→ぜんまいねこ
+  "karakuribat+paipon": "hagurumaru", // はいかんロボ+からくりこうもり→がんじょうはぐるま
+  "mizuhane+torimugi": "sandango", // みずとり+むぎわたりどり→みたらしことり
+  "kotohana+mizuhane": "mizutama", // みずとり+はなことり→みずだまがい
+  "momijiri+sakuraneko": "hanamaro", // もみじぎつね+はなねこ→はなこいぬ
+  "harune+momijiri": "kazeneko", // もみじぎつね+はるうさぎ→かぜねこ
+  "haribune+mizugoma": "mizutama", // みずごま+はりぶね→みずだまがい
+  "sunaboko+sunobori": "sunamaru", // すなのり+すなころがし→すなまる
+  "sunamaru+sunobori": "sunasasori", // すなのり+すなまる→すなばのさそり
+  "kaigaran+mizutama": "tsubogame", // みずだまがい+やどかり→やきものがめ
+  "hanamaro+yamakibi": "sakuraneko", // やまきび+はなこいぬ→はなねこ
+  "kiboko+yamakibi": "sabotenko", // きぼりこけし+やまきび→さぼてん
+  "shizumegane+tsukihane": "sunamiira", // しずめめだま+つきけもり→いにしえの布
+  "haribune+mizutama": "mizuhane", // はりぶね+みずだまがい→みずとり
+  "kageuri+kuroguri": "akumakko", // くろちいさま+かげひそみうり→こあくま
+  "kuroguri+noroigumo": "kageuri", // くろちいさま+のろいのくも→かげひそみうり
+  "kooritsumu+yukimaro": "yukibouzu", // つららけっしょう+ゆきごろもうさぎ→ふぶきのようせい
+  "fuyudama+yukigamo": "pengiri", // しらかも+ゆきむすびだま→ペンギン
+  "haribune+kaigaran": "pukurin", // はりぶね+やどかり→みずぶくろくらげ
+  "mizutama+sazanami": "yamiankou", // みずだまがい+さざなみまんぼう→やみひかりうお
+  "shizukuya+tsuyuhika": "hikariame", // しずくやどり+つゆひかり→ひかりあめ
+  "moriame+shizukuya": "mizugoma", // しずくやどり+もりあめ→みずごま
+  "kazepeko+sorane": "orihiko", // かぜのこ+そらうさぎ→おりがみひこうき
+  "kazeneko+torimugi": "honbori", // かぜねこ+むぎわたりどり→あんどんふくろう
+  "ishimaru+sunaboko": "tsuboco", // すなころがし+ころころいし→せとものつぼ
+  "rakudan+sunamaru": "hoshimogu", // すなまる+らくだ→ほしずなもぐら
+  "reiseiou+yukibouzu": "yukigamo", // ふぶきのようせい+れいしょうおう→しらかも
+  "sabotenko+sunamaru": "sunobori", // さぼてん+すなまる→すなのり
+  "kotohana+momijiri": "sakuraneko", // もみじぎつね+はなことり→はなねこ
+  "mizukusa+sumiremo": "noroigumo", // みずくさむし+よるちょう→のろいのくも
+  "hoshizora+sumiremo": "sunamiira", // ほしぞらむし+よるちょう→いにしえの布
+  "sunamiira+takarabox": "kokushou", // ばけばこ+いにしえの布→やみのよろい
+  "kokushou+kuroguri": "akumakko", // やみのよろい+くろちいさま→こあくま
+  "paipon+sparkun": "pachikoro", // はいかんロボ+でんきスパーク→でんこうむし
+  "haribune+mizuhane": "sazanami", // みずとり+はりぶね→さざなみまんぼう
+  "ishimaru+tsubogame": "kurista", // やきものがめ+ころころいし→かけらせいれい
+  "sunamaru+yamakibi": "rakudan", // やまきび+すなまる→らくだ
+  "honbori+shizumegane": "yamiankou", // あんどんふくろう+しずめめだま→やみひかりうお
+  "kokushou+takarabox": "sunamiira", // ばけばこ+やみのよろい→いにしえの布
 };
 
 const PRIMARY_BLENDS = {
