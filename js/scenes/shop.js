@@ -5,6 +5,7 @@ import { sfxCancel, sfxSelect, sfxItemGet } from "../audio.js";
 const ROW_H = 56;
 const ROW_GAP = 8;
 const MAX_BUY_QTY = 99;
+const PAGE_SIZE = 6;
 
 export class ShopScene {
   constructor(game, prevScene) {
@@ -16,6 +17,14 @@ export class ShopScene {
     this.itemIds = shopInventoryFor(prevScene?.stageId);
     this.phase = "list";
     this.buyQty = 1;
+  }
+
+  get totalPages() {
+    return Math.max(1, Math.ceil(this.itemIds.length / PAGE_SIZE));
+  }
+
+  get page() {
+    return Math.floor(this.cursor / PAGE_SIZE);
   }
 
   update(dt) {
@@ -77,12 +86,20 @@ export class ShopScene {
     ctx.font = FONT_BOLD;
     ctx.fillText(`しょじきん ${this.game.money || 0}円`, 610, 44);
     ctx.textAlign = "left";
+    if (this.totalPages > 1) {
+      ctx.textAlign = "right";
+      ctx.font = FONT;
+      ctx.fillText(`${this.page + 1} / ${this.totalPages} ページ`, 610, 66);
+      ctx.textAlign = "left";
+    }
 
-    this.itemIds.forEach((itemId, i) => {
+    const pageStart = this.page * PAGE_SIZE;
+    const pageItemIds = this.itemIds.slice(pageStart, pageStart + PAGE_SIZE);
+    pageItemIds.forEach((itemId, i) => {
       const item = ITEMS[itemId];
-      const y = 66 + i * (ROW_H + ROW_GAP);
+      const y = 78 + i * (ROW_H + ROW_GAP);
       panel(ctx, 30, y, 580, ROW_H);
-      if (this.cursor === i) {
+      if (this.cursor === pageStart + i) {
         ctx.beginPath();
         ctx.roundRect(30, y, 580, ROW_H, 10);
         ctx.strokeStyle = "#ffd75e";
@@ -106,7 +123,7 @@ export class ShopScene {
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
-    ctx.fillText("↑↓: えらぶ ／ Z: かう ／ X: もどる", 30, 462);
+    ctx.fillText("↑↓: えらぶ ／ Z: かう ／ X: もどる", 30, 470);
 
     if (this.phase === "quantity") {
       const item = ITEMS[this.itemIds[this.cursor]];

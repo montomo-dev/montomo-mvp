@@ -1974,3 +1974,41 @@ test("進化前(基礎形)で配合した場合は、進化後限定レシピの
   assert.notEqual(child.speciesId, "hanamaro", "進化前なのに進化後限定レシピが誤って適用されている");
   assert.ok(["mofuri", "kotohana"].includes(child.speciesId));
 });
+
+test("ショップの品揃えが多い街(全解禁済み)でも1ページ6件までにページ分割され、画面からはみ出さない", async () => {
+  const { ShopScene } = await import("../js/scenes/shop.js");
+  const game = {
+    money: 100000,
+    items: {},
+    input: { wasPressed: () => false, isHeld: () => false },
+    save: () => true,
+    changeScene() {},
+  };
+  const shop = new ShopScene(game, { stageId: "castle_town1" });
+  assert.equal(shop.itemIds.length, 9, "castle_town1の品揃え数が想定と違う");
+  assert.equal(shop.totalPages, 2, "9品を1ページに収めようとして見切れる状態になっている");
+
+  // 最後の商品(9番目)のカーソル位置での描画Y座標が画面(480px)に収まるか
+  shop.cursor = shop.itemIds.length - 1;
+  const ROW_H = 56, ROW_GAP = 8, PAGE_SIZE = 6;
+  const rowIndexInPage = shop.cursor - shop.page * PAGE_SIZE;
+  const y = 78 + rowIndexInPage * (ROW_H + ROW_GAP);
+  assert.ok(y + ROW_H < 480, `最後の商品の描画位置(下端${y + ROW_H})が画面(480px)からはみ出している`);
+});
+
+test("ショップの数量選択画面はページをまたいでも正しい商品(カーソル位置)を参照する", async () => {
+  const { ShopScene } = await import("../js/scenes/shop.js");
+  const game = {
+    money: 100000,
+    items: {},
+    input: { wasPressed: () => false, isHeld: () => false },
+    save: () => true,
+    changeScene() {},
+  };
+  const shop = new ShopScene(game, { stageId: "castle_town1" });
+  shop.cursor = 8; // 2ページ目の商品
+  shop.phase = "quantity";
+  shop.buyQty = 1;
+  shop.buy(shop.itemIds[shop.cursor], shop.buyQty);
+  assert.equal(game.items[shop.itemIds[8]], 1, "2ページ目の商品を正しく購入できていない");
+});
