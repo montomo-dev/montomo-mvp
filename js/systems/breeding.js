@@ -35,6 +35,18 @@ export const SPECIAL_RESULTS = {
   "akumakko+kageuri": "kokushou", // 小悪魔+かげのうり → やみのよろい
   "sunamiira+yuureiking": "tsukihane", // いにしえの布+さまようゆうれい → つきかげの獣
   "mizukusa+noroigumo": "sumiremo", // 水草の虫+のろいのくも → よるちょう(羽化のイメージ)
+
+  // ここから下は「進化後の姿」そのものを親に指定したときだけ成立するレシピ。
+  // baseSpeciesIdによる基礎形への丸め込みより先に判定されるため、
+  // 進化前(例: モフリ)で配合した場合とは別の結果になる
+  "kotohana+mofurif": "hanamaro", // モフリーフ+ハナコトリ → ハナマロ
+  "harune+mofurif": "sakuraneko", // モフリーフ+ハルネ → サクラネコ
+  "borudogura+sunasasori": "sunaboko", // ボルドグラ+スナサソリ → スナボコ
+  "borudogura+sunamaru": "sunamiira", // ボルドグラ+スナマル → スナミイラ
+  "bakuhibachi+moriame": "tsuyuhika", // バクヒバチ+モリアメ → ツユヒカ
+  "bakuhibachi+hikariame": "shizukuya", // バクヒバチ+ヒカリアメ → シズクヤ
+  "sorane+tenfuwarisu": "kazepeko", // テンフワリス+ソラネ → カゼペコ
+  "kazeneko+tenfuwarisu": "torimugi", // テンフワリス+カゼネコ → トリムギ
 };
 
 const PRIMARY_BLENDS = {
@@ -106,11 +118,23 @@ function seededShuffle(array, seed) {
 }
 
 export function breedMonsters(parentA, parentB) {
-  const idA = baseSpeciesId(parentA);
-  const idB = baseSpeciesId(parentB);
   const seed = parentA.uid + parentB.uid + parentA.level + parentB.level;
-  const pairKey = [idA, idB].sort().join("+");
-  const speciesId = SPECIAL_RESULTS[pairKey] || [idA, idB].sort()[seed % 2];
+
+  // 進化後の姿そのものを指定したレシピ(例: モフリーフ+コトハナ)がもしあれば、
+  // 種族値を基礎形に丸める前にそちらを優先する。丸めた後のキーでヒットしなければ、
+  // 従来通り基礎形(baseSpeciesId)同士の組み合わせで判定する
+  const rawKey = [parentA.speciesId, parentB.speciesId].sort().join("+");
+  let idA, idB, speciesId;
+  if (SPECIAL_RESULTS[rawKey]) {
+    idA = parentA.speciesId;
+    idB = parentB.speciesId;
+    speciesId = SPECIAL_RESULTS[rawKey];
+  } else {
+    idA = baseSpeciesId(parentA);
+    idB = baseSpeciesId(parentB);
+    const pairKey = [idA, idB].sort().join("+");
+    speciesId = SPECIAL_RESULTS[pairKey] || [idA, idB].sort()[seed % 2];
+  }
   const child = createMonster(speciesId, 1);
 
   child.maxHp = inheritStat(parentA.maxHp, parentB.maxHp);
