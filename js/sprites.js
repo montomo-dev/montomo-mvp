@@ -170,6 +170,17 @@ function tinyLeaf(ctx, x, y, rot, color = "#7ed95a") {
   ctx.restore();
 }
 
+function evolvedVariant(basePainter, hueDeg, accessory) {
+  return function (ctx) {
+    ctx.save();
+    ctx.filter = `hue-rotate(${hueDeg}deg) saturate(1.25) brightness(1.05)`;
+    ctx.scale(1.16, 1.16);
+    basePainter(ctx);
+    ctx.restore();
+    if (accessory) accessory(ctx);
+  };
+}
+
 function paintMofuri(ctx) {
   ctx.strokeStyle = "#4a7d2e";
   ctx.lineWidth = 8;
@@ -3180,6 +3191,26 @@ function paintKazaribi(ctx) {
   ctx.globalAlpha = 1;
 }
 
+const paintGamadon = evolvedVariant(paintPyokotan, -18, (ctx) => {
+  tinyLeaf(ctx, 0, -34, 0, "#2fd9c0");
+});
+const paintPachiking = evolvedVariant(paintPachikoro, 14, (ctx) => {
+  tri(ctx, -6, -36, 0, -48, 6, -36, "#fff2a0", "#c99a12", 2);
+});
+const paintOrifalcon = evolvedVariant(paintOrihiko, 22, (ctx) => {
+  shine(ctx, -10, -30, 12, 5);
+});
+const paintKibouju = evolvedVariant(paintKiboko, -10, (ctx) => {
+  tinyLeaf(ctx, -20, -30, -0.6, "#9fe56c");
+  tinyLeaf(ctx, 20, -30, 0.6, "#9fe56c");
+});
+const paintHonborido = evolvedVariant(paintHonbori, 20, (ctx) => {
+  flame(ctx, 0, -40, 0.6, "#ffe07a", "#fff6cf");
+});
+const paintDosugame = evolvedVariant(paintTsubogame, -12, (ctx) => {
+  tri(ctx, -8, -38, 0, -50, 8, -38, "#c9e8da", "#3f6b58", 2);
+});
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
@@ -3194,13 +3225,19 @@ const PAINTERS = {
   tenfuwarisu: paintTenfuwarisu,
   tenstorm: paintTenfuwarisu,
   pyokotan: paintPyokotan,
+  gamadon: paintGamadon,
   pachikoro: paintPachikoro,
+  pachiking: paintPachiking,
   orihiko: paintOrihiko,
+  orifalcon: paintOrifalcon,
   kiboko: paintKiboko,
+  kibouju: paintKibouju,
   tsuboco: paintTsuboco,
   tsukinone: paintTsukinone,
   honbori: paintHonbori,
+  honborido: paintHonborido,
   tsubogame: paintTsubogame,
+  dosugame: paintDosugame,
   sandango: paintSandango,
   nushi: paintNushi,
   reverseNushi: paintReverseNushi,

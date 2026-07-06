@@ -34,6 +34,14 @@ export const SKILLS = {
   soyoquiver: { name: "そよかぜアロー", power: 1.5, accuracy: 95, type: "ひこう" },
   kazenokiri: { name: "かぜのきり", power: 1.9, accuracy: 82, type: "ひこう" },
 
+  // 2進化目の特技
+  gekiryuuha: { name: "げきりゅうは", power: 2.0, accuracy: 80, type: "みず" },
+  raikouzan: { name: "らいこうざん", power: 2.05, accuracy: 78, type: "でんき" },
+  dosugeki: { name: "ドスげき", power: 2.05, accuracy: 76, type: "いわ" },
+  mokuseiha: { name: "もくせいは", power: 2.0, accuracy: 80, type: "くさ" },
+  kamihikouha: { name: "かみひこうは", power: 1.95, accuracy: 85, type: "ひこう" },
+  oozorakaze: { name: "おおぞらのかぜ", power: 1.9, accuracy: 88, type: "ひこう" },
+
   // 組み合わせ技: 2つの特技を両方おぼえていると自動で習得する上位技
   reinetsubakuha: { name: "れいねつばくは", power: 2.3, accuracy: 78, type: "ノーマル" },
   kandenshokku: { name: "かんでんショック", power: 2.2, accuracy: 80, type: "でんき" },
