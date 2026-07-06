@@ -3210,6 +3210,46 @@ const paintHonborido = evolvedVariant(paintHonbori, 20, (ctx) => {
 const paintDosugame = evolvedVariant(paintTsubogame, -12, (ctx) => {
   tri(ctx, -8, -38, 0, -50, 8, -38, "#c9e8da", "#3f6b58", 2);
 });
+const paintKoganetsubo = evolvedVariant(paintTsuboco, -20, (ctx) => {
+  shine(ctx, -8, -32, 10, 5);
+});
+const paintOodangou = evolvedVariant(paintSandango, 10, (ctx) => {
+  tri(ctx, -8, -38, 0, -50, 8, -38, "#ffe0c0", "#c46a4f", 2);
+});
+const paintHanaguruma = evolvedVariant(paintHanamaro, -16, (ctx) => {
+  petalFlower(ctx, 0, -40, 8, "#ffb0d0", "#ffe07a");
+});
+const paintOomugiwatari = evolvedVariant(paintTorimugi, 12, (ctx) => {
+  shine(ctx, -10, -32, 12, 5);
+});
+const paintHanautadori = evolvedVariant(paintKotohana, -14, (ctx) => {
+  petalFlower(ctx, -18, -30, 6, "#ffb0d0", "#ffe07a");
+  petalFlower(ctx, 18, -30, 6, "#ffb0d0", "#ffe07a");
+});
+const paintAmakumousagi = evolvedVariant(paintSorane, 18, (ctx) => {
+  glossOval(ctx, 0, -40, 14, 6, "#e8f6ff", "#a8c8e8", "#5a9fe0", 2);
+});
+const paintMomijiou = evolvedVariant(paintMomijiri, -8, (ctx) => {
+  tinyLeaf(ctx, -22, -28, -0.7, "#e0793a");
+  tinyLeaf(ctx, 22, -28, 0.7, "#e0793a");
+});
+const paintKazagurumaneko = evolvedVariant(paintKazeneko, 16, (ctx) => {
+  tri(ctx, -6, -38, 0, -50, 6, -38, "#dce8ff", "#5a86e0", 2);
+});
+const paintHanafubukiusagi = evolvedVariant(paintHarune, -12, (ctx) => {
+  petalFlower(ctx, 0, -42, 7, "#ffb0d0", "#ffe07a");
+});
+const paintSakuraouneko = evolvedVariant(paintSakuraneko, -10, (ctx) => {
+  petalFlower(ctx, -18, -32, 6, "#ffd0e2", "#ffe07a");
+  petalFlower(ctx, 18, -32, 6, "#ffd0e2", "#ffe07a");
+});
+const paintHayatenoko = evolvedVariant(paintKazepeko, 20, (ctx) => {
+  shine(ctx, -10, -32, 12, 5);
+});
+const paintHounenkibi = evolvedVariant(paintYamakibi, -14, (ctx) => {
+  tinyLeaf(ctx, -22, -30, -0.6, "#e0c85a");
+  tinyLeaf(ctx, 22, -30, 0.6, "#e0c85a");
+});
 
 const PAINTERS = {
   mofuri: paintMofuri,
@@ -3233,12 +3273,14 @@ const PAINTERS = {
   kiboko: paintKiboko,
   kibouju: paintKibouju,
   tsuboco: paintTsuboco,
+  koganetsubo: paintKoganetsubo,
   tsukinone: paintTsukinone,
   honbori: paintHonbori,
   honborido: paintHonborido,
   tsubogame: paintTsubogame,
   dosugame: paintDosugame,
   sandango: paintSandango,
+  oodangou: paintOodangou,
   nushi: paintNushi,
   reverseNushi: paintReverseNushi,
   seaNushi: paintSeaNushi,
@@ -3279,29 +3321,39 @@ const PAINTERS = {
   rakudan: paintRakudan,
   sunamiira: paintSunamiira,
   hanamaro: paintHanamaro,
+  hanaguruma: paintHanaguruma,
   torimugi: paintTorimugi,
+  oomugiwatari: paintOomugiwatari,
   sazanami: paintSazanami,
   mizuhane: paintMizuhane,
   kotohana: paintKotohana,
+  hanautadori: paintHanautadori,
   sunaboko: paintSunaboko,
   sorane: paintSorane,
+  amakumousagi: paintAmakumousagi,
   momijiri: paintMomijiri,
+  momijiou: paintMomijiou,
   shizukuya: paintShizukuya,
   kazeneko: paintKazeneko,
+  kazagurumaneko: paintKazagurumaneko,
   tsuyuhika: paintTsuyuhika,
   moriame: paintMoriame,
   harune: paintHarune,
+  hanafubukiusagi: paintHanafubukiusagi,
   mizugoma: paintMizugoma,
   sunobori: paintSunobori,
   sakuraneko: paintSakuraneko,
+  sakuraouneko: paintSakuraouneko,
   mizukusa: paintMizukusa,
   sunamaru: paintSunamaru,
   tsukihane: paintTsukihane,
   mizutama: paintMizutama,
   ishimaru: paintIshimaru,
   kazepeko: paintKazepeko,
+  hayatenoko: paintHayatenoko,
   hikariame: paintHikariame,
   yamakibi: paintYamakibi,
+  hounenkibi: paintHounenkibi,
   shizumegane: paintShizumegane,
   haribune: paintHaribune,
   reiseiou: paintReiseiou,

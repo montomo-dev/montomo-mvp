@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { createMonster, rollWildSpecies, SPECIES } from "../js/data/monsters.js";
+import { createMonster, rollWildSpecies, SPECIES, WILD_SPECIES } from "../js/data/monsters.js";
 import { getStage, STAGES, TILE_TYPES, WORLD_TRANSITIONS } from "../js/data/stages.js";
 import { breedMonsters } from "../js/systems/breeding.js";
 import { depositToRanch } from "../js/systems/party.js";
@@ -2126,5 +2126,34 @@ test("新たに2進化目を追加した6系統(ピョコタン等)がレベル1
     const events = gainExp(m, SPECIES, 99999);
     assert.equal(m.speciesId, evolved, `${base} が ${evolved} に進化しない`);
     assert.ok(events.some((e) => e.type === "evolve" && e.speciesId === evolved));
+  }
+});
+
+test("野生出現する残り12系統(サンダンゴ等)にも2進化目が追加され、レベル10で進化する", () => {
+  const chains = [
+    ["tsuboco", "koganetsubo"],
+    ["sandango", "oodangou"],
+    ["hanamaro", "hanaguruma"],
+    ["torimugi", "oomugiwatari"],
+    ["kotohana", "hanautadori"],
+    ["sorane", "amakumousagi"],
+    ["momijiri", "momijiou"],
+    ["kazeneko", "kazagurumaneko"],
+    ["harune", "hanafubukiusagi"],
+    ["sakuraneko", "sakuraouneko"],
+    ["yamakibi", "hounenkibi"],
+    ["kazepeko", "hayatenoko"],
+  ];
+  for (const [base, evolved] of chains) {
+    const m = createMonster(base, 9);
+    const events = gainExp(m, SPECIES, 99999);
+    assert.equal(m.speciesId, evolved, `${base} が ${evolved} に進化しない`);
+    assert.ok(events.some((e) => e.type === "evolve" && e.speciesId === evolved));
+  }
+});
+
+test("WILD_SPECIESの全種は進化ずみか2進化目を持ち、フィールド出現モンスターは必ず進化するようになった", () => {
+  for (const id of WILD_SPECIES) {
+    assert.ok(SPECIES[id].evolvesTo, `${id} に進化先が設定されていない`);
   }
 });

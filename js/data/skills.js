@@ -41,6 +41,18 @@ export const SKILLS = {
   mokuseiha: { name: "もくせいは", power: 2.0, accuracy: 80, type: "くさ" },
   kamihikouha: { name: "かみひこうは", power: 1.95, accuracy: 85, type: "ひこう" },
   oozorakaze: { name: "おおぞらのかぜ", power: 1.9, accuracy: 88, type: "ひこう" },
+  dangoarashi: { name: "だんごあらし", power: 2.0, accuracy: 80, type: "ひこう" },
+  mugiarashi: { name: "むぎばたけあらし", power: 1.95, accuracy: 82, type: "ひこう" },
+  amadarerenda: { name: "あまだれれんだ", power: 1.9, accuracy: 85, type: "ひこう" },
+  kazagurumasenpu: { name: "かざぐるませんぷう", power: 2.0, accuracy: 80, type: "ひこう" },
+  hayatetsumuji: { name: "はやてのつむじ", power: 2.05, accuracy: 78, type: "ひこう" },
+  hanafubukidan: { name: "はなふぶきだん", power: 2.0, accuracy: 80, type: "くさ" },
+  hanautagoe: { name: "はなうたごえ", power: 1.9, accuracy: 85, type: "くさ" },
+  kouyouken: { name: "こうようけん", power: 2.05, accuracy: 78, type: "くさ" },
+  haruichiban: { name: "はるいちばん", power: 1.95, accuracy: 82, type: "くさ" },
+  sakurafubuki: { name: "さくらふぶき", power: 2.0, accuracy: 80, type: "くさ" },
+  daichinominori: { name: "だいちのみのり", power: 2.1, accuracy: 75, type: "くさ" },
+  koganeotoshi: { name: "こがねおとし", power: 2.05, accuracy: 77, type: "いわ" },
 
   // 組み合わせ技: 2つの特技を両方おぼえていると自動で習得する上位技
   reinetsubakuha: { name: "れいねつばくは", power: 2.3, accuracy: 78, type: "ノーマル" },
