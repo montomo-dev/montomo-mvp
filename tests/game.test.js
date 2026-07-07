@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { createMonster, rollWildSpecies, SPECIES, WILD_SPECIES } from "../js/data/monsters.js";
+import { createMonster, rollWildSpecies, SPECIES, WILD_SPECIES, monsterName } from "../js/data/monsters.js";
 import { getStage, STAGES, TILE_TYPES, WORLD_TRANSITIONS } from "../js/data/stages.js";
 import { breedMonsters } from "../js/systems/breeding.js";
 import { depositToRanch } from "../js/systems/party.js";
@@ -2211,4 +2211,62 @@ test("新規追加した22種の2進化目は、既存の2進化目(モフリー
     const t = total(SPECIES[id]);
     assert.ok(t >= min && t <= max, `${id} の総合力(${Math.round(t)})が基準範囲(${Math.round(min)}〜${Math.round(max)})から外れている`);
   }
+});
+
+test("tr()はgame.langがenのときだけ第2引数(英語)を返す", async () => {
+  const { tr } = await import("../js/i18n.js");
+  assert.equal(tr({ lang: "ja" }, "こんにちは", "Hello"), "こんにちは");
+  assert.equal(tr({ lang: "en" }, "こんにちは", "Hello"), "Hello");
+  assert.equal(tr(null, "こんにちは", "Hello"), "こんにちは", "gameがnullのときは日本語にフォールバックする");
+  assert.equal(tr(undefined, "こんにちは", "Hello"), "こんにちは");
+});
+
+test("言語設定はミュートと同様、端末側の設定としてlocalStorageに永続化される", async () => {
+  globalThis.localStorage ??= (() => {
+    const store = {};
+    return {
+      getItem: (k) => (k in store ? store[k] : null),
+      setItem: (k, v) => { store[k] = v; },
+      removeItem: (k) => { delete store[k]; },
+    };
+  })();
+  const { getStoredLang, setStoredLang } = await import("../js/i18n.js");
+  setStoredLang("en");
+  assert.equal(getStoredLang(), "en");
+  setStoredLang("ja");
+  assert.equal(getStoredLang(), "ja");
+  assert.equal(setStoredLang("fr"), "ja", "サポート外の言語はjaにフォールバックする");
+});
+
+test("monsterName()は進化後も現在のspeciesIdから正しい表示名を引く", () => {
+  const m = createMonster("mofuri", 1);
+  assert.equal(monsterName(m, "ja"), "モフリ");
+  assert.equal(monsterName(m, "en"), "Mofuri");
+  for (let i = 0; i < 10 && m.level < 10; i++) gainExp(m, SPECIES, 999);
+  assert.equal(m.speciesId, "mofurif");
+  assert.equal(monsterName(m, "en"), "Mofurif", "進化後は新しい種族のnameEnを返す必要がある");
+});
+
+test("英語モードでのバトル勝利メッセージに進化・レベルアップ・ボス演出が正しく英訳される", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const ally = createMonster("mofuri", 9);
+  const game = { lang: "en", party: [ally], ranch: [], items: {}, money: 0, dex: { seen: [], caught: [] }, flags: {}, save: () => true };
+  const enemy = createMonster("nushi", 12);
+  const battle = new BattleScene(game, enemy, { isBoss: true, stageId: "stage3" });
+  assert.ok(battle.queue[0].includes("Nushi"), "ボス登場テキストが英訳されていない");
+  const messages = [];
+  battle.performAction(battle.ally, battle.enemy, { type: "attack" }, messages);
+  enemy.hp = 0;
+  battle.victory(messages);
+  const joined = messages.join(" | ");
+  assert.ok(joined.includes("evolved into Mofurif"), `進化メッセージが英訳されていない: ${joined}`);
+  assert.ok(joined.includes("returned to normal"), `ボス勝利テキストが英訳されていない: ${joined}`);
 });
