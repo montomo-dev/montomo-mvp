@@ -2,6 +2,8 @@ import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { MAX_PARTY, depositToRanch, withdrawFromRanch } from "../systems/party.js";
 import { sfxCancel, sfxSelect, sfxConfirm } from "../audio.js";
+import { monsterName } from "../data/monsters.js";
+import { tr } from "../i18n.js";
 
 const ICON_SIZE = 36;
 const ICON_GAP = 14;
@@ -67,19 +69,19 @@ export class RanchScene {
 
   toggle(entry) {
     if (entry.loc === "party") {
-      const name = entry.m.name;
+      const name = monsterName(entry.m, this.game.lang);
       depositToRanch(this.game.party, this.game.ranch, entry.i);
-      this.message = `${name}を 牧場に あずけた。`;
+      this.message = tr(this.game, `${name}を 牧場に あずけた。`, `Sent ${name} to the ranch.`);
       sfxConfirm();
     } else {
       if (this.game.party.length >= MAX_PARTY) {
-        this.message = "パーティが いっぱいだよ。";
+        this.message = tr(this.game, "パーティが いっぱいだよ。", "Your party is full.");
         sfxCancel();
         return;
       }
-      const name = entry.m.name;
+      const name = monsterName(entry.m, this.game.lang);
       withdrawFromRanch(this.game.party, this.game.ranch, entry.i);
-      this.message = `${name}を むかえいれた！`;
+      this.message = tr(this.game, `${name}を むかえいれた！`, `Welcomed ${name} back!`);
       sfxConfirm();
     }
     this.cursor = 0;
@@ -122,17 +124,17 @@ export class RanchScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText("牧場", 30, 44);
+    ctx.fillText(tr(this.game, "牧場", "Ranch"), 30, 44);
 
     ctx.font = FONT_BOLD;
-    ctx.fillText(`つれている なかま（${this.game.party.length}/${MAX_PARTY}）`, 30, 70);
-    this.drawGrid(ctx, this.game.party, 30, 86, this.cursor, "なかまはいない");
+    ctx.fillText(tr(this.game, `つれている なかま（${this.game.party.length}/${MAX_PARTY}）`, `Party (${this.game.party.length}/${MAX_PARTY})`), 30, 70);
+    this.drawGrid(ctx, this.game.party, 30, 86, this.cursor, tr(this.game, "なかまはいない", "No monsters"));
 
     const ranchLabelY = this.ranchLabelY();
     const ranchViewTop = ranchLabelY + 14;
     ctx.font = FONT_BOLD;
     ctx.fillStyle = "#f0ead8";
-    ctx.fillText(`あずけている なかま（${this.game.ranch.length}）`, 30, ranchLabelY);
+    ctx.fillText(tr(this.game, `あずけている なかま（${this.game.ranch.length}）`, `Ranch (${this.game.ranch.length})`), 30, ranchLabelY);
 
     ctx.save();
     ctx.beginPath();
@@ -140,7 +142,7 @@ export class RanchScene {
     ctx.clip();
     this.drawGrid(
       ctx, this.game.ranch, 30, ranchViewTop,
-      this.cursor - this.game.party.length, "だれも いない",
+      this.cursor - this.game.party.length, tr(this.game, "だれも いない", "No one here"),
       this.ranchScrollRow
     );
     ctx.restore();
@@ -158,7 +160,7 @@ export class RanchScene {
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
-    ctx.fillText("↑↓: えらぶ ／ Z: あずける・むかえいれる ／ X: もどる", 30, 462);
+    ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: あずける・むかえいれる ／ X: もどる", "Up/Down: Choose / Z: Deposit/Withdraw / X: Back"), 30, 462);
 
     if (this.message) {
       panel(ctx, 70, 184, 500, 100);
@@ -167,7 +169,7 @@ export class RanchScene {
       ctx.textAlign = "center";
       ctx.fillText(this.message, 320, 232);
       ctx.font = FONT;
-      ctx.fillText("Z または X で とじる", 320, 264);
+      ctx.fillText(tr(this.game, "Z または X で とじる", "Z or X to close"), 320, 264);
       ctx.textAlign = "left";
     }
   }

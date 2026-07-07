@@ -1,4 +1,4 @@
-import { SPECIES } from "../data/monsters.js";
+import { SPECIES, monsterName } from "../data/monsters.js";
 import { moveToFront } from "../systems/party.js";
 import { breedMonsters } from "../systems/breeding.js";
 import { SKILLS } from "../data/skills.js";
@@ -11,6 +11,14 @@ import { sfxBreed, sfxConfirm, sfxCancel, sfxItemGet } from "../audio.js";
 import { BreedingChartScene } from "./breedingChart.js";
 import { ITEMS } from "../data/items.js";
 import { clearStatus } from "../systems/status.js";
+import { tr } from "../i18n.js";
+
+function skillName(game, id) {
+  return tr(game, SKILLS[id].name, SKILLS[id].nameEn);
+}
+function itemName(game, item) {
+  return tr(game, item.name, item.nameEn);
+}
 
 const nameInput = document.getElementById("name-input");
 const MIN_BREED_LEVEL = 10;
@@ -48,7 +56,7 @@ export class PartyScene {
       nameInput.classList.remove("visible");
       if (commit) {
         const trimmed = nameInput.value.trim();
-        monster.name = trimmed.length > 0 ? trimmed : SPECIES[monster.speciesId].name;
+        monster.name = trimmed.length > 0 ? trimmed : monsterName(monster, this.game.lang);
         this.game.save();
       }
       this.renaming = null;
@@ -152,7 +160,7 @@ export class PartyScene {
       this.game.save();
     } else if (action === "item") {
       if (this.usableItemIds().length === 0) {
-        this.message = "つかえる どうぐが ないよ。";
+        this.message = tr(this.game, "つかえる どうぐが ないよ。", "You don't have any usable items.");
         this.mode = "list";
         return;
       }
@@ -171,20 +179,30 @@ export class PartyScene {
   useItemOn(monster, itemId) {
     const item = ITEMS[itemId];
     this.game.items[itemId]--;
+    const name = monsterName(monster, this.game.lang);
+    const iName = itemName(this.game, item);
     if (item.kind === "heal") {
       const before = monster.hp;
       monster.hp = Math.min(monster.maxHp, monster.hp + item.value);
       const healed = monster.hp - before;
-      let msg = `${monster.name}に ${item.name}を つかった！HPが ${healed} かいふくした！`;
+      let msg = tr(this.game, `${name}に ${iName}を つかった！HPが ${healed} かいふくした！`, `Used ${iName} on ${name}! Restored ${healed} HP!`);
       if (item.cureStatus && monster.status) {
         clearStatus(monster);
-        msg += ` じょうたいいじょうも なおった！`;
+        msg += tr(this.game, ` じょうたいいじょうも なおった！`, ` Its status ailment was also cured!`);
       }
       this.message = msg;
     } else if (item.kind === "stat_boost") {
       monster[item.stat] += item.value;
-      const label = item.stat === "atk" ? "こうげき" : item.stat === "def" ? "ぼうぎょ" : item.stat;
-      this.message = `${monster.name}に ${item.name}を つかった！${label}が ${item.value} あがった！`;
+      const label = tr(
+        this.game,
+        item.stat === "atk" ? "こうげき" : item.stat === "def" ? "ぼうぎょ" : item.stat,
+        item.stat === "atk" ? "Attack" : item.stat === "def" ? "Defense" : item.stat
+      );
+      this.message = tr(
+        this.game,
+        `${name}に ${iName}を つかった！${label}が ${item.value} あがった！`,
+        `Used ${iName} on ${name}! ${label} rose by ${item.value}!`
+      );
     }
     sfxItemGet();
     this.mode = "list";
@@ -193,12 +211,16 @@ export class PartyScene {
 
   startBreeding() {
     if (this.game.party.length < 2) {
-      this.message = "配合には なかまが 2体 ひつようだよ。";
+      this.message = tr(this.game, "配合には なかまが 2体 ひつようだよ。", "Breeding needs 2 party members.");
       return;
     }
     const eligible = this.game.party.filter((m) => m.level >= MIN_BREED_LEVEL);
     if (eligible.length < 2) {
-      this.message = `配合には Lv.${MIN_BREED_LEVEL}いじょうの なかまが 2体 ひつようだよ。`;
+      this.message = tr(
+        this.game,
+        `配合には Lv.${MIN_BREED_LEVEL}いじょうの なかまが 2体 ひつようだよ。`,
+        `Breeding needs 2 party members at Lv.${MIN_BREED_LEVEL} or higher.`
+      );
       return;
     }
     this.mode = "breed";
@@ -208,7 +230,7 @@ export class PartyScene {
 
   askRelease() {
     if (this.game.party.length === 0) {
-      this.message = "なかまが いないよ。";
+      this.message = tr(this.game, "なかまが いないよ。", "You have no party members.");
       return;
     }
     this.confirm = { index: this.cursor, yes: false, monster: this.game.party[this.cursor] };
@@ -217,14 +239,14 @@ export class PartyScene {
   releaseMonster(index) {
     const [removed] = this.game.party.splice(index, 1);
     if (this.cursor >= this.game.party.length) this.cursor = this.game.party.length - 1;
-    this.message = `${removed.name}を にがした。`;
+    this.message = tr(this.game, `${monsterName(removed, this.game.lang)}を にがした。`, `Released ${monsterName(removed, this.game.lang)}.`);
     this.game.save();
   }
 
   chooseParent(index) {
     const selected = this.game.party[index];
     if (selected.level < MIN_BREED_LEVEL) {
-      this.message = `Lv.${MIN_BREED_LEVEL}みまんは まだ 配合できないよ。`;
+      this.message = tr(this.game, `Lv.${MIN_BREED_LEVEL}みまんは まだ 配合できないよ。`, `Below Lv.${MIN_BREED_LEVEL} can't breed yet.`);
       return;
     }
     if (!this.firstParent) {
@@ -233,7 +255,7 @@ export class PartyScene {
       return;
     }
     if (selected.uid === this.firstParent.uid) {
-      this.message = "ちがう なかまを えらんでね。";
+      this.message = tr(this.game, "ちがう なかまを えらんでね。", "Please choose a different party member.");
       return;
     }
 
@@ -243,14 +265,24 @@ export class PartyScene {
     );
     this.game.party.push(child);
     markCaught(this.game, child.speciesId);
+    const joiner = tr(this.game, "、", ", ");
     const skillMessage = inheritedSkills.length > 0
-      ? ` ${inheritedSkills.map((id) => SKILLS[id].name).join("、")}を うけついだ！`
+      ? tr(this.game, ` ${inheritedSkills.map((id) => skillName(this.game, id)).join(joiner)}を うけついだ！`, ` Inherited ${inheritedSkills.map((id) => skillName(this.game, id)).join(joiner)}!`)
       : "";
     const comboMessage = comboSkills.length > 0
-      ? ` ぎじゅつの くみあわせで「${comboSkills.map((id) => SKILLS[id].name).join("、")}」を おぼえた！`
+      ? tr(
+          this.game,
+          ` ぎじゅつの くみあわせで「${comboSkills.map((id) => skillName(this.game, id)).join(joiner)}」を おぼえた！`,
+          ` Learned ${comboSkills.map((id) => skillName(this.game, id)).join(joiner)} from combining skills!`
+        )
       : "";
-    const colorMessage = child.tintName ? ` からだが ${child.tintName}いろに そまった！` : "";
-    this.message = `おやは ${child.name}を のこして きえていった…${colorMessage}${skillMessage}${comboMessage}`;
+    const colorMessage = child.tintName ? tr(this.game, ` からだが ${child.tintName}いろに そまった！`, ` Its body was dyed a ${child.tintName} color!`) : "";
+    const childName = monsterName(child, this.game.lang);
+    this.message = tr(
+      this.game,
+      `おやは ${childName}を のこして きえていった…${colorMessage}${skillMessage}${comboMessage}`,
+      `The parents vanished, leaving behind ${childName}...${colorMessage}${skillMessage}${comboMessage}`
+    );
     this.mode = "list";
     this.firstParent = null;
     this.cursor = this.game.party.length - 1;
@@ -264,7 +296,7 @@ export class PartyScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText("パーティ", 30, 44);
+    ctx.fillText(tr(this.game, "パーティ", "Party"), 30, 44);
 
     this.game.party.forEach((monster, i) => {
       const y = 64 + i * 92;
@@ -283,7 +315,7 @@ export class PartyScene {
         ctx.fill();
         ctx.fillStyle = "#fff";
         ctx.font = FONT_BOLD;
-        ctx.fillText("おや 1", 524, y + 66);
+        ctx.fillText(tr(this.game, "おや 1", "Parent 1"), 524, y + 66);
       }
       drawMonster(ctx, monster.speciesId, 70, y + 42, 0.7, this.time + i, monster.tintHue || 0);
       if (monster.tintColor) {
@@ -308,13 +340,15 @@ export class PartyScene {
 
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText(`${monster.name}  Lv.${monster.level}`, 160, y + 32);
+      ctx.fillText(`${monsterName(monster, this.game.lang)}  Lv.${monster.level}`, 160, y + 32);
       ctx.font = FONT;
-      ctx.fillText(SPECIES[monster.speciesId].genus, 300, y + 32);
+      ctx.fillText(tr(this.game, SPECIES[monster.speciesId].genus, SPECIES[monster.speciesId].genusEn), 300, y + 32);
       hpBar(ctx, 130, y + 46, 190, 12, monster.hp / monster.maxHp);
       ctx.fillText(`${monster.hp} / ${monster.maxHp}`, 335, y + 58);
       ctx.fillText(
-        monster.level >= MAX_LEVEL ? "レベル MAX" : `つぎのレベルまで あと ${expToNext(monster.level) - monster.exp}`,
+        monster.level >= MAX_LEVEL
+          ? tr(this.game, "レベル MAX", "Level MAX")
+          : tr(this.game, `つぎのレベルまで あと ${expToNext(monster.level) - monster.exp}`, `${expToNext(monster.level) - monster.exp} EXP to next level`),
         130, y + 76
       );
       if (i === 0) {
@@ -324,7 +358,7 @@ export class PartyScene {
         ctx.fill();
         ctx.fillStyle = "#fff";
         ctx.font = FONT_BOLD;
-        ctx.fillText("せんとう", 528, y + 34);
+        ctx.fillText(tr(this.game, "せんとう", "Lead"), 528, y + 34);
       }
     });
 
@@ -332,9 +366,13 @@ export class PartyScene {
     ctx.font = FONT;
     const hint = this.mode === "breed"
       ? this.firstParent
-        ? "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる"
-        : "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる"
-      : "↑↓: えらぶ ／ Z: メニュー ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ D: 配合表 ／ X: もどる";
+        ? tr(this.game, "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる", "Up/Down: Choose 2nd parent / Z: Confirm / X: Cancel")
+        : tr(this.game, "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる", "Up/Down: Choose 1st parent / Z: Confirm / X: Cancel")
+      : tr(
+          this.game,
+          "↑↓: えらぶ ／ Z: メニュー ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ D: 配合表 ／ X: もどる",
+          "Up/Down: Choose / Z: Menu / →: Breed / ←: Release / N: Rename / D: Breeding Chart / X: Back"
+        );
     ctx.fillText(hint, 30, 462);
 
     if (this.message) {
@@ -344,21 +382,25 @@ export class PartyScene {
       ctx.textAlign = "center";
       ctx.fillText(this.message, 320, 232);
       ctx.font = FONT;
-      ctx.fillText("Z または X で とじる", 320, 264);
+      ctx.fillText(tr(this.game, "Z または X で とじる", "Z or X to close"), 320, 264);
       ctx.textAlign = "left";
     }
 
     if (this.mode === "action") {
       const target = this.game.party[this.actionTarget];
       const options = this.actionOptions();
-      const labels = { front: "せんとうに する", item: "どうぐを つかう", cancel: "やめる" };
+      const labels = {
+        front: tr(this.game, "せんとうに する", "Set as Lead"),
+        item: tr(this.game, "どうぐを つかう", "Use Item"),
+        cancel: tr(this.game, "やめる", "Cancel"),
+      };
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
       ctx.fillRect(0, 0, 640, 480);
       panel(ctx, 190, 150, 260, 40 + options.length * 34);
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "center";
-      ctx.fillText(`${target.name} に する こと`, 320, 176);
+      ctx.fillText(tr(this.game, `${monsterName(target, this.game.lang)} に する こと`, `What to do with ${monsterName(target, this.game.lang)}`), 320, 176);
       options.forEach((opt, i) => {
         const y = 210 + i * 34;
         ctx.fillStyle = this.actionCursor === i ? "#e8842e" : "#3a3a52";
@@ -366,7 +408,7 @@ export class PartyScene {
       });
       ctx.font = FONT;
       ctx.fillStyle = "#5a5a70";
-      ctx.fillText("↑↓: えらぶ ／ Z: けってい ／ X: もどる", 320, 210 + options.length * 34 + 20);
+      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: けってい ／ X: もどる", "Up/Down: Choose / Z: Confirm / X: Back"), 320, 210 + options.length * 34 + 20);
       ctx.textAlign = "left";
     }
 
@@ -379,18 +421,18 @@ export class PartyScene {
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "center";
-      ctx.fillText(`${target.name} に つかう どうぐ`, 320, 158);
+      ctx.fillText(tr(this.game, `${monsterName(target, this.game.lang)} に つかう どうぐ`, `Use item on ${monsterName(target, this.game.lang)}`), 320, 158);
       ctx.textAlign = "left";
       owned.forEach((itemId, i) => {
         const item = ITEMS[itemId];
         const y = 186 + i * 28;
         ctx.fillStyle = this.itemCursor === i ? "#e8842e" : "#3a3a52";
-        ctx.fillText(`${item.name}（${this.game.items[itemId]}こ）`, 120, y);
+        ctx.fillText(`${itemName(this.game, item)}（${this.game.items[itemId]}）`, 120, y);
         if (this.itemCursor === i) ctx.fillText("▶", 100, y);
       });
       ctx.font = FONT;
       ctx.fillStyle = "#5a5a70";
-      ctx.fillText("↑↓: えらぶ ／ Z: つかう ／ X: もどる", 320, 186 + owned.length * 28 + 20);
+      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: つかう ／ X: もどる", "Up/Down: Choose / Z: Use / X: Back"), 320, 186 + owned.length * 28 + 20);
     }
 
     if (this.confirm) {
@@ -400,15 +442,18 @@ export class PartyScene {
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "center";
-      ctx.fillText(`${this.confirm.monster.name}を にがします。よろしい？`, 320, 222);
+      ctx.fillText(
+        tr(this.game, `${monsterName(this.confirm.monster, this.game.lang)}を にがします。よろしい？`, `Release ${monsterName(this.confirm.monster, this.game.lang)}?`),
+        320, 222
+      );
       const y = 272;
       ctx.fillStyle = this.confirm.yes ? "#e8842e" : "#3a3a52";
-      ctx.fillText("はい", 250, y);
+      ctx.fillText(tr(this.game, "はい", "Yes"), 250, y);
       ctx.fillStyle = !this.confirm.yes ? "#e8842e" : "#3a3a52";
-      ctx.fillText("いいえ", 396, y);
+      ctx.fillText(tr(this.game, "いいえ", "No"), 396, y);
       ctx.font = FONT;
       ctx.fillStyle = "#5a5a70";
-      ctx.fillText("←→: えらぶ ／ Z: けってい ／ X: やめる", 320, 300);
+      ctx.fillText(tr(this.game, "←→: えらぶ ／ Z: けってい ／ X: やめる", "Left/Right: Choose / Z: Confirm / X: Cancel"), 320, 300);
       ctx.textAlign = "left";
     }
   }

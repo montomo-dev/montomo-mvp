@@ -2,10 +2,22 @@ import { SPECIES } from "../data/monsters.js";
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
-import { typeOf } from "../data/types.js";
+import { typeOf, typeNameEn } from "../data/types.js";
 import { flavorTextOf } from "../data/flavor.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
 import { LEGEND_REQUIREMENT, legendProgress, hasLegendReward } from "../systems/legend.js";
+import { tr } from "../i18n.js";
+
+function speciesName(game, species) {
+  return tr(game, species.name, species.nameEn);
+}
+function speciesGenus(game, species) {
+  return tr(game, species.genus, species.genusEn);
+}
+function speciesTypeLabel(game, speciesId) {
+  const type = typeOf(speciesId);
+  return tr(game, type, typeNameEn(type));
+}
 
 const COLS = 4;
 const ROWS = 4;
@@ -78,18 +90,22 @@ export class PokedexScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText("図鑑", 30, 44);
+    ctx.fillText(tr(this.game, "図鑑", "Dex"), 30, 44);
 
     const seen = this.game.dex?.seen || [];
     const caught = this.game.dex?.caught || [];
     ctx.font = FONT;
     ctx.fillText(
-      `みつけた ${seen.length}/${this.entries.length}　なかまにした ${caught.length}/${this.entries.length}`,
+      tr(
+        this.game,
+        `みつけた ${seen.length}/${this.entries.length}　なかまにした ${caught.length}/${this.entries.length}`,
+        `Seen ${seen.length}/${this.entries.length}   Caught ${caught.length}/${this.entries.length}`
+      ),
       210, 44
     );
     if (this.totalPages > 1) {
       ctx.textAlign = "right";
-      ctx.fillText(`${this.page + 1} / ${this.totalPages} ページ`, 610, 44);
+      ctx.fillText(tr(this.game, `${this.page + 1} / ${this.totalPages} ページ`, `Page ${this.page + 1} / ${this.totalPages}`), 610, 44);
       ctx.textAlign = "left";
     }
 
@@ -97,14 +113,18 @@ export class PokedexScene {
     ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     if (hasLegendReward(this.game)) {
       ctx.fillStyle = "#ffd75e";
-      ctx.fillText("★ レジェンド解放ずみ: カザリビ を なかまにした！", 30, 64);
+      ctx.fillText(tr(this.game, "★ レジェンド解放ずみ: カザリビ を なかまにした！", "★ Legend unlocked: Kazaribi joined your team!"), 30, 64);
     } else {
       ctx.fillStyle = "#a8a8c0";
       const requirementText = LEGEND_REQUIREMENT
-        .map((id) => `${SPECIES[id].name}${caughtSet.has(id) ? "✓" : ""}`)
-        .join("・");
+        .map((id) => `${speciesName(this.game, SPECIES[id])}${caughtSet.has(id) ? "✓" : ""}`)
+        .join(tr(this.game, "・", ", "));
       ctx.fillText(
-        `★ レジェンド条件(${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`,
+        tr(
+          this.game,
+          `★ レジェンド条件(${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`,
+          `★ Legend requirement (${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`
+        ),
         30, 64
       );
     }
@@ -140,7 +160,7 @@ export class PokedexScene {
         ctx.fillStyle = "#8a8aa0";
         ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
         ctx.fillText("？？？？", x + 50, y + 30);
-        ctx.fillText("みはっけん", x + 50, y + 50);
+        ctx.fillText(tr(this.game, "みはっけん", "Not found yet"), x + 50, y + 50);
         return;
       }
 
@@ -161,21 +181,24 @@ export class PokedexScene {
 
       ctx.fillStyle = "#3a3a52";
       ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.fillText(species.name, x + 50, y + 20);
+      ctx.fillText(speciesName(this.game, species), x + 50, y + 20);
       ctx.font = '11px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.fillText(`${species.genus}（${typeOf(species.id)}）`, x + 50, y + 36);
+      ctx.fillText(`${speciesGenus(this.game, species)}（${speciesTypeLabel(this.game, species.id)}）`, x + 50, y + 36);
       if (!isCaught) {
         ctx.fillStyle = "#a8a8c0";
-        ctx.fillText("みつけただけ", x + 50, y + 54);
+        ctx.fillText(tr(this.game, "みつけただけ", "Seen only"), x + 50, y + 54);
       } else {
         ctx.fillStyle = "#4a8f4a";
-        ctx.fillText("なかまにした！", x + 50, y + 54);
+        ctx.fillText(tr(this.game, "なかまにした！", "Caught!"), x + 50, y + 54);
       }
     });
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
-    ctx.fillText("↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ X: もどる", 30, 462);
+    ctx.fillText(
+      tr(this.game, "↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ X: もどる", "Arrows: Choose/Page / Z: Details / X: Back"),
+      30, 462
+    );
 
     if (this.detail) this.drawDetail(ctx);
   }
@@ -205,21 +228,21 @@ export class PokedexScene {
 
     ctx.fillStyle = "#3a3a52";
     ctx.font = 'bold 22px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText(species.name, 300, 130);
+    ctx.fillText(speciesName(this.game, species), 300, 130);
     ctx.font = FONT;
-    ctx.fillText(`${species.genus}（${typeOf(species.id)}）`, 300, 158);
-    ctx.fillText(caught ? "なかまにした！" : "みつけただけ", 300, 182);
+    ctx.fillText(`${speciesGenus(this.game, species)}（${speciesTypeLabel(this.game, species.id)}）`, 300, 158);
+    ctx.fillText(caught ? tr(this.game, "なかまにした！", "Caught!") : tr(this.game, "みつけただけ", "Seen only"), 300, 182);
 
     ctx.font = FONT;
     ctx.fillStyle = "#3a3a52";
-    const flavor = flavorTextOf(species.id);
-    const maxChars = 30;
+    const flavor = flavorTextOf(species.id, this.game.lang);
+    const maxChars = this.game.lang === "en" ? 46 : 30;
     for (let i = 0, line = 0; i < flavor.length; i += maxChars, line++) {
       ctx.fillText(flavor.slice(i, i + maxChars), 120, 260 + line * 26);
     }
 
     ctx.font = FONT;
     ctx.fillStyle = "#5a5a70";
-    ctx.fillText("Z または X で とじる", 120, 380);
+    ctx.fillText(tr(this.game, "Z または X で とじる", "Z or X to close"), 120, 380);
   }
 }
