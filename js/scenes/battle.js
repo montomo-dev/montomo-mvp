@@ -102,30 +102,36 @@ export class BattleScene {
         this.game.changeScene(new EndingScene(this.game, {
           nextStageId: "sea_stage1",
           subtitle: "ウラノヌシを のりこえ、きみと なかまは さらに つよく なった。",
+          subtitleEn: "You overcame Reverse Nushi, and you and your friends grew even stronger.",
         }));
       } else if (this.stageId === "sea_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
           nextStageId: "snow_stage1",
           subtitle: "シンカイヌシを のりこえ、きみと なかまは でんせつに なった。",
+          subtitleEn: "You overcame Sea Nushi, and you and your friends became legendary.",
         }));
       } else if (this.stageId === "snow_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
           nextStageId: "desert_stage1",
           subtitle: "ヒョウガヌシを のりこえ、きみと なかまは でんせつに なった。",
+          subtitleEn: "You overcame Hyouga Nushi, and you and your friends became legendary.",
         }));
       } else if (this.stageId === "desert_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
           nextStageId: "factory_stage1",
           subtitle: "スナヌシを のりこえ、きみと なかまは でんせつに なった。",
+          subtitleEn: "You overcame Suna Nushi, and you and your friends became legendary.",
         }));
       } else if (this.stageId === "factory_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
           nextStageId: "castle_stage1",
           subtitle: "コウジョウヌシを のりこえ、きみと なかまは でんせつに なった。",
+          subtitleEn: "You overcame Koujou Nushi, and you and your friends became legendary.",
         }));
       } else if (this.stageId === "castle_stage3") {
         this.game.changeScene(new EndingScene(this.game, {
           subtitle: "マオウを のりこえ、ぼうけんは ついに おわりを むかえた…！",
+          subtitleEn: "You overcame the Demon Lord, and the adventure has finally come to an end...!",
         }));
       } else {
         this.game.changeScene(new EndingScene(this.game));

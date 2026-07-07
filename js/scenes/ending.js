@@ -2,6 +2,8 @@ import { drawMonster } from "../sprites.js";
 import { FONT, FONT_BOLD } from "../ui.js";
 import { TitleScene } from "./title.js";
 import { FieldScene } from "./field.js";
+import { monsterName } from "../data/monsters.js";
+import { tr } from "../i18n.js";
 
 export class EndingScene {
   constructor(game, opts = {}) {
@@ -9,7 +11,9 @@ export class EndingScene {
     this.time = 0;
     this.canReturn = false;
     this.nextStageId = opts.nextStageId || null;
-    this.subtitle = opts.subtitle || "もりの ヌシを のりこえ、きみと なかまは でんせつに なった。";
+    this.subtitle = opts.subtitle
+      || tr(game, "もりの ヌシを のりこえ、きみと なかまは でんせつに なった。", "You overcame the Forest Nushi, and you and your friends became legendary.");
+    this.subtitleEn = opts.subtitleEn || null;
   }
 
   update(dt) {
@@ -46,11 +50,11 @@ export class EndingScene {
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffe89a";
     ctx.font = 'bold 44px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText("クリア！", 320, 84);
+    ctx.fillText(tr(this.game, "クリア！", "Cleared!"), 320, 84);
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT_BOLD;
-    ctx.fillText(this.subtitle, 320, 124);
+    ctx.fillText(tr(this.game, this.subtitle, this.subtitleEn || this.subtitle), 320, 124);
 
     const party = this.game.party.slice(0, 4);
     const startX = 320 - (party.length - 1) * 55;
@@ -59,18 +63,23 @@ export class EndingScene {
       drawMonster(ctx, m.speciesId, x, 250, 1.0, this.time + i, m.tintHue || 0);
       ctx.fillStyle = "#f0ead8";
       ctx.font = FONT;
-      ctx.fillText(m.name, x, 322);
+      ctx.fillText(monsterName(m, this.game.lang), x, 322);
       ctx.fillText(`Lv.${m.level}`, x, 344);
     });
 
     ctx.fillStyle = "#ffd75e";
     ctx.font = FONT_BOLD;
-    ctx.fillText("〜 モンとも 〜  あそんでくれて ありがとう！", 320, 402);
+    ctx.fillText(
+      tr(this.game, "〜 モンとも 〜  あそんでくれて ありがとう！", "~ Montomo ~  Thanks for playing!"),
+      320, 402
+    );
 
     if (this.canReturn && Math.sin(this.time * 4) > 0) {
       ctx.fillStyle = "#f0ead8";
       ctx.font = FONT;
-      const hint = this.nextStageId ? "Z: つづきの ぼうけんへ" : "Z: タイトルへ もどる";
+      const hint = this.nextStageId
+        ? tr(this.game, "Z: つづきの ぼうけんへ", "Z: Continue your adventure")
+        : tr(this.game, "Z: タイトルへ もどる", "Z: Return to title");
       ctx.fillText(hint, 320, 448);
     }
     ctx.textAlign = "left";

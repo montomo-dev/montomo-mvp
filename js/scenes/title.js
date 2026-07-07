@@ -2,8 +2,17 @@ import { hasSave, loadSave, clearSave, SAVE_SLOT_COUNT } from "../systems/save.j
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
+import { tr } from "../i18n.js";
 
 const nameInput = document.getElementById("name-input");
+const MENU_OPTIONS = ["continue", "new", "delete"];
+function menuOptionLabel(game, key) {
+  return tr(
+    game,
+    { continue: "つづきから", new: "はじめから", delete: "セーブを けす" }[key],
+    { continue: "Continue", new: "New Game", delete: "Delete Save" }[key]
+  );
+}
 
 export class TitleScene {
   constructor(game) {
@@ -71,7 +80,7 @@ export class TitleScene {
           clearSave(slot);
           this.phase = "slots";
           this.refreshSlots();
-          this.setNotice("セーブデータを けしたよ");
+          this.setNotice(tr(this.game, "セーブデータを けしたよ", "Save data deleted."));
         }
       }
       return;
@@ -85,7 +94,7 @@ export class TitleScene {
     }
 
     if (this.phase === "menu") {
-      const options = ["つづきから", "はじめから", "セーブを けす"];
+      const options = MENU_OPTIONS;
       if (input.wasPressed("up")) { this.menuCursor = (this.menuCursor + options.length - 1) % options.length; sfxSelect(); }
       if (input.wasPressed("down")) { this.menuCursor = (this.menuCursor + 1) % options.length; sfxSelect(); }
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "slots"; return; }
@@ -107,12 +116,18 @@ export class TitleScene {
 
   chooseMenuOption(opt) {
     sfxConfirm();
-    if (opt === "つづきから") {
+    if (opt === "continue") {
       this.game.startAdventure(loadSave(this.menuSlot), this.menuSlot);
-    } else if (opt === "はじめから") {
-      this.confirm = { action: "new", yes: false, slot: this.menuSlot, text: "いまの ぼうけんは きえます。はじめから する？" };
-    } else if (opt === "セーブを けす") {
-      this.confirm = { action: "delete", yes: false, slot: this.menuSlot, text: "セーブデータを けします。よろしい？" };
+    } else if (opt === "new") {
+      this.confirm = {
+        action: "new", yes: false, slot: this.menuSlot,
+        text: tr(this.game, "いまの ぼうけんは きえます。はじめから する？", "Progress will be lost. Start over?"),
+      };
+    } else if (opt === "delete") {
+      this.confirm = {
+        action: "delete", yes: false, slot: this.menuSlot,
+        text: tr(this.game, "セーブデータを けします。よろしい？", "Delete this save data?"),
+      };
     }
   }
 
@@ -134,7 +149,7 @@ export class TitleScene {
       const trimmed = nameInput.value.trim();
       this.renamingSlot = null;
       if (commit) {
-        this.game.startAdventure(null, slot, trimmed.length > 0 ? trimmed : "ぼうけんしゃ");
+        this.game.startAdventure(null, slot, trimmed.length > 0 ? trimmed : tr(this.game, "ぼうけんしゃ", "Adventurer"));
       } else {
         this.phase = "slots";
       }
@@ -162,11 +177,14 @@ export class TitleScene {
     ctx.textAlign = "center";
     ctx.fillStyle = "#3a3a52";
     ctx.font = 'bold 40px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText("モンとも", 320, 186);
+    ctx.fillText(tr(this.game, "モンとも", "Montomo"), 320, 186);
     ctx.font = FONT;
-    ctx.fillText("〜 なかまと そだてる ぼうけん 〜", 320, 214);
+    ctx.fillText(tr(this.game, "〜 なかまと そだてる ぼうけん 〜", "~ An adventure of raising friends ~"), 320, 214);
     ctx.fillStyle = "#5c7d58";
-    ctx.fillText("世界を守る「ヌシ」たちに、歪みの影が しのびよる…", 320, 234);
+    ctx.fillText(
+      tr(this.game, "世界を守る「ヌシ」たちに、歪みの影が しのびよる…", "A distorted shadow creeps toward the world's guardians..."),
+      320, 234
+    );
 
     if (this.notice) {
       ctx.fillStyle = "#2e7d32";
@@ -177,10 +195,17 @@ export class TitleScene {
     if (this.renamingSlot != null) {
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText("ぼうけんしゃの なまえを にゅうりょくしてください", 320, 214);
+      ctx.fillText(tr(this.game, "ぼうけんしゃの なまえを にゅうりょくしてください", "Enter your adventurer's name"), 320, 214);
       ctx.fillStyle = "#a33";
       ctx.font = FONT;
-      ctx.fillText("※ ほんみょうなど、こじんが とくていできる なまえは つけないでください", 320, 260);
+      ctx.fillText(
+        tr(
+          this.game,
+          "※ ほんみょうなど、こじんが とくていできる なまえは つけないでください",
+          "* Do not use your real name or other identifying info"
+        ),
+        320, 260
+      );
     }
 
     this.slots.forEach((entry, i) => {
@@ -197,10 +222,11 @@ export class TitleScene {
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       if (entry.empty) {
-        ctx.fillText(`スロット${entry.slot + 1}: からっぽ`, 110, y + 28);
+        ctx.fillText(tr(this.game, `スロット${entry.slot + 1}: からっぽ`, `Slot ${entry.slot + 1}: Empty`), 110, y + 28);
       } else {
+        const playerLabel = entry.playerName || tr(this.game, "ぼうけんしゃ", "Adventurer");
         ctx.fillText(
-          `スロット${entry.slot + 1}: ${entry.playerName || "ぼうけんしゃ"}(${entry.leaderName} Lv.${entry.leaderLevel})`,
+          `${tr(this.game, `スロット${entry.slot + 1}`, `Slot ${entry.slot + 1}`)}: ${playerLabel}(${entry.leaderName} Lv.${entry.leaderLevel})`,
           110, y + 28
         );
       }
@@ -210,23 +236,23 @@ export class TitleScene {
     ctx.font = FONT;
     ctx.fillStyle = "#5a5a70";
     if (this.phase === "slots") {
-      ctx.fillText("↑↓: スロットを えらぶ ／ Z: けってい", 320, 462);
+      ctx.fillText(tr(this.game, "↑↓: スロットを えらぶ ／ Z: けってい", "Up/Down: Choose slot / Z: Confirm"), 320, 462);
     } else if (this.phase === "menu") {
-      ctx.fillText("↑↓: えらぶ ／ Z: けってい ／ X: もどる", 320, 462);
+      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: けってい ／ X: もどる", "Up/Down: Choose / Z: Confirm / X: Back"), 320, 462);
     }
 
     if (this.phase === "menu") {
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
       ctx.fillRect(0, 0, 640, 480);
-      const options = ["つづきから", "はじめから", "セーブを けす"];
+      const options = MENU_OPTIONS;
       panel(ctx, 190, 170, 260, 40 + options.length * 38);
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText(`スロット${this.menuSlot + 1}`, 320, 196);
+      ctx.fillText(tr(this.game, `スロット${this.menuSlot + 1}`, `Slot ${this.menuSlot + 1}`), 320, 196);
       options.forEach((opt, i) => {
         const y = 230 + i * 38;
         ctx.fillStyle = this.menuCursor === i ? "#e8842e" : "#3a3a52";
-        ctx.fillText(opt, 320, y);
+        ctx.fillText(menuOptionLabel(this.game, opt), 320, y);
       });
     }
 
@@ -239,12 +265,12 @@ export class TitleScene {
       ctx.fillText(this.confirm.text, 320, 222);
       const y = 272;
       ctx.fillStyle = this.confirm.yes ? "#e8842e" : "#3a3a52";
-      ctx.fillText("はい", 250, y);
+      ctx.fillText(tr(this.game, "はい", "Yes"), 250, y);
       ctx.fillStyle = !this.confirm.yes ? "#e8842e" : "#3a3a52";
-      ctx.fillText("いいえ", 396, y);
+      ctx.fillText(tr(this.game, "いいえ", "No"), 396, y);
       ctx.font = FONT;
       ctx.fillStyle = "#5a5a70";
-      ctx.fillText("←→: えらぶ ／ Z: けってい ／ X: やめる", 320, 300);
+      ctx.fillText(tr(this.game, "←→: えらぶ ／ Z: けってい ／ X: やめる", "Left/Right: Choose / Z: Confirm / X: Cancel"), 320, 300);
     }
 
     ctx.textAlign = "left";

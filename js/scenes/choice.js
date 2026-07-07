@@ -1,6 +1,7 @@
 import { EndingScene } from "./ending.js";
 import { FieldScene } from "./field.js";
 import { FONT, FONT_BOLD } from "../ui.js";
+import { tr } from "../i18n.js";
 
 export class ChoiceScene {
   constructor(game) {
@@ -51,17 +52,20 @@ export class ChoiceScene {
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffe89a";
     ctx.font = 'bold 44px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText("クリア！", 320, 84);
+    ctx.fillText(tr(this.game, "クリア！", "Cleared!"), 320, 84);
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT_BOLD;
-    ctx.fillText("もりの ヌシを のりこえた…", 320, 140);
+    ctx.fillText(tr(this.game, "もりの ヌシを のりこえた…", "You overcame the Forest Nushi..."), 320, 140);
 
     ctx.fillStyle = "#ffd75e";
     ctx.font = FONT_BOLD;
-    ctx.fillText("つぎは どうしますか？", 320, 200);
+    ctx.fillText(tr(this.game, "つぎは どうしますか？", "What will you do next?"), 320, 200);
 
-    const options = ["エンディングをみる", "ウラの世界へ進む"];
+    const options = [
+      tr(this.game, "エンディングをみる", "See the ending"),
+      tr(this.game, "ウラの世界へ進む", "Head into the Reverse World"),
+    ];
     options.forEach((text, i) => {
       const y = 270 + i * 50;
       const isSelected = i === this.cursor;
@@ -73,7 +77,7 @@ export class ChoiceScene {
     if (this.canSelect && Math.sin(this.time * 4) > 0) {
       ctx.fillStyle = "#f0ead8";
       ctx.font = "16px sans-serif";
-      ctx.fillText("↑↓: えらぶ  /  Z: けってい", 320, 448);
+      ctx.fillText(tr(this.game, "↑↓: えらぶ  /  Z: けってい", "Up/Down: Choose  /  Z: Confirm"), 320, 448);
     }
     ctx.textAlign = "left";
   }

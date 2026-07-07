@@ -1,13 +1,14 @@
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
+import { tr } from "../i18n.js";
 
 const DESTINATIONS = [
-  { town: "town1", label: "森の街", requires: null },
-  { town: "sea_town1", label: "海の街", requires: "reverse_stage3" },
-  { town: "snow_town1", label: "雪原の街", requires: "sea_stage3" },
-  { town: "desert_town1", label: "砂漠の街", requires: "snow_stage3" },
-  { town: "factory_town1", label: "工場の街", requires: "desert_stage3" },
-  { town: "castle_town1", label: "魔王城下の街", requires: "factory_stage3" },
+  { town: "town1", label: "森の街", labelEn: "Forest Town", requires: null },
+  { town: "sea_town1", label: "海の街", labelEn: "Sea Town", requires: "reverse_stage3" },
+  { town: "snow_town1", label: "雪原の街", labelEn: "Snowfield Town", requires: "sea_stage3" },
+  { town: "desert_town1", label: "砂漠の街", labelEn: "Desert Town", requires: "snow_stage3" },
+  { town: "factory_town1", label: "工場の街", labelEn: "Factory Town", requires: "desert_stage3" },
+  { town: "castle_town1", label: "魔王城下の街", labelEn: "Demon Castle Town", requires: "factory_stage3" },
 ];
 
 function isUnlocked(dest, flags) {
@@ -55,7 +56,7 @@ export class WarpScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText("ワープ", 30, 44);
+    ctx.fillText(tr(this.game, "ワープ", "Warp"), 30, 44);
 
     const list = this.unlockedDestinations();
     list.forEach((dest, i) => {
@@ -70,11 +71,11 @@ export class WarpScene {
       }
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText(dest.label, 48, y + 30);
+      ctx.fillText(tr(this.game, dest.label, dest.labelEn), 48, y + 30);
     });
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
-    ctx.fillText("↑↓: えらぶ ／ Z: ワープ ／ X または W: もどる", 30, 462);
+    ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: ワープ ／ X または W: もどる", "Up/Down: Choose / Z: Warp / X or W: Back"), 30, 462);
   }
 }

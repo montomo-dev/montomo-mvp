@@ -1931,3 +1931,10 @@ export function createMonster(speciesId, level) {
     skills: species.learnset.filter((e) => e.level <= clampedLevel).map((e) => e.skill),
   };
 }
+
+// なかまのnameフィールドは生成時の日本語名を保持しているため、英語表示時は
+// 現在のspeciesIdから改めてnameEnを引く(進化後も正しい名前になる)
+export function monsterName(monster, lang = "ja") {
+  if (lang === "en") return SPECIES[monster.speciesId]?.nameEn || monster.name;
+  return monster.name;
+}
