@@ -1,5 +1,5 @@
 import { SKILLS } from "../data/skills.js";
-import { SPECIES } from "../data/monsters.js";
+import { SPECIES, monsterName } from "../data/monsters.js";
 import { ITEMS } from "../data/items.js";
 import { gainExp, expToNext, MAX_LEVEL } from "../systems/growth.js";
 import { MAX_PARTY, moveToFront } from "../systems/party.js";
@@ -10,18 +10,30 @@ import { ChoiceScene } from "./choice.js";
 import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
 import { getRank } from "../systems/rank.js";
 import { sfxHit, sfxFaint, sfxLevelUp, sfxEvolve, sfxCatchSuccess, sfxCatchFail, sfxConfirm, sfxCancel, sfxCry } from "../audio.js";
-import { typeOf, typeEffectiveness } from "../data/types.js";
-import { STATUS_LABEL, maybeInflictStatus, canAct, applyEndOfTurnStatus, clearStatus } from "../systems/status.js";
+import { typeOf, typeEffectiveness, typeNameEn } from "../data/types.js";
+import { STATUS_LABEL, STATUS_LABEL_EN, maybeInflictStatus, canAct, applyEndOfTurnStatus, clearStatus } from "../systems/status.js";
 import { bossIntroText, bossVictoryLines } from "../data/story.js";
+import { tr } from "../i18n.js";
 
-function effectivenessMessage(eff) {
-  if (eff === 0) return "こうかが ないようだ…";
-  if (eff > 1) return "こうかは ばつぐんだ！";
-  if (eff < 1) return "こうかは いまひとつの ようだ…";
+function effectivenessMessage(game, eff) {
+  if (eff === 0) return tr(game, "こうかが ないようだ…", "It doesn't seem to be effective...");
+  if (eff > 1) return tr(game, "こうかは ばつぐんだ！", "It's super effective!");
+  if (eff < 1) return tr(game, "こうかは いまひとつの ようだ…", "It's not very effective...");
   return null;
 }
 
-const COMMANDS = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "こうかん", "にげる", "ぼうぎょ"];
+function skillName(game, id) {
+  return tr(game, SKILLS[id].name, SKILLS[id].nameEn);
+}
+function itemName(game, item) {
+  return tr(game, item.name, item.nameEn);
+}
+function statusLabel(game, status) {
+  return tr(game, STATUS_LABEL[status], STATUS_LABEL_EN[status]);
+}
+
+const COMMANDS_JA = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "こうかん", "にげる", "ぼうぎょ"];
+const COMMANDS_EN = ["Attack", "Skill", "Scout", "Item", "Switch", "Flee", "Guard"];
 const COMMAND_COLS = [[0, 2, 4, 6], [1, 3, 5]];
 const COMMAND_POS = [
   [70, 398], [330, 398],
@@ -72,10 +84,11 @@ export class BattleScene {
     this.after = "command";
     this.recruitedMonster = null;
     this.rosterChoice = null;
+    const enemyName = monsterName(enemy, game.lang);
     this.queue = [
       this.isBoss
-        ? bossIntroText(enemy.speciesId, enemy.name)
-        : `やせいの ${enemy.name} が とびだしてきた！`,
+        ? bossIntroText(enemy.speciesId, enemyName, game.lang)
+        : tr(game, `やせいの ${enemyName} が とびだしてきた！`, `A wild ${enemyName} jumped out!`),
     ];
   }
 
@@ -147,9 +160,9 @@ export class BattleScene {
       const lostMoney = moneyBefore - this.game.money;
       const lostItems = loseUnimportantItems(this.game, 3);
 
-      let message = "いえまで はこばれて かいふくした…";
-      if (lostMoney > 0) message += ` おかねを ${lostMoney}えん おとした…`;
-      if (lostItems > 0) message += ` どうぐを ${lostItems}こ なくした…`;
+      let message = tr(this.game, "いえまで はこばれて かいふくした…", "You were carried home and healed up...");
+      if (lostMoney > 0) message += tr(this.game, ` おかねを ${lostMoney}えん おとした…`, ` You dropped ${lostMoney} money...`);
+      if (lostItems > 0) message += tr(this.game, ` どうぐを ${lostItems}こ なくした…`, ` You lost ${lostItems} item(s)...`);
       this.game.field.showToast(message);
     }
     for (const m of this.game.party) clearStatus(m);
@@ -221,15 +234,15 @@ export class BattleScene {
   }
 
   confirmRosterChoice() {
-    const name = this.recruitedMonster.name;
+    const name = monsterName(this.recruitedMonster, this.game.lang);
     if (this.rosterChoice === "party" && this.game.party.length < MAX_PARTY) {
       this.game.party.push(this.recruitedMonster);
-      this.say([`${name} が なかまに くわわった！`], "end");
+      this.say([tr(this.game, `${name} が なかまに くわわった！`, `${name} joined your team!`)], "end");
     } else {
       this.game.ranch.push(this.recruitedMonster);
       const message = this.rosterChoice === "party"
-        ? `てもちが いっぱいなので、${name} を まきばに おくった。`
-        : `${name} を まきばに おくった。`;
+        ? tr(this.game, `てもちが いっぱいなので、${name} を まきばに おくった。`, `Your party is full, so ${name} was sent to the ranch.`)
+        : tr(this.game, `${name} を まきばに おくった。`, `Sent ${name} to the ranch.`);
       this.say([message], "end");
     }
     this.recruitedMonster = null;
@@ -246,7 +259,7 @@ export class BattleScene {
       this.resolveTurn({ type: "attack" });
     } else if (index === 1) {
       if (this.ally.skills.length === 0) {
-        this.say(["まだ スキルを おぼえていない！"], "command");
+        this.say([tr(this.game, "まだ スキルを おぼえていない！", "No skills learned yet!")], "command");
       } else {
         this.phase = "skill";
         this.skillCursor = 0;
@@ -255,14 +268,14 @@ export class BattleScene {
       this.tryRecruit();
     } else if (index === 3) {
       if (this.ownedItemIds().length === 0) {
-        this.say(["どうぐを もっていない！"], "command");
+        this.say([tr(this.game, "どうぐを もっていない！", "You don't have any items!")], "command");
       } else {
         this.phase = "item";
         this.itemCursor = 0;
       }
     } else if (index === 4) {
       if (this.switchableEntries().length === 0) {
-        this.say(["ほかに たたかえる なかまが いない！"], "command");
+        this.say([tr(this.game, "ほかに たたかえる なかまが いない！", "No other party members can fight!")], "command");
       } else {
         this.phase = "switch";
         this.switchCursor = 0;
@@ -277,26 +290,42 @@ export class BattleScene {
   useItem(itemId) {
     const item = ITEMS[itemId];
     this.game.items[itemId]--;
+    const allyName = monsterName(this.ally, this.game.lang);
+    const iName = itemName(this.game, item);
     if (item.kind === "heal") {
       const before = this.ally.hp;
       this.ally.hp = Math.min(this.ally.maxHp, this.ally.hp + item.value);
       const healed = this.ally.hp - before;
-      const messages = [`${this.ally.name} に ${item.name}を つかった！`, `HPが ${healed} かいふくした！`];
+      const messages = [
+        tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
+        tr(this.game, `HPが ${healed} かいふくした！`, `Restored ${healed} HP!`),
+      ];
       if (item.cureStatus && this.ally.status) {
-        messages.push(`${this.ally.name} の じょうたいいじょうが なおった！`);
+        messages.push(tr(this.game, `${allyName} の じょうたいいじょうが なおった！`, `${allyName}'s status ailment was cured!`));
         clearStatus(this.ally);
       }
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "bait") {
       this.pendingBaitBonus = 1 + item.value;
-      const messages = [`${item.name}を なげた！`, `${this.enemy.name}が きょうみを しめしている…`];
+      const enemyName = monsterName(this.enemy, this.game.lang);
+      const messages = [
+        tr(this.game, `${iName}を なげた！`, `Threw ${iName}!`),
+        tr(this.game, `${enemyName}が きょうみを しめしている…`, `${enemyName} looks interested...`),
+      ];
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "stat_boost") {
       this.ally[item.stat] += item.value;
-      const label = item.stat === "atk" ? "こうげき" : item.stat === "def" ? "ぼうぎょ" : item.stat === "spd" ? "すばやさ" : item.stat;
-      const messages = [`${this.ally.name} に ${item.name}を つかった！`, `${label}が ${item.value} あがった！`];
+      const label = tr(
+        this.game,
+        item.stat === "atk" ? "こうげき" : item.stat === "def" ? "ぼうぎょ" : item.stat === "spd" ? "すばやさ" : item.stat,
+        item.stat === "atk" ? "Attack" : item.stat === "def" ? "Defense" : item.stat === "spd" ? "Speed" : item.stat
+      );
+      const messages = [
+        tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
+        tr(this.game, `${label}が ${item.value} あがった！`, `${label} rose by ${item.value}!`),
+      ];
       this.enemyAct(messages);
       this.finishTurn(messages);
     }
@@ -304,10 +333,16 @@ export class BattleScene {
 
   performAction(actor, target, action, messages) {
     const skill = action.type === "skill" ? SKILLS[action.skillId] : null;
-    messages.push(skill ? `${actor.name} の ${skill.name}！` : `${actor.name} の こうげき！`);
+    const actorName = monsterName(actor, this.game.lang);
+    const targetName = monsterName(target, this.game.lang);
+    messages.push(
+      skill
+        ? tr(this.game, `${actorName} の ${skillName(this.game, action.skillId)}！`, `${actorName} used ${skillName(this.game, action.skillId)}!`)
+        : tr(this.game, `${actorName} の こうげき！`, `${actorName} attacked!`)
+    );
     const accuracy = skill ? skill.accuracy : 100;
     if (Math.random() * 100 >= accuracy) {
-      messages.push("しかし はずれてしまった！");
+      messages.push(tr(this.game, "しかし はずれてしまった！", "But it missed!"));
       return;
     }
     const power = skill ? skill.power : 1.0;
@@ -318,19 +353,19 @@ export class BattleScene {
     damage = eff === 0 ? 0 : Math.max(1, Math.round(damage * eff));
     if (target === this.ally && this.allyGuarding) {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
-      messages.push(`${target.name} は ぼうぎょで こうげきを うけながした！`);
+      messages.push(tr(this.game, `${targetName} は ぼうぎょで こうげきを うけながした！`, `${targetName} guarded and softened the blow!`));
     }
     target.hp = Math.max(0, target.hp - damage);
     if (target === this.enemy) {
       this.totalDamageDealt += damage;
       if (this.bossState.charging) this.bossState.chargeDamage += damage;
     }
-    messages.push(`${target.name} に ${damage} の ダメージ！`);
-    const effMsg = effectivenessMessage(eff);
+    messages.push(tr(this.game, `${targetName} に ${damage} の ダメージ！`, `${damage} damage to ${targetName}!`));
+    const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (target.hp <= 0) sfxFaint();
     else sfxHit();
-    if (eff > 0) maybeInflictStatus(atkType, target, messages);
+    if (eff > 0) maybeInflictStatus(atkType, target, messages, this.game);
   }
 
   enemyAct(messages) {
@@ -348,12 +383,13 @@ export class BattleScene {
   bossEnemyAct(messages) {
     const state = this.bossState;
     const charge = this.bossAI.charge;
+    const enemyName = monsterName(this.enemy, this.game.lang);
     if (state.charging) {
       const breakLine = Math.round(this.enemy.maxHp * charge.breakRatio);
       state.charging = false;
       if (state.chargeDamage >= breakLine) {
         state.chargeDamage = 0;
-        messages.push(`${this.enemy.name} は ひるんで ためた ちからが きえてしまった！`);
+        messages.push(tr(this.game, `${enemyName} は ひるんで ためた ちからが きえてしまった！`, `${enemyName} flinched and lost its stored power!`));
         return;
       }
       state.chargeDamage = 0;
@@ -364,9 +400,9 @@ export class BattleScene {
     if (charge && state.turn % charge.interval === 0) {
       state.charging = true;
       state.chargeDamage = 0;
-      messages.push(`${this.enemy.name} は ちからを ためはじめた…！`);
+      messages.push(tr(this.game, `${enemyName} は ちからを ためはじめた…！`, `${enemyName} began gathering power...!`));
       if (state.turn === charge.interval) {
-        messages.push("「ぼうぎょ」で みをまもるか、こうげきを あてて ひるませろ！");
+        messages.push(tr(this.game, "「ぼうぎょ」で みをまもるか、こうげきを あてて ひるませろ！", "Guard to protect yourself, or land a hit to make it flinch!"));
       }
       return;
     }
@@ -384,17 +420,20 @@ export class BattleScene {
 
   releaseChargedAttack(messages) {
     const charge = this.bossAI.charge;
-    messages.push(`${this.enemy.name} の ${charge.name}！`);
+    const enemyName = monsterName(this.enemy, this.game.lang);
+    const allyName = monsterName(this.ally, this.game.lang);
+    const chargeName = tr(this.game, charge.name, charge.nameEn || charge.name);
+    messages.push(tr(this.game, `${enemyName} の ${chargeName}！`, `${enemyName} used ${chargeName}!`));
     const eff = typeEffectiveness(typeOf(this.enemy.speciesId), typeOf(this.ally.speciesId));
     let damage = Math.max(1, Math.round(this.enemy.atk * charge.power - this.ally.def / 2 + (Math.random() * 4 - 2)));
     damage = eff === 0 ? 0 : Math.max(1, Math.round(damage * eff));
     if (this.allyGuarding) {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
-      messages.push(`${this.ally.name} は ぼうぎょで なんとか こらえた！`);
+      messages.push(tr(this.game, `${allyName} は ぼうぎょで なんとか こらえた！`, `${allyName} managed to endure it by guarding!`));
     }
     this.ally.hp = Math.max(0, this.ally.hp - damage);
-    messages.push(`${this.ally.name} に ${damage} の ダメージ！`);
-    const effMsg = effectivenessMessage(eff);
+    messages.push(tr(this.game, `${allyName} に ${damage} の ダメージ！`, `${damage} damage to ${allyName}!`));
+    const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (this.ally.hp <= 0) sfxFaint();
     else sfxHit();
@@ -408,7 +447,7 @@ export class BattleScene {
       this.bossState.phase += 1;
       this.enemy.atk = Math.round(this.enemy.atk * next.atkMul);
       this.enemy.spd = Math.round(this.enemy.spd * next.spdMul);
-      messages.push(next.message);
+      messages.push(tr(this.game, next.message, next.messageEn || next.message));
     }
   }
 
@@ -419,9 +458,9 @@ export class BattleScene {
       moveToFront(this.game.party, playerAction.index);
       this.ally = this.game.party[0];
       this.shownHp.ally = this.ally.hp;
-      messages.push(`${this.ally.name} に こうたいした！`);
+      messages.push(tr(this.game, `${monsterName(this.ally, this.game.lang)} に こうたいした！`, `Switched to ${monsterName(this.ally, this.game.lang)}!`));
     } else if (this.allyGuarding) {
-      messages.push(`${this.ally.name} は みを まもっている！`);
+      messages.push(tr(this.game, `${monsterName(this.ally, this.game.lang)} は みを まもっている！`, `${monsterName(this.ally, this.game.lang)} is guarding!`));
     }
     const allyFirst =
       this.ally.spd > this.enemy.spd ||
@@ -431,17 +470,17 @@ export class BattleScene {
       if (this.ally.hp <= 0 || this.enemy.hp <= 0) break;
       if (side === "ally") {
         if (playerAction.type === "guard" || playerAction.type === "switch") continue;
-        if (!canAct(this.ally, messages)) continue;
+        if (!canAct(this.ally, messages, this.game)) continue;
         this.performAction(this.ally, this.enemy, playerAction, messages);
         this.checkBossPhase(messages);
       } else {
-        if (!canAct(this.enemy, messages)) continue;
+        if (!canAct(this.enemy, messages, this.game)) continue;
         this.enemyAct(messages);
       }
     }
     this.allyGuarding = false;
-    if (this.ally.hp > 0) applyEndOfTurnStatus(this.ally, messages);
-    if (this.enemy.hp > 0) applyEndOfTurnStatus(this.enemy, messages);
+    if (this.ally.hp > 0) applyEndOfTurnStatus(this.ally, messages, this.game);
+    if (this.enemy.hp > 0) applyEndOfTurnStatus(this.enemy, messages, this.game);
     this.finishTurn(messages);
   }
 
@@ -451,17 +490,18 @@ export class BattleScene {
       return;
     }
     if (this.ally.hp <= 0) {
-      messages.push(`${this.ally.name} は たおれてしまった…`);
+      const allyName = monsterName(this.ally, this.game.lang);
+      messages.push(tr(this.game, `${allyName} は たおれてしまった…`, `${allyName} fainted...`));
       const nextIndex = this.game.party.findIndex((m) => m.hp > 0);
       if (nextIndex !== -1) {
         moveToFront(this.game.party, nextIndex);
         this.ally = this.game.party[0];
         this.shownHp.ally = this.ally.hp;
-        messages.push(`${this.ally.name}、たのんだよ！`);
+        messages.push(tr(this.game, `${monsterName(this.ally, this.game.lang)}、たのんだよ！`, `Go, ${monsterName(this.ally, this.game.lang)}!`));
         this.say(messages, "command");
         return;
       }
-      messages.push("めのまえが まっくらに なった…");
+      messages.push(tr(this.game, "めのまえが まっくらに なった…", "Everything went dark before your eyes..."));
       this.say(messages, "gameover");
       return;
     }
@@ -473,24 +513,35 @@ export class BattleScene {
     const exp = enemySpecies.exp * this.enemy.level;
     const money = Math.max(3, Math.round(enemySpecies.exp * this.enemy.level * 0.4));
     this.game.money = (this.game.money || 0) + money;
+    const enemyName = monsterName(this.enemy, this.game.lang);
+    const allyName = monsterName(this.ally, this.game.lang);
     messages.push(
-      `${this.enemy.name} を たおした！`,
-      `${this.ally.name} は けいけんち ${exp} を てにいれた！`,
-      `${money} えんを ひろった！`
+      tr(this.game, `${enemyName} を たおした！`, `Defeated ${enemyName}!`),
+      tr(this.game, `${allyName} は けいけんち ${exp} を てにいれた！`, `${allyName} gained ${exp} EXP!`),
+      tr(this.game, `${money} えんを ひろった！`, `Found ${money} money!`)
     );
     for (const event of gainExp(this.ally, SPECIES, exp)) {
       if (event.type === "evolve") {
-        messages.push(`${event.from} は ${event.to} に しんかした！`);
+        const fromName = tr(this.game, event.from, SPECIES[event.fromSpeciesId]?.nameEn || event.from);
+        const toName = tr(this.game, event.to, SPECIES[event.speciesId]?.nameEn || event.to);
+        messages.push(tr(this.game, `${fromName} は ${toName} に しんかした！`, `${fromName} evolved into ${toName}!`));
         markCaught(this.game, event.speciesId);
         sfxEvolve();
         continue;
       }
-      messages.push(`${event.name} は レベル ${event.level} に あがった！`);
+      const levelupName = tr(this.game, event.name, SPECIES[event.speciesId]?.nameEn || event.name);
+      messages.push(tr(this.game, `${levelupName} は レベル ${event.level} に あがった！`, `${levelupName} reached level ${event.level}!`));
       sfxLevelUp();
       const g = event.gains;
-      messages.push(`HP+${g.maxHp}  こうげき+${g.atk}  ぼうぎょ+${g.def}  すばやさ+${g.spd}`);
+      messages.push(
+        tr(
+          this.game,
+          `HP+${g.maxHp}  こうげき+${g.atk}  ぼうぎょ+${g.def}  すばやさ+${g.spd}`,
+          `HP+${g.maxHp}  ATK+${g.atk}  DEF+${g.def}  SPD+${g.spd}`
+        )
+      );
       for (const skillId of event.learned) {
-        messages.push(`あたらしい スキル「${SKILLS[skillId].name}」を おぼえた！`);
+        messages.push(tr(this.game, `あたらしい スキル「${skillName(this.game, skillId)}」を おぼえた！`, `Learned the new skill "${skillName(this.game, skillId)}"!`));
       }
     }
 
@@ -507,10 +558,12 @@ export class BattleScene {
       }
     }
     for (const event of reserveEvolutions) {
-      messages.push(`ひかえの ${event.from} は ${event.to} に しんかした！`);
+      const fromName = tr(this.game, event.from, SPECIES[event.fromSpeciesId]?.nameEn || event.from);
+      const toName = tr(this.game, event.to, SPECIES[event.speciesId]?.nameEn || event.to);
+      messages.push(tr(this.game, `ひかえの ${fromName} は ${toName} に しんかした！`, `Your reserve ${fromName} evolved into ${toName}!`));
     }
     if (reserveEvolutions.length === 0 && this.game.party.length > 1) {
-      messages.push("ひかえの なかまも けいけんちを わけあった。");
+      messages.push(tr(this.game, "ひかえの なかまも けいけんちを わけあった。", "Your reserve party members also shared in the EXP."));
     }
 
     const ranchExp = Math.round(exp * 0.1);
@@ -527,7 +580,7 @@ export class BattleScene {
       this.game.flags.stageClearedFlags[this.stageId] = true;
       this.game.flags.bossDefeated = true;
       this.game.save();
-      messages.push(...bossVictoryLines(this.enemy.speciesId, this.enemy.name));
+      messages.push(...bossVictoryLines(this.enemy.speciesId, enemyName, this.game.lang));
       this.say(messages, "ending");
     } else {
       this.say(messages, "end");
@@ -536,7 +589,7 @@ export class BattleScene {
 
   tryRecruit() {
     if (this.isBoss) {
-      this.say(["ヌシは なかまに なる きは なさそうだ！"], "command");
+      this.say([tr(this.game, "ヌシは なかまに なる きは なさそうだ！", "The Nushi shows no sign of wanting to join you!")], "command");
       return;
     }
     const species = SPECIES[this.enemy.speciesId];
@@ -556,23 +609,25 @@ export class BattleScene {
       ((powerRate + damageRate) * baitMultiplier * rarityMultiplier) / 100 / (ownedCount + 1)
     ));
     const percentage = Math.round(chance * 100);
+    const allyName = monsterName(this.ally, this.game.lang);
+    const enemyName = monsterName(this.enemy, this.game.lang);
     const messages = [
-      `${this.ally.name} は ${this.enemy.name} を なかまに さそった！`,
-      `せいこうりつ ${percentage}%`,
+      tr(this.game, `${allyName} は ${enemyName} を なかまに さそった！`, `${allyName} tried to scout ${enemyName}!`),
+      tr(this.game, `せいこうりつ ${percentage}%`, `Success rate ${percentage}%`),
     ];
     if (Math.random() < chance) {
       this.enemy.hp = this.enemy.maxHp;
       clearStatus(this.enemy);
       markCaught(this.game, this.enemy.speciesId);
       messages.push(
-        `${this.enemy.name} は うれしそうに ちかづいてきた！`,
-        `${this.enemy.name} が なかまに くわわった！`
+        tr(this.game, `${enemyName} は うれしそうに ちかづいてきた！`, `${enemyName} approached happily!`),
+        tr(this.game, `${enemyName} が なかまに くわわった！`, `${enemyName} joined your team!`)
       );
       this.recruitedMonster = this.enemy;
       sfxCatchSuccess();
       this.say(messages, "chooseRoster");
     } else {
-      messages.push(`${this.enemy.name} は そっぽを むいてしまった…`);
+      messages.push(tr(this.game, `${enemyName} は そっぽを むいてしまった…`, `${enemyName} turned away...`));
       sfxCatchFail();
       this.enemyAct(messages);
       this.finishTurn(messages);
@@ -582,9 +637,9 @@ export class BattleScene {
   tryFlee() {
     const chance = Math.max(0.25, Math.min(0.9, 0.55 + (this.ally.spd - this.enemy.spd) * 0.04));
     if (Math.random() < chance) {
-      this.say([`${this.ally.name} は うまく にげだした！`], "end");
+      this.say([tr(this.game, `${monsterName(this.ally, this.game.lang)} は うまく にげだした！`, `${monsterName(this.ally, this.game.lang)} got away safely!`)], "end");
     } else {
-      const messages = ["にげられなかった！"];
+      const messages = [tr(this.game, "にげられなかった！", "Couldn't get away!")];
       this.enemyAct(messages);
       this.finishTurn(messages);
     }
@@ -608,7 +663,7 @@ export class BattleScene {
       drawMonster(ctx, this.enemy.speciesId, 470, 150, 1.6, this.time);
     }
     drawMonster(ctx, this.ally.speciesId, 170, 305, 1.3, this.time + 1.7, this.ally.tintHue || 0);
-    if (this.phase === "message" && (this.queue[0] || "").includes("しんかした")) {
+    if (this.phase === "message" && ((this.queue[0] || "").includes("しんかした") || (this.queue[0] || "").includes("evolved into"))) {
       this.drawEvolveSparkle(ctx, 170, 305);
     }
 
@@ -616,24 +671,27 @@ export class BattleScene {
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
-    const rareLabel = SPECIES[this.enemy.speciesId].rare ? "  ★レア" : "";
+    const rareLabel = SPECIES[this.enemy.speciesId].rare ? tr(this.game, "  ★レア", "  ★Rare") : "";
     const rank = getRank(SPECIES[this.enemy.speciesId]);
-    const enemyType = typeOf(this.enemy.speciesId);
-    const enemyStatus = this.enemy.status ? `  [${STATUS_LABEL[this.enemy.status]}]` : "";
-    const ownedLabel = (this.game.dex?.caught || []).includes(this.enemy.speciesId) ? "  ✓なかまずみ" : "";
-    ctx.fillText(`${this.enemy.name}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 40);
+    const enemyType = tr(this.game, typeOf(this.enemy.speciesId), typeNameEn(typeOf(this.enemy.speciesId)));
+    const enemyStatus = this.enemy.status ? `  [${statusLabel(this.game, this.enemy.status)}]` : "";
+    const ownedLabel = (this.game.dex?.caught || []).includes(this.enemy.speciesId) ? tr(this.game, "  ✓なかまずみ", "  ✓Caught") : "";
+    ctx.fillText(`${monsterName(this.enemy, this.game.lang)}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 40);
     hpBar(ctx, 30, 52, 220, 12, this.shownHp.enemy / this.enemy.maxHp);
 
     panel(ctx, 372, 234, 252, 108);
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
-    const allyStatus = this.ally.status ? `  [${STATUS_LABEL[this.ally.status]}]` : "";
-    ctx.fillText(`${this.ally.name}  Lv.${this.ally.level}  ${typeOf(this.ally.speciesId)}${allyStatus}`, 388, 262);
+    const allyStatus = this.ally.status ? `  [${statusLabel(this.game, this.ally.status)}]` : "";
+    const allyType = tr(this.game, typeOf(this.ally.speciesId), typeNameEn(typeOf(this.ally.speciesId)));
+    ctx.fillText(`${monsterName(this.ally, this.game.lang)}  Lv.${this.ally.level}  ${allyType}${allyStatus}`, 388, 262);
     hpBar(ctx, 388, 274, 220, 14, this.shownHp.ally / this.ally.maxHp);
     ctx.font = FONT;
     ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))} / ${this.ally.maxHp}`, 388, 310);
     ctx.fillText(
-      this.ally.level >= MAX_LEVEL ? "レベル MAX" : `つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`,
+      this.ally.level >= MAX_LEVEL
+        ? tr(this.game, "レベル MAX", "Level MAX")
+        : tr(this.game, `つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`, `${expToNext(this.ally.level) - this.ally.exp} EXP to next level`),
       388, 332
     );
 
@@ -642,41 +700,43 @@ export class BattleScene {
     if (this.phase === "message") {
       ctx.font = FONT_BOLD;
       const text = this.queue[0] || "";
-      this.drawWrapped(ctx, text, 36, 384, 34);
+      this.drawWrapped(ctx, text, 36, 384, this.game.lang === "en" ? 50 : 34);
       if (Math.sin(this.time * 6) > 0) {
         ctx.fillText("▼", 596, 452);
       }
     } else if (this.phase === "command") {
       ctx.font = FONT;
-      ctx.fillText(`${this.ally.name} は どうする？`, 36, 374);
+      ctx.fillText(tr(this.game, `${monsterName(this.ally, this.game.lang)} は どうする？`, `What will ${monsterName(this.ally, this.game.lang)} do?`), 36, 374);
       ctx.font = FONT_BOLD;
-      COMMANDS.forEach((command, i) => {
+      const commands = tr(this.game, COMMANDS_JA, COMMANDS_EN);
+      commands.forEach((command, i) => {
         ctx.fillText(command, COMMAND_POS[i][0], COMMAND_POS[i][1]);
         if (this.cursor === i) ctx.fillText("▶", COMMAND_POS[i][0] - 26, COMMAND_POS[i][1]);
       });
     } else if (this.phase === "skill") {
       ctx.font = FONT;
-      ctx.fillText("どの スキルを つかう？（X: もどる）", 36, 374);
+      ctx.fillText(tr(this.game, "どの スキルを つかう？（X: もどる）", "Which skill? (X: Back)"), 36, 374);
       ctx.font = FONT_BOLD;
       this.drawScrollList(ctx, this.ally.skills, this.skillCursor, (skillId, x, y) => {
-        ctx.fillText(`${SKILLS[skillId].name}（${SKILLS[skillId].type}）`, x, y);
+        const typeLabel = tr(this.game, SKILLS[skillId].type, typeNameEn(SKILLS[skillId].type));
+        ctx.fillText(`${skillName(this.game, skillId)}（${typeLabel}）`, x, y);
       });
     } else if (this.phase === "item") {
       ctx.font = FONT;
-      ctx.fillText("どの どうぐを つかう？（X: もどる）", 36, 374);
+      ctx.fillText(tr(this.game, "どの どうぐを つかう？（X: もどる）", "Which item? (X: Back)"), 36, 374);
       ctx.font = FONT_BOLD;
       const owned = this.ownedItemIds();
       this.drawScrollList(ctx, owned, this.itemCursor, (itemId, x, y) => {
         const item = ITEMS[itemId];
-        ctx.fillText(`${item.name} × ${this.game.items[itemId]}`, x, y);
+        ctx.fillText(`${itemName(this.game, item)} × ${this.game.items[itemId]}`, x, y);
       });
     } else if (this.phase === "chooseRoster") {
       ctx.font = FONT;
-      ctx.fillText("どこに いれますか？", 36, 374);
+      ctx.fillText(tr(this.game, "どこに いれますか？", "Where should it go?"), 36, 374);
       ctx.font = FONT_BOLD;
       const choices = [
-        { label: "てもちに いれる", y: 402, key: "Z" },
-        { label: "まきばに おくる", y: 428, key: "X" },
+        { label: tr(this.game, "てもちに いれる", "Add to party"), y: 402, key: "Z" },
+        { label: tr(this.game, "まきばに おくる", "Send to ranch"), y: 428, key: "X" },
       ];
       choices.forEach(({ label, y, key }) => {
         ctx.fillText(label, 70, y);
@@ -684,12 +744,12 @@ export class BattleScene {
       });
     } else if (this.phase === "switch") {
       ctx.font = FONT;
-      ctx.fillText("だれと こうたいする？（X: もどる）", 36, 374);
+      ctx.fillText(tr(this.game, "だれと こうたいする？（X: もどる）", "Switch to whom? (X: Back)"), 36, 374);
       ctx.font = FONT_BOLD;
       this.switchableEntries().forEach(({ m }, i) => {
         const y = 400 + i * 24;
-        const statusLabel = m.status ? `［${STATUS_LABEL[m.status]}］` : "";
-        ctx.fillText(`${m.name}  Lv.${m.level}  HP ${m.hp}/${m.maxHp} ${statusLabel}`, 70, y);
+        const label = m.status ? `［${statusLabel(this.game, m.status)}］` : "";
+        ctx.fillText(`${monsterName(m, this.game.lang)}  Lv.${m.level}  HP ${m.hp}/${m.maxHp} ${label}`, 70, y);
         if (this.switchCursor === i) ctx.fillText("▶", 44, y);
       });
     }

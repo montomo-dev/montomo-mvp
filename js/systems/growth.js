@@ -45,6 +45,7 @@ export function gainExp(monster, speciesTable, amount) {
       type: "levelup",
       level: monster.level,
       name: monster.name,
+      speciesId: species.id,
       gains: {
         maxHp: after.maxHp - before.maxHp,
         atk: after.atk - before.atk,
@@ -56,6 +57,7 @@ export function gainExp(monster, speciesTable, amount) {
 
     if (species.evolvesAt && monster.level >= species.evolvesAt) {
       const fromName = monster.name;
+      const fromSpeciesId = species.id;
       const evolved = speciesTable[species.evolvesTo];
       const evoBefore = { maxHp: monster.maxHp, atk: monster.atk, def: monster.def, spd: monster.spd };
       const evoAfter = statsFor(evolved, monster.level);
@@ -67,7 +69,14 @@ export function gainExp(monster, speciesTable, amount) {
       monster.spd = evoAfter.spd;
       monster.hp = Math.min(monster.maxHp, monster.hp + (evoAfter.maxHp - evoBefore.maxHp));
       species = evolved;
-      events.push({ type: "evolve", level: monster.level, from: fromName, to: evolved.name, speciesId: evolved.id });
+      events.push({
+        type: "evolve",
+        level: monster.level,
+        from: fromName,
+        fromSpeciesId,
+        to: evolved.name,
+        speciesId: evolved.id,
+      });
     }
   }
   if (monster.level >= MAX_LEVEL) monster.exp = 0;

@@ -470,9 +470,9 @@ export const SPECIES = {
     boss: true,
     bossAI: {
       phases: [
-        { below: 0.5, atkMul: 1.2, spdMul: 1.1, message: "モリノヌシの けが さかだった！" },
+        { below: 0.5, atkMul: 1.2, spdMul: 1.1, message: "モリノヌシの けが さかだった！", messageEn: "Nushi's fur bristled up!" },
       ],
-      charge: { interval: 4, power: 2.0, name: "もりのおたけび", breakRatio: 0.12 },
+      charge: { interval: 4, power: 2.0, name: "もりのおたけび", nameEn: "Forest Roar", breakRatio: 0.12 },
     },
     learnset: [
       { level: 1, skill: "seiryokuha" },
@@ -492,9 +492,9 @@ export const SPECIES = {
     boss: true,
     bossAI: {
       phases: [
-        { below: 0.5, atkMul: 1.25, spdMul: 1.15, message: "ウラノヌシの かげが おおきく ゆらいだ！" },
+        { below: 0.5, atkMul: 1.25, spdMul: 1.15, message: "ウラノヌシの かげが おおきく ゆらいだ！", messageEn: "Reverse Nushi's shadow wavered violently!" },
       ],
-      charge: { interval: 4, power: 2.2, name: "うらがえしの ほうこう", breakRatio: 0.12 },
+      charge: { interval: 4, power: 2.2, name: "うらがえしの ほうこう", nameEn: "Inversion Howl", breakRatio: 0.12 },
     },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
@@ -680,9 +680,9 @@ export const SPECIES = {
     boss: true,
     bossAI: {
       phases: [
-        { below: 0.5, atkMul: 1.25, spdMul: 1.2, message: "シンカイヌシの まわりに うずが まきおこった！" },
+        { below: 0.5, atkMul: 1.25, spdMul: 1.2, message: "シンカイヌシの まわりに うずが まきおこった！", messageEn: "A whirlpool churned up around Sea Nushi!" },
       ],
-      charge: { interval: 3, power: 2.2, name: "しんかいの うず", breakRatio: 0.1 },
+      charge: { interval: 3, power: 2.2, name: "しんかいの うず", nameEn: "Deep Sea Vortex", breakRatio: 0.1 },
     },
     learnset: [
       { level: 1, skill: "gantekiotoshi" },
@@ -768,9 +768,9 @@ export const SPECIES = {
     boss: true,
     bossAI: {
       phases: [
-        { below: 0.5, atkMul: 1.3, spdMul: 1.2, message: "ヒョウガヌシの ひとみが あおく こおりついた！" },
+        { below: 0.5, atkMul: 1.3, spdMul: 1.2, message: "ヒョウガヌシの ひとみが あおく こおりついた！", messageEn: "Hyouga Nushi's eyes froze a deep blue!" },
       ],
-      charge: { interval: 3, power: 2.3, name: "ぜったいれいどの いき", breakRatio: 0.1 },
+      charge: { interval: 3, power: 2.3, name: "ぜったいれいどの いき", nameEn: "Absolute Zero Breath", breakRatio: 0.1 },
     },
     learnset: [
       { level: 1, skill: "hibiwareGeki" },
@@ -855,9 +855,9 @@ export const SPECIES = {
     boss: true,
     bossAI: {
       phases: [
-        { below: 0.5, atkMul: 1.3, spdMul: 1.25, message: "スナヌシの からだから すなが ふきあれた！" },
+        { below: 0.5, atkMul: 1.3, spdMul: 1.25, message: "スナヌシの からだから すなが ふきあれた！", messageEn: "Sand whipped up furiously from Suna Nushi's body!" },
       ],
-      charge: { interval: 3, power: 2.3, name: "さばくの すなあらし", breakRatio: 0.1 },
+      charge: { interval: 3, power: 2.3, name: "さばくの すなあらし", nameEn: "Desert Sandstorm", breakRatio: 0.1 },
     },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
@@ -943,9 +943,9 @@ export const SPECIES = {
     boss: true,
     bossAI: {
       phases: [
-        { below: 0.5, atkMul: 1.35, spdMul: 1.25, message: "コウジョウヌシの はぐるまが まっかに かそくした！" },
+        { below: 0.5, atkMul: 1.35, spdMul: 1.25, message: "コウジョウヌシの はぐるまが まっかに かそくした！", messageEn: "Koujou Nushi's gears glowed red-hot and accelerated!" },
       ],
-      charge: { interval: 3, power: 2.4, name: "ばくねつプレス", breakRatio: 0.1 },
+      charge: { interval: 3, power: 2.4, name: "ばくねつプレス", nameEn: "Scorching Press", breakRatio: 0.1 },
     },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
@@ -998,10 +998,10 @@ export const SPECIES = {
     boss: true,
     bossAI: {
       phases: [
-        { below: 0.5, atkMul: 1.3, spdMul: 1.2, message: "マオウの ほんとうの ちからが めざめはじめた！" },
-        { below: 0.25, atkMul: 1.25, spdMul: 1.2, message: "マオウは はっきょうした！ くらやみが うずまく！" },
+        { below: 0.5, atkMul: 1.3, spdMul: 1.2, message: "マオウの ほんとうの ちからが めざめはじめた！", messageEn: "The Demon Lord's true power began to awaken!" },
+        { below: 0.25, atkMul: 1.25, spdMul: 1.2, message: "マオウは はっきょうした！ くらやみが うずまく！", messageEn: "The Demon Lord went into a frenzy! Darkness swirls!" },
       ],
-      charge: { interval: 3, power: 2.6, name: "まおうの ごうか", breakRatio: 0.08 },
+      charge: { interval: 3, power: 2.6, name: "まおうの ごうか", nameEn: "Demonic Blaze", breakRatio: 0.08 },
     },
     learnset: [
       { level: 1, skill: "daibakuhatsu" },
