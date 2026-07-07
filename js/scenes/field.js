@@ -5,12 +5,18 @@ import { PokedexScene } from "./pokedex.js";
 import { ShopScene } from "./shop.js";
 import { ChoiceScene } from "./choice.js";
 import { WarpScene } from "./warp.js";
-import { createMonster, rollWildSpecies } from "../data/monsters.js";
+import { createMonster, rollWildSpecies, monsterName } from "../data/monsters.js";
 import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS, parseTileChar } from "../data/stages.js";
 import { drawCompanion, drawPlayer } from "../sprites.js";
 import { panel, hpBar, FONT_BOLD } from "../ui.js";
 import { sfxSave, sfxItemGet } from "../audio.js";
 import { canClaimLegend, grantLegendReward } from "../systems/legend.js";
+import { ITEMS } from "../data/items.js";
+import { tr } from "../i18n.js";
+
+function stageLabel(game, stage) {
+  return tr(game, stage.shortName, stage.nameEn);
+}
 
 const TILE = 40;
 const T_BUSH = TILE_TYPES.BUSH;
@@ -138,7 +144,10 @@ export class FieldScene {
     this.updateParticles(dt);
     if (canClaimLegend(this.game)) {
       const gained = grantLegendReward(this.game, createMonster);
-      if (gained) this.showToast(`レジェンド解放！ ${gained.name} を てにいれた！`);
+      if (gained) {
+        const name = monsterName(gained, this.game.lang);
+        this.showToast(tr(this.game, `レジェンド解放！ ${name} を てにいれた！`, `Legend unlocked! You got ${name}!`));
+      }
     }
     if (this.toast && (this.toast.timer -= dt) <= 0) this.toast = null;
     if (this.flash > 0) {
@@ -155,7 +164,7 @@ export class FieldScene {
     if (input.wasPressed("save")) {
       const ok = this.game.save();
       if (ok) sfxSave();
-      this.showToast(ok ? "ぼうけんを セーブしたよ！" : "セーブに しっぱいした…");
+      this.showToast(ok ? tr(this.game, "ぼうけんを セーブしたよ！", "Adventure saved!") : tr(this.game, "セーブに しっぱいした…", "Save failed..."));
       return;
     }
     if (input.wasPressed("cancel")) {
@@ -199,7 +208,7 @@ export class FieldScene {
   onStep(tile) {
     if (tile === T_SPRING) {
       for (const m of this.game.party) m.hp = m.maxHp;
-      this.showToast("いずみの ちからで みんな げんきに なった！");
+      this.showToast(tr(this.game, "いずみの ちからで みんな げんきに なった！", "The spring's power restored everyone!"));
       return;
     }
     if (tile === T_BOSS) {
@@ -212,9 +221,9 @@ export class FieldScene {
           this.game.changeScene(new ChoiceScene(this.game));
         } else if (WORLD_TRANSITIONS[this.stageId]) {
           const nextStage = getStage(WORLD_TRANSITIONS[this.stageId]);
-          this.moveStage(nextStage.id, "start", `${nextStage.shortName} に すすんだ！`);
+          this.moveStage(nextStage.id, "start", tr(this.game, `${stageLabel(this.game, nextStage)} に すすんだ！`, `Advanced to ${stageLabel(this.game, nextStage)}!`));
         } else {
-          this.showToast("しずかな けはいが ただよっている…");
+          this.showToast(tr(this.game, "しずかな けはいが ただよっている…", "A quiet presence lingers here..."));
         }
         return;
       }
@@ -234,26 +243,26 @@ export class FieldScene {
     if (tile === T_INN) {
       for (const m of this.game.party) m.hp = m.maxHp;
       this.game.save();
-      this.showToast("やどやで ぐっすり やすみ、げんきを とりもどした！");
+      this.showToast(tr(this.game, "やどやで ぐっすり やすみ、げんきを とりもどした！", "You rested well at the inn and recovered!"));
       return;
     }
     if (tile === T_TOWN_ENTER && this.stage.townStage) {
-      this.moveStage(this.stage.townStage, "fromField", "まちに はいった！");
+      this.moveStage(this.stage.townStage, "fromField", tr(this.game, "まちに はいった！", "Entered the town!"));
       return;
     }
     if (tile === T_TOWN_EXIT && this.stage.townExitStage) {
       const exitStage = getStage(this.stage.townExitStage);
-      this.moveStage(exitStage.id, "fromTown", `${exitStage.shortName} に もどった`);
+      this.moveStage(exitStage.id, "fromTown", tr(this.game, `${stageLabel(this.game, exitStage)} に もどった`, `Returned to ${stageLabel(this.game, exitStage)}`));
       return;
     }
     if (tile === T_NEXT && this.stage.nextStage) {
       const nextStage = getStage(this.stage.nextStage);
-      this.moveStage(nextStage.id, "fromPrev", `${nextStage.shortName} に すすんだ！`);
+      this.moveStage(nextStage.id, "fromPrev", tr(this.game, `${stageLabel(this.game, nextStage)} に すすんだ！`, `Advanced to ${stageLabel(this.game, nextStage)}!`));
       return;
     }
     if (tile === T_PREV && this.stage.prevStage) {
       const prevStage = getStage(this.stage.prevStage);
-      this.moveStage(prevStage.id, "fromNext", `${prevStage.shortName} に もどった`);
+      this.moveStage(prevStage.id, "fromNext", tr(this.game, `${stageLabel(this.game, prevStage)} に もどった`, `Returned to ${stageLabel(this.game, prevStage)}`));
       return;
     }
     if (tile === T_BUSH && this.game.party.length > 0) {
@@ -276,7 +285,8 @@ export class FieldScene {
 
   talkToNpc(x, y) {
     const npc = (this.stage.npcs || []).find((n) => n.x === x && n.y === y);
-    this.showToast(npc ? npc.line : "……");
+    const line = npc ? tr(this.game, npc.line, npc.lineEn || npc.line) : "……";
+    this.showToast(line);
   }
 
   checkTreasureAt(x, y) {
@@ -290,11 +300,11 @@ export class FieldScene {
             const [minLevel, maxLevel] = this.stage.wildLevels;
             const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
             this.pendingEnemy = createMonster("takarabox", level);
-            this.showToast("たからばこは タカラボックスだった！");
+            this.showToast(tr(this.game, "たからばこは タカラボックスだった！", "The treasure chest was a Takarabox!"));
             this.flash = 0.45;
           } else {
             this.game.money += treasure.money;
-            this.showToast(`お金を ${treasure.money} えた！`);
+            this.showToast(tr(this.game, `お金を ${treasure.money} えた！`, `Found ${treasure.money} money!`));
             sfxItemGet();
           }
           this.game.save();
@@ -312,7 +322,8 @@ export class FieldScene {
         if (!this.game.groundItemState[itemKey]) {
           this.game.groundItemState[itemKey] = true;
           this.game.items[item.itemId] = (this.game.items[item.itemId] || 0) + 1;
-          this.showToast(`${item.itemId} を てにいれた！`);
+          const gotItemName = tr(this.game, ITEMS[item.itemId].name, ITEMS[item.itemId].nameEn);
+          this.showToast(tr(this.game, `${gotItemName} を てにいれた！`, `Got ${gotItemName}!`));
           sfxItemGet();
           this.game.save();
         }
@@ -323,21 +334,25 @@ export class FieldScene {
 
   currentTileMessage() {
     const tile = this.tileAt(this.player.x, this.player.y);
-    if (tile === T_BUSH) return "くさむら: であいに ちゅうい";
-    if (tile === T_SPRING) return "いずみ: HP ぜんかいふく";
-    if (tile === T_RANCH) return "まきば: なかまの いれかえ";
-    if (tile === T_SHOP) return "どうぐや: アイテムを かえる";
-    if (tile === T_INN) return "やどや: HP ぜんかいふく + セーブ";
-    if (tile === T_TOWN_ENTER) return "まちの いりぐち";
-    if (tile === T_TOWN_EXIT) return "まちの でぐち";
-    if (tile === T_NEXT && this.stage.nextStage) return `${getStage(this.stage.nextStage).shortName}: つぎへ すすむ`;
-    if (tile === T_PREV && this.stage.prevStage) return `${getStage(this.stage.prevStage).shortName}: ひとつ もどる`;
+    if (tile === T_BUSH) return tr(this.game, "くさむら: であいに ちゅうい", "Tall grass: watch for encounters");
+    if (tile === T_SPRING) return tr(this.game, "いずみ: HP ぜんかいふく", "Spring: fully restores HP");
+    if (tile === T_RANCH) return tr(this.game, "まきば: なかまの いれかえ", "Ranch: swap party members");
+    if (tile === T_SHOP) return tr(this.game, "どうぐや: アイテムを かえる", "Shop: buy items");
+    if (tile === T_INN) return tr(this.game, "やどや: HP ぜんかいふく + セーブ", "Inn: fully restores HP + saves");
+    if (tile === T_TOWN_ENTER) return tr(this.game, "まちの いりぐち", "Town entrance");
+    if (tile === T_TOWN_EXIT) return tr(this.game, "まちの でぐち", "Town exit");
+    if (tile === T_NEXT && this.stage.nextStage) {
+      return tr(this.game, `${stageLabel(this.game, getStage(this.stage.nextStage))}: つぎへ すすむ`, `${stageLabel(this.game, getStage(this.stage.nextStage))}: Move forward`);
+    }
+    if (tile === T_PREV && this.stage.prevStage) {
+      return tr(this.game, `${stageLabel(this.game, getStage(this.stage.prevStage))}: ひとつ もどる`, `${stageLabel(this.game, getStage(this.stage.prevStage))}: Go back`);
+    }
     if (tile === T_BOSS) {
       return this.game.flags && this.game.flags.bossDefeated
-        ? "おくのもり: しずかな きはい"
-        : "おくのもり: ヌシが いる";
+        ? tr(this.game, "おくのもり: しずかな きはい", "Deep forest: a quiet presence")
+        : tr(this.game, "おくのもり: ヌシが いる", "Deep forest: a Nushi is here");
     }
-    return `${this.stage.name}: なかまを そだてよう`;
+    return tr(this.game, `${this.stage.name}: なかまを そだてよう`, `${stageLabel(this.game, this.stage)}: Raise your friends`);
   }
 
   draw(ctx) {
@@ -505,23 +520,26 @@ export class FieldScene {
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "left";
-      ctx.fillText(`${this.stage.shortName}  ${leader.name} Lv.${leader.level}`, 26, 38);
+      ctx.fillText(`${stageLabel(this.game, this.stage)}  ${monsterName(leader, this.game.lang)} Lv.${leader.level}`, 26, 38);
       hpBar(ctx, 26, 48, 136, 12, leader.hp / leader.maxHp);
       ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
       ctx.fillText(`HP ${leader.hp}/${leader.maxHp}`, 26, 74);
-      ctx.fillText(`なかま ${this.game.party.length}たい`, 174, 56);
+      ctx.fillText(tr(this.game, `なかま ${this.game.party.length}たい`, `Party ${this.game.party.length}`), 174, 56);
     }
 
     panel(ctx, 396, 12, 232, 74);
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
-    ctx.fillText(this.stage.name, 412, 38);
+    ctx.fillText(stageLabel(this.game, this.stage), 412, 38);
     ctx.textAlign = "right";
-    ctx.fillText(`${this.game.money || 0}円`, 612, 38);
+    ctx.fillText(tr(this.game, `${this.game.money || 0}円`, `${this.game.money || 0}g`), 612, 38);
     ctx.textAlign = "left";
     ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText(`みつけた ${this.game.dex.seen.length} / なかま ${this.game.dex.caught.length}`, 412, 58);
+    ctx.fillText(
+      tr(this.game, `みつけた ${this.game.dex.seen.length} / なかま ${this.game.dex.caught.length}`, `Seen ${this.game.dex.seen.length} / Caught ${this.game.dex.caught.length}`),
+      412, 58
+    );
     ctx.fillText(this.currentTileMessage(), 412, 78);
 
     if (this.toast) {

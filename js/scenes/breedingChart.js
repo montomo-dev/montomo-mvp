@@ -3,6 +3,7 @@ import { SPECIAL_RESULTS } from "../systems/breeding.js";
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { sfxSelect, sfxCancel } from "../audio.js";
+import { tr } from "../i18n.js";
 
 const ROW_H = 46;
 const PAGE_SIZE = 8;
@@ -64,7 +65,7 @@ export class BreedingChartScene {
     ctx.fillStyle = "#3a3a52";
     ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "center";
-    ctx.fillText(species.name, x + 20, y + 46);
+    ctx.fillText(tr(this.game, species.name, species.nameEn), x + 20, y + 46);
     ctx.textAlign = "left";
   }
 
@@ -74,11 +75,11 @@ export class BreedingChartScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText("配合表", 30, 44);
+    ctx.fillText(tr(this.game, "配合表", "Breeding Chart"), 30, 44);
     ctx.font = FONT;
     if (this.totalPages > 1) {
       ctx.textAlign = "right";
-      ctx.fillText(`${this.page + 1} / ${this.totalPages} ページ`, 610, 44);
+      ctx.fillText(tr(this.game, `${this.page + 1} / ${this.totalPages} ページ`, `Page ${this.page + 1} / ${this.totalPages}`), 610, 44);
       ctx.textAlign = "left";
     }
 
@@ -113,20 +114,24 @@ export class BreedingChartScene {
       if (seenA && seenB && !seenChild) {
         ctx.fillStyle = "#e8842e";
         ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-        ctx.fillText("この組み合わせ、ためしてみる？", 300, y + 26);
+        ctx.fillText(tr(this.game, "この組み合わせ、ためしてみる？", "Why not try this combination?"), 300, y + 26);
       }
     });
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
     ctx.fillText(
-      "↑↓: えらぶ ／ X または D: もどる",
+      tr(this.game, "↑↓: えらぶ ／ X または D: もどる", "Up/Down: Choose / X or D: Back"),
       30, 440
     );
     ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.fillStyle = "#a8a8c0";
     ctx.fillText(
-      "上記以外の組み合わせでは、親のどちらかの姿が子に受け継がれます。",
+      tr(
+        this.game,
+        "上記以外の組み合わせでは、親のどちらかの姿が子に受け継がれます。",
+        "For any other combination, the child takes after one of its two parents."
+      ),
       30, 462
     );
   }
