@@ -124,3 +124,23 @@ export const SPECIES_TYPE = {
 export function typeOf(speciesId) {
   return SPECIES_TYPE[speciesId] || "ノーマル";
 }
+
+const TYPE_NAME_EN = {
+  くさ: "Grass",
+  ほのお: "Fire",
+  みず: "Water",
+  でんき: "Electric",
+  こおり: "Ice",
+  じめん: "Ground",
+  ひこう: "Flying",
+  はがね: "Steel",
+  あく: "Dark",
+  ゴースト: "Ghost",
+  いわ: "Rock",
+  むし: "Bug",
+  ノーマル: "Normal",
+};
+
+export function typeNameEn(type) {
+  return TYPE_NAME_EN[type] || type;
+}

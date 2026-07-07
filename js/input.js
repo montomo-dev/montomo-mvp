@@ -12,6 +12,7 @@ const KEYMAP = {
   Escape: "cancel",
   KeyM: "mute",
   KeyW: "warp",
+  KeyL: "lang",
 };
 
 export class Input {

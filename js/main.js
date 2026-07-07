@@ -7,6 +7,7 @@ import { saveGame } from "./systems/save.js";
 import { markCaught } from "./systems/dex.js";
 import { toggleMute, isMuted } from "./audio.js";
 import { clearStatus } from "./systems/status.js";
+import { getStoredLang, setStoredLang } from "./i18n.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -73,6 +74,10 @@ const game = {
   money: 0,
   scene: null,
   field: null,
+  lang: getStoredLang(),
+  toggleLang() {
+    this.lang = setStoredLang(this.lang === "en" ? "ja" : "en");
+  },
   changeScene(scene) {
     this.scene = scene;
   },
@@ -129,15 +134,21 @@ function loop(t) {
   const dt = Math.min((t - last) / 1000, 0.05);
   last = t;
   if (game.input.wasPressed("mute")) toggleMute();
+  if (game.input.wasPressed("lang")) game.toggleLang();
   game.scene.update(dt);
   game.scene.draw(ctx);
   if (isMuted()) {
     ctx.fillStyle = "#f0ead8";
     ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "right";
-    ctx.fillText("♪ ミュート中 (M)", 630, 20);
+    ctx.fillText(game.lang === "en" ? "♪ Muted (M)" : "♪ ミュート中 (M)", 630, 20);
     ctx.textAlign = "left";
   }
+  ctx.fillStyle = "#f0ead8";
+  ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+  ctx.textAlign = "right";
+  ctx.fillText(game.lang === "en" ? "EN (L)" : "日本語 (L)", 630, 476);
+  ctx.textAlign = "left";
   game.input.endFrame();
   requestAnimationFrame(loop);
 }

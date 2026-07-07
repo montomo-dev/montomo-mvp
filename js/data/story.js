@@ -36,12 +36,55 @@ export const BOSS_STORY = {
   },
 };
 
-export function bossIntroText(speciesId, fallbackName) {
+export const BOSS_STORY_EN = {
+  nushi: {
+    intro: "Deep in the forest, a strangely troubled Nushi blocked the path!",
+    victory: "A dark shadow clears from Nushi's eyes... \"The forest... has returned to normal...\"",
+  },
+  reverseNushi: {
+    intro: "At the deepest reach of the inverted world, Reverse Nushi bared its fangs!",
+    victory: "Beyond Reverse Nushi, the sense of distortion feels even stronger...",
+  },
+  seaNushi: {
+    intro: "At the bottom of the deep sea, Sea Nushi is raging out of control!",
+    victory: "Sea Nushi quietly returned to the ocean floor. The distortion still continues...",
+  },
+  hyougaNushi: {
+    intro: "On the frozen glacier, Hyouga Nushi bared its fangs!",
+    victory: "Hyouga Nushi is gradually regaining its calm...",
+  },
+  sunaNushi: {
+    intro: "In the scorching desert, Suna Nushi rose up wrapped in swirling sand!",
+    victory: "Suna Nushi quietly sank back into the sand...",
+  },
+  koujouNushi: {
+    intro: "Amid the ceaseless machine noise, Koujou Nushi is running wild!",
+    victory: "Koujou Nushi's gears are slowly regaining their proper rhythm...",
+  },
+  maou: {
+    intro: "The source of the distortion, the Demon Lord, rose from the throne...!",
+    victory: [
+      "The Demon Lord sank to its knees.",
+      "\"Maybe I was... just afraid of being alone.\"",
+      "Wrapped in light, the Demon Lord's form fades, and a quiet peace returns to the world.",
+    ],
+  },
+};
+
+export function bossIntroText(speciesId, fallbackName, lang = "ja") {
+  if (lang === "en") {
+    return BOSS_STORY_EN[speciesId]?.intro || `${fallbackName} of the forest blocked the way!`;
+  }
   return BOSS_STORY[speciesId]?.intro || `もりの ${fallbackName} が たちはだかった！`;
 }
 
 // 常に配列を返す(通常は1行、魔王だけ複数行の演出)
-export function bossVictoryLines(speciesId, fallbackName) {
+export function bossVictoryLines(speciesId, fallbackName, lang = "ja") {
+  if (lang === "en") {
+    const victoryEn = BOSS_STORY_EN[speciesId]?.victory;
+    if (!victoryEn) return [`Overcame ${fallbackName}...!`];
+    return Array.isArray(victoryEn) ? victoryEn : [victoryEn];
+  }
   const victory = BOSS_STORY[speciesId]?.victory;
   if (!victory) return [`${fallbackName} を のりこえた…！`];
   return Array.isArray(victory) ? victory : [victory];

@@ -3,6 +3,8 @@ import { statsFor, MAX_LEVEL } from "../systems/growth.js";
 export const SPECIES = {
   mofuri: {
     id: "mofuri",
+    nameEn: "Mofuri",
+    genusEn: "Grass Cat",
     name: "モフリ",
     genus: "くさねこ",
     color: "#6bbf3f",
@@ -19,6 +21,8 @@ export const SPECIES = {
   },
   dogura: {
     id: "dogura",
+    nameEn: "Dogura",
+    genusEn: "Soil Mole",
     name: "ドグラ",
     genus: "つちもぐら",
     color: "#8a6244",
@@ -35,6 +39,8 @@ export const SPECIES = {
   },
   hibachi: {
     id: "hibachi",
+    nameEn: "Hibachi",
+    genusEn: "Flame Lizard",
     name: "ヒバチ",
     genus: "ひのことかげ",
     color: "#e6392b",
@@ -52,6 +58,8 @@ export const SPECIES = {
   },
   fuwarisu: {
     id: "fuwarisu",
+    nameEn: "Fuwarisu",
+    genusEn: "Sky Squirrel",
     name: "フワリス",
     genus: "そらことり",
     color: "#3468d1",
@@ -69,6 +77,8 @@ export const SPECIES = {
   },
   mofurif: {
     id: "mofurif",
+    nameEn: "Mofurif",
+    genusEn: "Bountiful Grass Cat",
     name: "モフリーフ",
     genus: "みのりくさねこ",
     color: "#5e9c3e",
@@ -82,6 +92,8 @@ export const SPECIES = {
   },
   borudogura: {
     id: "borudogura",
+    nameEn: "Borudogura",
+    genusEn: "Boulder Mole",
     name: "ボルドグラ",
     genus: "がんせきもぐら",
     color: "#8a6244",
@@ -95,6 +107,8 @@ export const SPECIES = {
   },
   bakuhibachi: {
     id: "bakuhibachi",
+    nameEn: "Bakuhibachi",
+    genusEn: "Blast Lizard",
     name: "バクヒバチ",
     genus: "ばくえんとかげ",
     color: "#c94a24",
@@ -109,6 +123,8 @@ export const SPECIES = {
   },
   tenfuwarisu: {
     id: "tenfuwarisu",
+    nameEn: "Tenfuwarisu",
+    genusEn: "Heavenly Sky Squirrel",
     name: "テンフワリス",
     genus: "てんくうことり",
     color: "#4a86a8",
@@ -123,6 +139,8 @@ export const SPECIES = {
   },
   pyokotan: {
     id: "pyokotan",
+    nameEn: "Pyokotan",
+    genusEn: "Water-Drop Frog",
     name: "ピョコタン",
     genus: "みずたまがえる",
     color: "#2fb6a8",
@@ -139,6 +157,8 @@ export const SPECIES = {
   },
   gamadon: {
     id: "gamadon",
+    nameEn: "Gamadon",
+    genusEn: "Toad King",
     name: "ガマドン",
     genus: "がまがえるおう",
     color: "#1f8f7f",
@@ -150,6 +170,8 @@ export const SPECIES = {
   },
   pachikoro: {
     id: "pachikoro",
+    nameEn: "Pachikoro",
+    genusEn: "Spark Bug",
     name: "パチコロ",
     genus: "でんこうむし",
     color: "#f0c419",
@@ -167,6 +189,8 @@ export const SPECIES = {
   },
   pachiking: {
     id: "pachiking",
+    nameEn: "Pachiking",
+    genusEn: "Thunder Bug",
     name: "パチキング",
     genus: "らいこうちゅう",
     color: "#d9a812",
@@ -179,6 +203,8 @@ export const SPECIES = {
   },
   orihiko: {
     id: "orihiko",
+    nameEn: "Orihiko",
+    genusEn: "Paper Airplane",
     name: "オリヒコ",
     genus: "おりがみひこうき",
     color: "#f3e6cf",
@@ -195,6 +221,8 @@ export const SPECIES = {
   },
   orifalcon: {
     id: "orifalcon",
+    nameEn: "Orifalcon",
+    genusEn: "Sky Glider",
     name: "オリファルコン",
     genus: "こうくうき",
     color: "#c9a86a",
@@ -206,6 +234,8 @@ export const SPECIES = {
   },
   kiboko: {
     id: "kiboko",
+    nameEn: "Kiboko",
+    genusEn: "Carved Kokeshi",
     name: "キボコ",
     genus: "きぼりこけし",
     color: "#a87446",
@@ -222,6 +252,8 @@ export const SPECIES = {
   },
   kibouju: {
     id: "kibouju",
+    nameEn: "Kibouju",
+    genusEn: "Heartwood Tree",
     name: "キボウジュ",
     genus: "みきわりぼく",
     color: "#7a5230",
@@ -233,6 +265,8 @@ export const SPECIES = {
   },
   tsuboco: {
     id: "tsuboco",
+    nameEn: "Tsuboco",
+    genusEn: "Clay Pot",
     name: "ツボコ",
     genus: "せとものつぼ",
     color: "#c98c63",
@@ -249,6 +283,8 @@ export const SPECIES = {
   },
   koganetsubo: {
     id: "koganetsubo",
+    nameEn: "Koganetsubo",
+    genusEn: "Golden Pot Spirit",
     name: "コガネツボ",
     genus: "おうごんつぼれい",
     color: "#a66a3f",
@@ -260,6 +296,8 @@ export const SPECIES = {
   },
   obako: {
     id: "obako",
+    nameEn: "Obako",
+    genusEn: "Wavering Ghost",
     name: "オバコ",
     genus: "ゆらめきおばけ",
     color: "#e9e4ff",
@@ -275,6 +313,8 @@ export const SPECIES = {
   },
   kurista: {
     id: "kurista",
+    nameEn: "Kurista",
+    genusEn: "Shard Spirit",
     name: "クリスタ",
     genus: "かけらせいれい",
     color: "#93dff2",
@@ -290,6 +330,8 @@ export const SPECIES = {
   },
   hagumon: {
     id: "hagumon",
+    nameEn: "Hagumon",
+    genusEn: "Wind-Up Bug",
     name: "ハグモン",
     genus: "ぜんまいむし",
     color: "#c8bb8a",
@@ -305,6 +347,8 @@ export const SPECIES = {
   },
   tsukinone: {
     id: "tsukinone",
+    nameEn: "Tsukinone",
+    genusEn: "Star-Eared Rabbit",
     name: "ツキノネ",
     genus: "ほしみみうさぎ",
     color: "#8b5fd1",
@@ -320,6 +364,8 @@ export const SPECIES = {
   },
   honbori: {
     id: "honbori",
+    nameEn: "Honbori",
+    genusEn: "Lantern Owl",
     name: "ホンボリ",
     genus: "あんどんふくろう",
     color: "#f2a444",
@@ -337,6 +383,8 @@ export const SPECIES = {
   },
   honborido: {
     id: "honborido",
+    nameEn: "Honborido",
+    genusEn: "Night-Guide Owl",
     name: "ホンボリード",
     genus: "やこうふくろう",
     color: "#c97d28",
@@ -349,6 +397,8 @@ export const SPECIES = {
   },
   tsubogame: {
     id: "tsubogame",
+    nameEn: "Tsubogame",
+    genusEn: "Fired-Clay Turtle",
     name: "ツボガメ",
     genus: "やきものがめ",
     color: "#5a8f7a",
@@ -365,6 +415,8 @@ export const SPECIES = {
   },
   dosugame: {
     id: "dosugame",
+    nameEn: "Dosugame",
+    genusEn: "Hardshell Turtle",
     name: "ドスガメ",
     genus: "がんこつがめ",
     color: "#3f6b58",
@@ -376,6 +428,8 @@ export const SPECIES = {
   },
   sandango: {
     id: "sandango",
+    nameEn: "Sandango",
+    genusEn: "Sweet-Glaze Bird",
     name: "サンダンゴ",
     genus: "みたらしことり",
     color: "#e8927a",
@@ -392,6 +446,8 @@ export const SPECIES = {
   },
   oodangou: {
     id: "oodangou",
+    nameEn: "Oodangou",
+    genusEn: "Great Dumpling Bird",
     name: "オオダンゴウ",
     genus: "みたらしのおおとり",
     color: "#c46a4f",
@@ -403,6 +459,8 @@ export const SPECIES = {
   },
   nushi: {
     id: "nushi",
+    nameEn: "Nushi",
+    genusEn: "Lord of the Forest",
     name: "モリノヌシ",
     genus: "もりのぬし",
     base: { hp: 150, atk: 24, def: 18, spd: 10 },
@@ -423,6 +481,8 @@ export const SPECIES = {
   },
   reverseNushi: {
     id: "reverseNushi",
+    nameEn: "Reverse Nushi",
+    genusEn: "Lord of the Reverse World",
     name: "ウラノヌシ",
     genus: "うらのぬし",
     base: { hp: 280, atk: 60, def: 45, spd: 25 },
@@ -444,6 +504,8 @@ export const SPECIES = {
   },
   takarabox: {
     id: "takarabox",
+    nameEn: "Takarabox",
+    genusEn: "Mimic Chest",
     name: "タカラボックス",
     genus: "ばけばこ",
     color: "#c48a2c",
@@ -459,6 +521,8 @@ export const SPECIES = {
   },
   pukurin: {
     id: "pukurin",
+    nameEn: "Pukurin",
+    genusEn: "Water-Bag Jelly",
     name: "プクリン",
     genus: "みずぶくろくらげ",
     color: "#7ec9e8",
@@ -474,6 +538,8 @@ export const SPECIES = {
   },
   kageuri: {
     id: "kageuri",
+    nameEn: "Kageuri",
+    genusEn: "Shade-Melon Sprite",
     name: "カゲウリ",
     genus: "かげひそみうり",
     color: "#5a4a78",
@@ -488,6 +554,8 @@ export const SPECIES = {
   },
   hoshimogu: {
     id: "hoshimogu",
+    nameEn: "Hoshimogu",
+    genusEn: "Starsand Mole",
     name: "ホシモグ",
     genus: "ほしずなもぐら",
     color: "#4a3f6b",
@@ -502,6 +570,8 @@ export const SPECIES = {
   },
   fuyudama: {
     id: "fuyudama",
+    nameEn: "Fuyudama",
+    genusEn: "Snowball Charm",
     name: "フユダマ",
     genus: "ゆきむすびだま",
     color: "#dbeffa",
@@ -517,6 +587,8 @@ export const SPECIES = {
   },
   nejiko: {
     id: "nejiko",
+    nameEn: "Nejiko",
+    genusEn: "Wind-Up Cat",
     name: "ネジコ",
     genus: "ぜんまいねこ",
     color: "#c9a45a",
@@ -531,6 +603,8 @@ export const SPECIES = {
   },
   kaigaran: {
     id: "kaigaran",
+    nameEn: "Kaigaran",
+    genusEn: "Shell-Dragging Crab",
     name: "カイガラン",
     genus: "からひきやどかり",
     color: "#e2965a",
@@ -545,6 +619,8 @@ export const SPECIES = {
   },
   awairuka: {
     id: "awairuka",
+    nameEn: "Awairuka",
+    genusEn: "Bubble Dolphin",
     name: "アワイルカ",
     genus: "あわふきいるか",
     color: "#5ab6d9",
@@ -560,6 +636,8 @@ export const SPECIES = {
   },
   hikariebi: {
     id: "hikariebi",
+    nameEn: "Hikariebi",
+    genusEn: "Glowing Shrimp",
     name: "ヒカリエビ",
     genus: "はっこうえび",
     color: "#8fe8d0",
@@ -575,6 +653,8 @@ export const SPECIES = {
   },
   yamiankou: {
     id: "yamiankou",
+    nameEn: "Yamiankou",
+    genusEn: "Dark Anglerfish",
     name: "ヤミアンコウ",
     genus: "やみひかりうお",
     color: "#4a3a68",
@@ -589,6 +669,8 @@ export const SPECIES = {
   },
   seaNushi: {
     id: "seaNushi",
+    nameEn: "Sea Nushi",
+    genusEn: "Lord of the Deep Sea",
     name: "シンカイヌシ",
     genus: "しんかいのぬし",
     base: { hp: 340, atk: 55, def: 55, spd: 18 },
@@ -610,6 +692,8 @@ export const SPECIES = {
   },
   yukimaro: {
     id: "yukimaro",
+    nameEn: "Yukimaro",
+    genusEn: "Snow-Coat Rabbit",
     name: "ユキマロ",
     genus: "ゆきごろもうさぎ",
     color: "#eef5fb",
@@ -624,6 +708,8 @@ export const SPECIES = {
   },
   kooritsumu: {
     id: "kooritsumu",
+    nameEn: "Kooritsumu",
+    genusEn: "Icicle Crystal",
     name: "コオリツム",
     genus: "つららけっしょう",
     color: "#bfe8f5",
@@ -639,6 +725,8 @@ export const SPECIES = {
   },
   pengiri: {
     id: "pengiri",
+    nameEn: "Pengiri",
+    genusEn: "Sledding Penguin",
     name: "ペンギリ",
     genus: "そりすべりペンギン",
     color: "#3a4a5a",
@@ -653,6 +741,8 @@ export const SPECIES = {
   },
   yukibouzu: {
     id: "yukibouzu",
+    nameEn: "Yukibouzu",
+    genusEn: "Blizzard Sprite",
     name: "ユキボウズ",
     genus: "ふぶきのようせい",
     color: "#eef5fb",
@@ -667,6 +757,8 @@ export const SPECIES = {
   },
   hyougaNushi: {
     id: "hyougaNushi",
+    nameEn: "Hyouga Nushi",
+    genusEn: "Lord of the Glacier",
     name: "ヒョウガヌシ",
     genus: "ひょうがのぬし",
     base: { hp: 380, atk: 60, def: 60, spd: 22 },
@@ -688,6 +780,8 @@ export const SPECIES = {
   },
   sabotenko: {
     id: "sabotenko",
+    nameEn: "Sabotenko",
+    genusEn: "Spiky Cactus",
     name: "サボテンコ",
     genus: "とげとげさぼてん",
     color: "#5a9a4a",
@@ -702,6 +796,8 @@ export const SPECIES = {
   },
   sunasasori: {
     id: "sunasasori",
+    nameEn: "Sunasasori",
+    genusEn: "Desert Scorpion",
     name: "スナサソリ",
     genus: "すなばのさそり",
     color: "#d4a24a",
@@ -716,6 +812,8 @@ export const SPECIES = {
   },
   rakudan: {
     id: "rakudan",
+    nameEn: "Rakudan",
+    genusEn: "Desert Camel",
     name: "ラクダン",
     genus: "さばくのふたこぶ",
     color: "#c9a868",
@@ -730,6 +828,8 @@ export const SPECIES = {
   },
   sunamiira: {
     id: "sunamiira",
+    nameEn: "Sunamiira",
+    genusEn: "Ancient Wrapped One",
     name: "スナミイラ",
     genus: "いにしえのぬの",
     color: "#d8c89a",
@@ -744,6 +844,8 @@ export const SPECIES = {
   },
   sunaNushi: {
     id: "sunaNushi",
+    nameEn: "Suna Nushi",
+    genusEn: "Lord of the Sands",
     name: "スナヌシ",
     genus: "すなのぬし",
     base: { hp: 400, atk: 65, def: 60, spd: 25 },
@@ -765,6 +867,8 @@ export const SPECIES = {
   },
   hagurumaru: {
     id: "hagurumaru",
+    nameEn: "Hagurumaru",
+    genusEn: "Sturdy Gear",
     name: "ハグルマル",
     genus: "がんじょうはぐるま",
     color: "#8a8a9a",
@@ -779,6 +883,8 @@ export const SPECIES = {
   },
   sparkun: {
     id: "sparkun",
+    nameEn: "Sparkun",
+    genusEn: "Electric Spark",
     name: "スパークン",
     genus: "でんきスパーク",
     color: "#f0d040",
@@ -794,6 +900,8 @@ export const SPECIES = {
   },
   karakuribat: {
     id: "karakuribat",
+    nameEn: "Karakuribat",
+    genusEn: "Clockwork Bat",
     name: "カラクリバット",
     genus: "からくりこうもり",
     color: "#4a4a5a",
@@ -808,6 +916,8 @@ export const SPECIES = {
   },
   paipon: {
     id: "paipon",
+    nameEn: "Paipon",
+    genusEn: "Pipe-Dwelling Robot",
     name: "パイポン",
     genus: "はいかんロボ",
     color: "#6a7a5a",
@@ -822,6 +932,8 @@ export const SPECIES = {
   },
   koujouNushi: {
     id: "koujouNushi",
+    nameEn: "Koujou Nushi",
+    genusEn: "Lord of the Factory",
     name: "コウジョウヌシ",
     genus: "こうじょうのぬし",
     base: { hp: 420, atk: 70, def: 65, spd: 28 },
@@ -843,6 +955,8 @@ export const SPECIES = {
   },
   akumakko: {
     id: "akumakko",
+    nameEn: "Akumakko",
+    genusEn: "Little Devil",
     name: "アクマッコ",
     genus: "こあくま",
     color: "#5a1a3a",
@@ -857,6 +971,8 @@ export const SPECIES = {
   },
   kokushou: {
     id: "kokushou",
+    nameEn: "Kokushou",
+    genusEn: "Dark Armor",
     name: "コクショウ",
     genus: "やみのよろい",
     color: "#2b2038",
@@ -871,6 +987,8 @@ export const SPECIES = {
   },
   maou: {
     id: "maou",
+    nameEn: "Maou",
+    genusEn: "Demon Lord",
     name: "マオウ",
     genus: "まおう",
     base: { hp: 460, atk: 78, def: 72, spd: 32 },
@@ -894,6 +1012,8 @@ export const SPECIES = {
   },
   yuureiking: {
     id: "yuureiking",
+    nameEn: "Yuureiking",
+    genusEn: "Wandering Ghost King",
     name: "ユウレイキング",
     genus: "まようゆうれい",
     color: "#4a3a5a",
@@ -908,6 +1028,8 @@ export const SPECIES = {
   },
   noroigumo: {
     id: "noroigumo",
+    nameEn: "Noroigumo",
+    genusEn: "Cursed Spider",
     name: "ノロイグモ",
     genus: "のろいのくも",
     color: "#1a1024",
@@ -922,6 +1044,8 @@ export const SPECIES = {
   },
   hanamaro: {
     id: "hanamaro",
+    nameEn: "Hanamaro",
+    genusEn: "Flower Puppy",
     name: "ハナマロ",
     genus: "はなこいぬ",
     color: "#f4a1bf",
@@ -939,6 +1063,8 @@ export const SPECIES = {
   },
   hanaguruma: {
     id: "hanaguruma",
+    nameEn: "Hanaguruma",
+    genusEn: "Flower Wheel Dog",
     name: "ハナグルマ",
     genus: "はなまわりいぬ",
     color: "#d4678f",
@@ -951,6 +1077,8 @@ export const SPECIES = {
   },
   torimugi: {
     id: "torimugi",
+    nameEn: "Torimugi",
+    genusEn: "Wheat Migrant Bird",
     name: "トリムギ",
     genus: "むぎわたりどり",
     color: "#d6b85e",
@@ -968,6 +1096,8 @@ export const SPECIES = {
   },
   oomugiwatari: {
     id: "oomugiwatari",
+    nameEn: "Oomugiwatari",
+    genusEn: "Grain Storm Bird",
     name: "オオムギワタリ",
     genus: "こくもつわたりどり",
     color: "#b8933a",
@@ -980,6 +1110,8 @@ export const SPECIES = {
   },
   sazanami: {
     id: "sazanami",
+    nameEn: "Sazanami",
+    genusEn: "Rippling Sunfish",
     name: "サザナミ",
     genus: "さざなみまんぼう",
     color: "#7fd3df",
@@ -995,6 +1127,8 @@ export const SPECIES = {
   },
   mizuhane: {
     id: "mizuhane",
+    nameEn: "Mizuhane",
+    genusEn: "Water Bird",
     name: "ミズハネ",
     genus: "みずとり",
     color: "#69c7e3",
@@ -1010,6 +1144,8 @@ export const SPECIES = {
   },
   kotohana: {
     id: "kotohana",
+    nameEn: "Kotohana",
+    genusEn: "Flower Songbird",
     name: "コトハナ",
     genus: "はなことり",
     color: "#f3a3c9",
@@ -1027,6 +1163,8 @@ export const SPECIES = {
   },
   hanautadori: {
     id: "hanautadori",
+    nameEn: "Hanautadori",
+    genusEn: "Singing Blossom Bird",
     name: "ハナウタドリ",
     genus: "うたうはなことり",
     color: "#d46ea3",
@@ -1039,6 +1177,8 @@ export const SPECIES = {
   },
   sunaboko: {
     id: "sunaboko",
+    nameEn: "Sunaboko",
+    genusEn: "Sand Roller",
     name: "スナボコ",
     genus: "すなころがし",
     color: "#d7b27c",
@@ -1053,6 +1193,8 @@ export const SPECIES = {
   },
   sorane: {
     id: "sorane",
+    nameEn: "Sorane",
+    genusEn: "Sky Rabbit",
     name: "ソラネ",
     genus: "そらうさぎ",
     color: "#9ad1ff",
@@ -1070,6 +1212,8 @@ export const SPECIES = {
   },
   amakumousagi: {
     id: "amakumousagi",
+    nameEn: "Amakumousagi",
+    genusEn: "Rain-Cloud Rabbit",
     name: "アマクモウサギ",
     genus: "あまぐもうさぎ",
     color: "#5a9fe0",
@@ -1082,6 +1226,8 @@ export const SPECIES = {
   },
   momijiri: {
     id: "momijiri",
+    nameEn: "Momijiri",
+    genusEn: "Maple Fox",
     name: "モミジリ",
     genus: "もみじぎつね",
     color: "#ef8b5a",
@@ -1099,6 +1245,8 @@ export const SPECIES = {
   },
   momijiou: {
     id: "momijiou",
+    nameEn: "Momijiou",
+    genusEn: "Autumn Fox King",
     name: "モミジオウ",
     genus: "こうようぎつねおう",
     color: "#c85f2e",
@@ -1111,6 +1259,8 @@ export const SPECIES = {
   },
   shizukuya: {
     id: "shizukuya",
+    nameEn: "Shizukuya",
+    genusEn: "Droplet Dweller",
     name: "シズクヤ",
     genus: "しずくやどり",
     color: "#5fc8dd",
@@ -1126,6 +1276,8 @@ export const SPECIES = {
   },
   kazeneko: {
     id: "kazeneko",
+    nameEn: "Kazeneko",
+    genusEn: "Wind Cat",
     name: "カゼネコ",
     genus: "かぜねこ",
     color: "#8fb7ff",
@@ -1143,6 +1295,8 @@ export const SPECIES = {
   },
   kazagurumaneko: {
     id: "kazagurumaneko",
+    nameEn: "Kazagurumaneko",
+    genusEn: "Pinwheel Cat",
     name: "カザグルマネコ",
     genus: "つむじかぜねこ",
     color: "#5a86e0",
@@ -1155,6 +1309,8 @@ export const SPECIES = {
   },
   tsuyuhika: {
     id: "tsuyuhika",
+    nameEn: "Tsuyuhika",
+    genusEn: "Dewy Sparkle",
     name: "ツユヒカ",
     genus: "つゆひかり",
     color: "#b8f0c8",
@@ -1170,6 +1326,8 @@ export const SPECIES = {
   },
   moriame: {
     id: "moriame",
+    nameEn: "Moriame",
+    genusEn: "Forest Rain",
     name: "モリアメ",
     genus: "もりあめ",
     color: "#79d2bf",
@@ -1185,6 +1343,8 @@ export const SPECIES = {
   },
   harune: {
     id: "harune",
+    nameEn: "Harune",
+    genusEn: "Spring Rabbit",
     name: "ハルネ",
     genus: "はるうさぎ",
     color: "#f1c8ff",
@@ -1202,6 +1362,8 @@ export const SPECIES = {
   },
   hanafubukiusagi: {
     id: "hanafubukiusagi",
+    nameEn: "Hanafubukiusagi",
+    genusEn: "Petal-Storm Rabbit",
     name: "ハナフブキウサギ",
     genus: "はなふぶきうさぎ",
     color: "#c98fe0",
@@ -1214,6 +1376,8 @@ export const SPECIES = {
   },
   mizugoma: {
     id: "mizugoma",
+    nameEn: "Mizugoma",
+    genusEn: "Water Spinner",
     name: "ミズゴマ",
     genus: "みずごま",
     color: "#71d5d9",
@@ -1229,6 +1393,8 @@ export const SPECIES = {
   },
   sunobori: {
     id: "sunobori",
+    nameEn: "Sunobori",
+    genusEn: "Dune Slider",
     name: "スノボリ",
     genus: "すなのり",
     color: "#d8b07b",
@@ -1243,6 +1409,8 @@ export const SPECIES = {
   },
   sakuraneko: {
     id: "sakuraneko",
+    nameEn: "Sakuraneko",
+    genusEn: "Blossom Cat",
     name: "サクラネコ",
     genus: "はなねこ",
     color: "#ffb6cf",
@@ -1260,6 +1428,8 @@ export const SPECIES = {
   },
   sakuraouneko: {
     id: "sakuraouneko",
+    nameEn: "Sakuraouneko",
+    genusEn: "Cherry-Blossom Queen Cat",
     name: "サクラオウネコ",
     genus: "さくらふぶきねこ",
     color: "#e0699a",
@@ -1272,6 +1442,8 @@ export const SPECIES = {
   },
   mizukusa: {
     id: "mizukusa",
+    nameEn: "Mizukusa",
+    genusEn: "Waterweed Bug",
     name: "ミズクサ",
     genus: "みずくさむし",
     color: "#7ad9c5",
@@ -1287,6 +1459,8 @@ export const SPECIES = {
   },
   sunamaru: {
     id: "sunamaru",
+    nameEn: "Sunamaru",
+    genusEn: "Sand Roundling",
     name: "スナマル",
     genus: "すなまる",
     color: "#d9b67a",
@@ -1301,6 +1475,8 @@ export const SPECIES = {
   },
   tsukihane: {
     id: "tsukihane",
+    nameEn: "Tsukihane",
+    genusEn: "Moonlit Beast",
     name: "ツキハネ",
     genus: "つきけもり",
     color: "#c8b7ff",
@@ -1316,6 +1492,8 @@ export const SPECIES = {
   },
   mizutama: {
     id: "mizutama",
+    nameEn: "Mizutama",
+    genusEn: "Water-Drop Shell",
     name: "ミズタマ",
     genus: "みずだまがい",
     color: "#79d8ea",
@@ -1331,6 +1509,8 @@ export const SPECIES = {
   },
   ishimaru: {
     id: "ishimaru",
+    nameEn: "Ishimaru",
+    genusEn: "Rolling Stone",
     name: "イシマル",
     genus: "ころころいし",
     color: "#b8a58d",
@@ -1345,6 +1525,8 @@ export const SPECIES = {
   },
   kazepeko: {
     id: "kazepeko",
+    nameEn: "Kazepeko",
+    genusEn: "Wind Child",
     name: "カゼペコ",
     genus: "かぜのこ",
     color: "#9fe0ff",
@@ -1362,6 +1544,8 @@ export const SPECIES = {
   },
   hayatenoko: {
     id: "hayatenoko",
+    nameEn: "Hayatenoko",
+    genusEn: "Gale Child",
     name: "ハヤテノコ",
     genus: "はやてのこぞう",
     color: "#5ab0e8",
@@ -1374,6 +1558,8 @@ export const SPECIES = {
   },
   hikariame: {
     id: "hikariame",
+    nameEn: "Hikariame",
+    genusEn: "Glimmering Rain",
     name: "ヒカリアメ",
     genus: "ひかりあめ",
     color: "#ffd2a8",
@@ -1389,6 +1575,8 @@ export const SPECIES = {
   },
   yamakibi: {
     id: "yamakibi",
+    nameEn: "Yamakibi",
+    genusEn: "Mountain Millet",
     name: "ヤマキビ",
     genus: "やまきび",
     color: "#d7a36d",
@@ -1405,6 +1593,8 @@ export const SPECIES = {
   },
   hounenkibi: {
     id: "hounenkibi",
+    nameEn: "Hounenkibi",
+    genusEn: "Bountiful Harvest Scarecrow",
     name: "ホウネンキビ",
     genus: "ほうねんのかかし",
     color: "#a8763e",
@@ -1416,6 +1606,8 @@ export const SPECIES = {
   },
   shizumegane: {
     id: "shizumegane",
+    nameEn: "Shizumegane",
+    genusEn: "Sunken Eye",
     name: "シズメガネ",
     genus: "しずめめだま",
     color: "#85c8c2",
@@ -1430,6 +1622,8 @@ export const SPECIES = {
   },
   haribune: {
     id: "haribune",
+    nameEn: "Haribune",
+    genusEn: "Spiny Little Boat",
     name: "ハリブネ",
     genus: "はりぶね",
     color: "#b7c7f0",
@@ -1445,6 +1639,8 @@ export const SPECIES = {
   },
   reiseiou: {
     id: "reiseiou",
+    nameEn: "Reiseiou",
+    genusEn: "Frost-Calm King",
     name: "レイセイオウ",
     genus: "れいしょうおう",
     color: "#b8d4ff",
@@ -1462,6 +1658,8 @@ export const SPECIES = {
   },
   kazaribi: {
     id: "kazaribi",
+    nameEn: "Kazaribi",
+    genusEn: "Legendary Light",
     name: "カザリビ",
     genus: "でんせつのひかり",
     color: "#f6d35c",
@@ -1481,6 +1679,8 @@ export const SPECIES = {
   },
   sumiremo: {
     id: "sumiremo",
+    nameEn: "Sumiremo",
+    genusEn: "Violet Moth",
     name: "スミレモ",
     genus: "よるちょう",
     color: "#8f73d8",
@@ -1496,6 +1696,8 @@ export const SPECIES = {
   },
   yukigamo: {
     id: "yukigamo",
+    nameEn: "Yukigamo",
+    genusEn: "Snow-White Duck",
     name: "ユキガモ",
     genus: "しらかも",
     color: "#d9f4ff",
@@ -1511,6 +1713,8 @@ export const SPECIES = {
   },
   kuroguri: {
     id: "kuroguri",
+    nameEn: "Kuroguri",
+    genusEn: "Little Dark One",
     name: "クログリ",
     genus: "くろちいさま",
     color: "#5f6574",
@@ -1525,6 +1729,8 @@ export const SPECIES = {
   },
   mofurigarden: {
     id: "mofurigarden",
+    nameEn: "Mofurigarden",
+    genusEn: "Rainbow-Coat Cat",
     name: "モフリガーデン",
     genus: "しきさいねこ",
     color: "#69b95a",
@@ -1537,6 +1743,8 @@ export const SPECIES = {
   },
   borudrill: {
     id: "borudrill",
+    nameEn: "Borudrill",
+    genusEn: "Drilling Wyrm",
     name: "ボルドリル",
     genus: "ちかそうりゅう",
     color: "#75533d",
@@ -1549,6 +1757,8 @@ export const SPECIES = {
   },
   bakuphoenix: {
     id: "bakuphoenix",
+    nameEn: "Bakuphoenix",
+    genusEn: "Blazing Phoenix",
     name: "バクフェニ",
     genus: "ばくえんどり",
     color: "#d24d22",
@@ -1562,6 +1772,8 @@ export const SPECIES = {
   },
   tenstorm: {
     id: "tenstorm",
+    nameEn: "Tenstorm",
+    genusEn: "Storm Bird",
     name: "テンストーム",
     genus: "あらしどり",
     color: "#5489b7",
@@ -1575,6 +1787,8 @@ export const SPECIES = {
   },
   obagale: {
     id: "obagale",
+    nameEn: "Obagale",
+    genusEn: "Moonlit Witch",
     name: "オバゲイル",
     genus: "つきかげまじょ",
     color: "#d9d0ff",
@@ -1587,6 +1801,8 @@ export const SPECIES = {
   },
   kuricrown: {
     id: "kuricrown",
+    nameEn: "Kuricrown",
+    genusEn: "Jeweled King",
     name: "クリクラウン",
     genus: "ほうせきおう",
     color: "#71d6e8",
@@ -1599,6 +1815,8 @@ export const SPECIES = {
   },
   hagutitan: {
     id: "hagutitan",
+    nameEn: "Hagutitan",
+    genusEn: "Clockwork Giant",
     name: "ハグタイタン",
     genus: "ぜんまいきょじん",
     color: "#b3a177",
@@ -1611,6 +1829,8 @@ export const SPECIES = {
   },
   oonamiwhale: {
     id: "oonamiwhale",
+    nameEn: "Oonamiwhale",
+    genusEn: "Great Wave Whale",
     name: "オオナミホエル",
     genus: "たいかいくじら",
     color: "#7bcde0",
@@ -1624,6 +1844,8 @@ export const SPECIES = {
   },
   hoshizora: {
     id: "hoshizora",
+    nameEn: "Hoshizora",
+    genusEn: "Starry-Sky Bug",
     name: "ホシゾラ",
     genus: "ほしぞらむし",
     color: "#655d95",
@@ -1636,6 +1858,8 @@ export const SPECIES = {
   },
   omegazenmaiya: {
     id: "omegazenmaiya",
+    nameEn: "Omegazenmaiya",
+    genusEn: "Ancient Machine Spirit",
     name: "オメガゼンマイヤ",
     genus: "きしんもり",
     color: "#8f7a5c",
