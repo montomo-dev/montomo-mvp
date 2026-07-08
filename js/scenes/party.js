@@ -233,6 +233,16 @@ export class PartyScene {
       this.message = tr(this.game, "なかまが いないよ。", "You have no party members.");
       return;
     }
+    // 手持ち・牧場を合わせて最後の1体を逃がすと、二度となかまを手に入れられなくなる
+    // (野生との遭遇には手持ちが1体以上必要)ため、ここで防いでおく
+    if (this.game.party.length + (this.game.ranch?.length || 0) <= 1) {
+      this.message = tr(
+        this.game,
+        "さいごの 1ぴきは にがせないよ。",
+        "You can't release your very last monster."
+      );
+      return;
+    }
     this.confirm = { index: this.cursor, yes: false, monster: this.game.party[this.cursor] };
   }
 

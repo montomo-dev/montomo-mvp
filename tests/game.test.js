@@ -2298,3 +2298,28 @@ test("全フィールドNPCの会話文に英訳(lineEn)が用意されている
     }
   }
 });
+
+test("手持ち・牧場を合わせて最後の1体は逃がせない(誤って二度となかまを持てなくなる不具合の回帰防止)", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({ style: {}, classList: { add() {}, remove() {} } }),
+  };
+  const { PartyScene } = await import("../js/scenes/party.js");
+
+  const soloGame = { party: [createMonster("mofuri", 5)], ranch: [], dex: { seen: [], caught: [] }, save() {} };
+  const soloScene = new PartyScene(soloGame, null);
+  soloScene.cursor = 0;
+  soloScene.askRelease();
+  assert.equal(soloScene.confirm, null, "最後の1体なのに逃がす確認画面が出てしまう");
+  assert.equal(soloGame.party.length, 1);
+
+  const backedUpGame = {
+    party: [createMonster("mofuri", 5)],
+    ranch: [createMonster("hibachi", 5)],
+    dex: { seen: [], caught: [] },
+    save() {},
+  };
+  const backedUpScene = new PartyScene(backedUpGame, null);
+  backedUpScene.cursor = 0;
+  backedUpScene.askRelease();
+  assert.ok(backedUpScene.confirm, "牧場に控えがいるのに逃がす確認画面が出ない");
+});
