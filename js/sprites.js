@@ -3329,19 +3329,167 @@ const paintHounenkibi = evolvedVariant(paintYamakibi, -14, (ctx) => {
   tinyLeaf(ctx, 22, -30, 0.6, "#e0c85a");
 });
 
+// 4系統の最終進化(モフリガーデン/ボルドリル/バクフェニ/テンストーム)は、
+// 見た目が2進化目の使い回しだったため、シルエットから作り直した専用の姿にする。
+
+function paintMofurigarden(ctx) {
+  ctx.strokeStyle = "#2f5c1e";
+  ctx.lineWidth = 8;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(38, 4, 13, Math.PI * 0.15, Math.PI * 1.3);
+  ctx.stroke();
+
+  // 大きく広がった花びらの襟巻き
+  for (const [ang, color] of [[-1.1, "#f78fb3"], [-0.55, "#ffe07a"], [0, "#f78fb3"], [0.55, "#ffe07a"], [1.1, "#f78fb3"]]) {
+    const px = Math.sin(ang) * 34;
+    const py = 14 + Math.cos(ang) * 10;
+    glossOval(ctx, px, py, 10, 6, color, "#c96a8c", "#3d6b26", 2);
+  }
+
+  // 体は縦長のしずく型にして、丸いだけの前身から一歩進んだ姿にする
+  glossOval(ctx, 0, 4, 26, 32, "#a8ec78", "#4a7d2e", "#2f5c1e", 6);
+  glossOval(ctx, 0, 22, 13, 12, "#e2f9c8", "#b8e48e", "#2f5c1e", 3);
+
+  petalFlower(ctx, 0, -30, 11, "#ffe07a", "#f78fb3");
+  petalFlower(ctx, -18, -22, 7, "#f78fb3", "#ffe07a");
+  petalFlower(ctx, 18, -22, 7, "#f78fb3", "#ffe07a");
+
+  tri(ctx, -34, -30, -8, -18, -30, -6, "#8ed85c", "#2f5c1e");
+  tri(ctx, 34, -30, 8, -18, 30, -6, "#8ed85c", "#2f5c1e");
+
+  shine(ctx, -12, -10, 12, 8);
+  eye(ctx, -11, -2);
+  eye(ctx, 11, -2);
+  smile(ctx, 0, 12, 4.5);
+  blush(ctx, -20, 8);
+  blush(ctx, 20, 8);
+
+  ctx.strokeStyle = "#4a7d2e";
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 34); ctx.quadraticCurveTo(20, 44, 14, 58);
+  ctx.moveTo(0, 34); ctx.quadraticCurveTo(-4, 46, 4, 60);
+  ctx.stroke();
+  tinyLeaf(ctx, 14, 58, 0.3, "#9fe56c");
+  tinyLeaf(ctx, 4, 60, -0.3, "#9fe56c");
+}
+
+function paintBorudrill(ctx) {
+  rockPlate(ctx, -14, -26, 10);
+  rockPlate(ctx, 14, -26, 10);
+  rockPlate(ctx, 0, -34, 9);
+
+  // 体はモグラの丸い顔ではなく、ドリル状に尖ったひし形のシルエットにする
+  ctx.beginPath();
+  ctx.moveTo(0, -30);
+  ctx.lineTo(26, 6);
+  ctx.lineTo(0, 34);
+  ctx.lineTo(-26, 6);
+  ctx.closePath();
+  ctx.fillStyle = glossFill(ctx, 0, 4, 30, "#c9a878", "#75533d");
+  ctx.fill();
+  ctx.strokeStyle = "#3f2f20";
+  ctx.lineWidth = 5;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+
+  tri(ctx, -10, -22, 10, -22, 0, -46, "#e8c99a", "#3f2f20", 3);
+
+  glossOval(ctx, 0, 14, 15, 13, "#f0d3ac", "#d9b48f", "#3f2f20", 3);
+
+  tri(ctx, -26, -4, -44, -14, -30, 10, "#8a6244", "#3f2f20", 3);
+  tri(ctx, 26, -4, 44, -14, 30, 10, "#8a6244", "#3f2f20", 3);
+
+  shine(ctx, -12, -14, 11, 6);
+  eyeGlare(ctx, -11, -8);
+  eyeGlare(ctx, 11, -8);
+  ctx.strokeStyle = "#3f2f20";
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(0, 10, 5, Math.PI * 0.1, Math.PI * 0.9);
+  ctx.stroke();
+}
+
+function paintBakuphoenix(ctx) {
+  // 大きく広げた炎の翼(丸い胴体だけだった前身から、鳥らしいシルエットへ)
+  ctx.save();
+  ctx.translate(-32, -8);
+  ctx.rotate(-0.7);
+  flame(ctx, 0, 0, 1.7, "#ff9d2e", "#ffe07a");
+  ctx.restore();
+  ctx.save();
+  ctx.translate(32, -8);
+  ctx.rotate(0.7);
+  flame(ctx, 0, 0, 1.7, "#ff9d2e", "#ffe07a");
+  ctx.restore();
+
+  glossOval(ctx, 0, 2, 20, 30, "#ff9868", "#d9633a", "#a83f20", 6);
+  glossOval(ctx, 0, 18, 11, 12, "#fff0d6", "#ffe1b3", "#a83f20", 3);
+
+  flame(ctx, 0, -40, 1.1, "#ff9d2e", "#ffe07a");
+  flame(ctx, -11, -32, 0.7, "#ff9d2e", "#ffe07a");
+  flame(ctx, 11, -32, 0.7, "#ff9d2e", "#ffe07a");
+
+  shine(ctx, -9, -8, 9, 5);
+  eyeSharp(ctx, -8, -4);
+  eyeSharp(ctx, 8, -4);
+  smile(ctx, 0, 8, 3.5);
+
+  ctx.save();
+  ctx.translate(0, 34);
+  flame(ctx, 0, 6, 1.9, "#ff9d2e", "#ffe07a");
+  ctx.restore();
+}
+
+function paintTenstorm(ctx) {
+  // 大きく後方へ流れる翼(丸い胴体だけだった前身から、疾風の鳥らしいシルエットへ)
+  tri(ctx, -20, -10, -50, -22, -34, 14, "#8fcbe8", "#2f5f7a", 4);
+  tri(ctx, 20, -10, 50, -22, 34, 14, "#8fcbe8", "#2f5f7a", 4);
+
+  glossOval(ctx, 0, 0, 20, 26, "#c2eaf8", "#5489b7", "#2f5f7a", 6);
+  glossOval(ctx, 0, 12, 11, 11, "#ffffff", "#e8f7ff", "#2f5f7a", 3);
+
+  ctx.strokeStyle = "#2f5f7a";
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(-4, -24); ctx.lineTo(-10, -40); ctx.lineTo(-2, -34); ctx.lineTo(-8, -48);
+  ctx.moveTo(4, -24); ctx.lineTo(10, -40); ctx.lineTo(2, -34); ctx.lineTo(8, -48);
+  ctx.stroke();
+
+  windSwirl(ctx, -30, 4, 10);
+  windSwirl(ctx, 30, 4, 10);
+
+  shine(ctx, -9, -10, 9, 5);
+  eyeGlare(ctx, -9, -4);
+  eyeGlare(ctx, 9, -4);
+
+  ctx.strokeStyle = "#f6d35c";
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 24); ctx.lineTo(-6, 34); ctx.lineTo(2, 34); ctx.lineTo(-4, 46);
+  ctx.stroke();
+}
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
   hibachi: paintHibachi,
   fuwarisu: paintFuwarisu,
   mofurif: paintMofurif,
-  mofurigarden: paintMofurif,
+  mofurigarden: paintMofurigarden,
   borudogura: paintBorudogura,
-  borudrill: paintBorudogura,
+  borudrill: paintBorudrill,
   bakuhibachi: paintBakuhibachi,
-  bakuphoenix: paintBakuhibachi,
+  bakuphoenix: paintBakuphoenix,
   tenfuwarisu: paintTenfuwarisu,
-  tenstorm: paintTenfuwarisu,
+  tenstorm: paintTenstorm,
   pyokotan: paintPyokotan,
   gamadon: paintGamadon,
   pachikoro: paintPachikoro,
