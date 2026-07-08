@@ -8,6 +8,7 @@ import { markCaught } from "./systems/dex.js";
 import { toggleMute, isMuted } from "./audio.js";
 import { clearStatus } from "./systems/status.js";
 import { getStoredLang, setStoredLang } from "./i18n.js";
+import { setBgmMuted } from "./music.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -133,7 +134,7 @@ let last = 0;
 function loop(t) {
   const dt = Math.min((t - last) / 1000, 0.05);
   last = t;
-  if (game.input.wasPressed("mute")) toggleMute();
+  if (game.input.wasPressed("mute")) setBgmMuted(toggleMute());
   if (game.input.wasPressed("lang")) game.toggleLang();
   game.scene.update(dt);
   game.scene.draw(ctx);

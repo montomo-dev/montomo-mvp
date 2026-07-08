@@ -13,6 +13,7 @@ import { sfxSave, sfxItemGet } from "../audio.js";
 import { canClaimLegend, grantLegendReward } from "../systems/legend.js";
 import { ITEMS } from "../data/items.js";
 import { tr } from "../i18n.js";
+import { playBgm } from "../music.js";
 
 function stageLabel(game, stage) {
   return tr(game, stage.shortName, stage.nameEn);
@@ -99,6 +100,7 @@ export class FieldScene {
     if (!keepFacing) this.facing = "down";
     this.world = worldOf(this.stageId);
     this.initParticles();
+    playBgm(`field_${this.world}`);
   }
 
   initParticles() {

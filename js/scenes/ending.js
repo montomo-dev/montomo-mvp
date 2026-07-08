@@ -4,6 +4,7 @@ import { TitleScene } from "./title.js";
 import { FieldScene } from "./field.js";
 import { monsterName } from "../data/monsters.js";
 import { tr } from "../i18n.js";
+import { playBgm } from "../music.js";
 
 export class EndingScene {
   constructor(game, opts = {}) {
@@ -14,6 +15,7 @@ export class EndingScene {
     this.subtitle = opts.subtitle
       || tr(game, "もりの ヌシを のりこえ、きみと なかまは でんせつに なった。", "You overcame the Forest Nushi, and you and your friends became legendary.");
     this.subtitleEn = opts.subtitleEn || null;
+    playBgm("ending", { loop: false });
   }
 
   update(dt) {

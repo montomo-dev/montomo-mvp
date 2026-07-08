@@ -14,6 +14,7 @@ import { typeOf, typeEffectiveness, typeNameEn } from "../data/types.js";
 import { STATUS_LABEL, STATUS_LABEL_EN, maybeInflictStatus, canAct, applyEndOfTurnStatus, clearStatus } from "../systems/status.js";
 import { bossIntroText, bossVictoryLines } from "../data/story.js";
 import { tr } from "../i18n.js";
+import { playBgm } from "../music.js";
 
 function effectivenessMessage(game, eff) {
   if (eff === 0) return tr(game, "こうかが ないようだ…", "It doesn't seem to be effective...");
@@ -90,6 +91,7 @@ export class BattleScene {
         ? bossIntroText(enemy.speciesId, enemyName, game.lang)
         : tr(game, `やせいの ${enemyName} が とびだしてきた！`, `A wild ${enemyName} jumped out!`),
     ];
+    playBgm(this.isBoss ? "boss" : "battle");
   }
 
   say(messages, after) {
@@ -509,6 +511,7 @@ export class BattleScene {
   }
 
   victory(messages) {
+    playBgm("victory", { loop: false });
     const enemySpecies = SPECIES[this.enemy.speciesId];
     const exp = enemySpecies.exp * this.enemy.level;
     const money = Math.max(3, Math.round(enemySpecies.exp * this.enemy.level * 0.4));

@@ -3,6 +3,7 @@ import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
 import { tr } from "../i18n.js";
+import { playBgm } from "../music.js";
 
 const nameInput = document.getElementById("name-input");
 const MENU_OPTIONS = ["continue", "new", "delete"];
@@ -26,6 +27,7 @@ export class TitleScene {
     this.menuSlot = null;
     this.menuCursor = 0;
     this.refreshSlots();
+    playBgm("title");
   }
 
   refreshSlots() {
