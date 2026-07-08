@@ -78,6 +78,84 @@ function eye(ctx, x, y, r = 8) {
   circle(ctx, x + r * 0.32, y + r * 0.18, r * 0.12, "#ffffff");
 }
 
+// 目のバリエーション: タイプ・性格ごとに描き分けて「目の使い回し感」を減らすためのセット。
+// いずれも eye() と同じ (ctx, x, y, r) で差し替えられるようにしている。
+
+// ほのお/むし系: きりっとした吊り目
+function eyeSharp(ctx, x, y, r = 8) {
+  ctx.beginPath();
+  ctx.moveTo(x - r, y + r * 0.1);
+  ctx.quadraticCurveTo(x - r * 0.3, y - r * 0.78, x + r * 0.95, y - r * 0.35);
+  ctx.quadraticCurveTo(x + r * 0.3, y + r * 0.55, x - r, y + r * 0.1);
+  ctx.closePath();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  circle(ctx, x + r * 0.15, y - r * 0.05, r * 0.42, "#2b2b33");
+  circle(ctx, x + r * 0.35, y - r * 0.2, r * 0.12, "#ffffff");
+}
+
+// みず系: 大きくてまるい、あどけない目
+function eyeBig(ctx, x, y, r = 8) {
+  circle(ctx, x, y, r * 1.15, "#ffffff", "#2b2b33", 2.5);
+  circle(ctx, x, y + r * 0.15, r * 0.62, "#2b2b33");
+  circle(ctx, x - r * 0.28, y - r * 0.32, r * 0.32, "#ffffff");
+  circle(ctx, x + r * 0.3, y + r * 0.35, r * 0.12, "#ffffff");
+}
+
+// でんき系: 瞳が星形(スパーク)になっている目
+function eyeStar(ctx, x, y, r = 8) {
+  circle(ctx, x, y, r, "#ffffff", "#2b2b33", 2.5);
+  starSpark(ctx, x, y + r * 0.08, r * 0.58, "#2b2b33");
+  circle(ctx, x - r * 0.22, y - r * 0.26, r * 0.16, "#ffffff");
+}
+
+// こおり系: 半分閉じた、落ち着いた目
+function eyeSleepy(ctx, x, y, r = 8) {
+  ctx.beginPath();
+  ctx.arc(x, y + r * 0.12, r, Math.PI * 0.05, Math.PI * 0.95);
+  ctx.closePath();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  circle(ctx, x, y + r * 0.42, r * 0.4, "#2b2b33");
+  circle(ctx, x - r * 0.15, y + r * 0.3, r * 0.12, "#ffffff");
+}
+
+// じめん/いわ/むし系: 白目を持たない、素朴な小さい黒目
+function eyeDot(ctx, x, y, r = 8) {
+  circle(ctx, x, y, r * 0.55, "#2b2b33", null);
+  circle(ctx, x - r * 0.15, y - r * 0.15, r * 0.16, "#ffffff");
+}
+
+// あく/ひこう系: 鋭くつり上がった、やや威圧的な目
+function eyeGlare(ctx, x, y, r = 8) {
+  ctx.beginPath();
+  ctx.moveTo(x - r, y - r * 0.3);
+  ctx.lineTo(x + r, y + r * 0.15);
+  ctx.lineTo(x + r * 0.7, y + r * 0.65);
+  ctx.lineTo(x - r * 0.8, y + r * 0.35);
+  ctx.closePath();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.strokeStyle = "#2b2b33";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+  circle(ctx, x + r * 0.15, y + r * 0.2, r * 0.38, "#2b2b33");
+}
+
+// はがね/ゴースト系: 白目のない、うつろに光る目
+function eyeHollow(ctx, x, y, r = 8, glow = "#9ad9ff") {
+  circle(ctx, x, y, r, "#1a1a24", "#2b2b33", 2);
+  circle(ctx, x, y, r * 0.4, glow, null);
+}
+
 function blush(ctx, x, y) {
   ctx.globalAlpha = 0.45;
   circle(ctx, x, y, 4.5, "#f78fb3", null);
@@ -253,8 +331,8 @@ function paintHibachi(ctx) {
   glossOval(ctx, -13, 26, 7, 4.5, "#ff9868", "#d9633a", "#a83f20", 2.5);
   glossOval(ctx, 13, 26, 7, 4.5, "#ff9868", "#d9633a", "#a83f20", 2.5);
   shine(ctx, -11, -13, 11, 6);
-  eye(ctx, -10, -7);
-  eye(ctx, 10, -7);
+  eyeSharp(ctx, -10, -7);
+  eyeSharp(ctx, 10, -7);
   smile(ctx, 0, 4, 4.5);
   blush(ctx, -19, 2);
   blush(ctx, 19, 2);
@@ -274,8 +352,8 @@ function paintFuwarisu(ctx) {
   ctx.stroke();
   glossOval(ctx, 0, 11, 14, 13, "#ffffff", "#e8f7ff", "#4a86a8", 3);
   shine(ctx, -11, -13, 11, 6);
-  eye(ctx, -10, -6);
-  eye(ctx, 10, -6);
+  eyeGlare(ctx, -10, -6);
+  eyeGlare(ctx, 10, -6);
   tri(ctx, -5, 1, 5, 1, 0, 9, "#f5a13d", "#c97c22", 1.5);
   ctx.strokeStyle = "#f5a13d";
   ctx.lineWidth = 3.5;
@@ -370,8 +448,8 @@ function paintBakuhibachi(ctx) {
   starSpark(ctx, -31, -11, 4, "#ffe07a");
   starSpark(ctx, 31, -8, 4, "#ffe07a");
   shine(ctx, -12, -14, 12, 6);
-  eye(ctx, -11, -6, 8.5);
-  eye(ctx, 11, -6, 8.5);
+  eyeSharp(ctx, -11, -6, 8.5);
+  eyeSharp(ctx, 11, -6, 8.5);
   smile(ctx, 0, 5, 5);
   blush(ctx, -21, 3);
   blush(ctx, 21, 3);
@@ -398,8 +476,8 @@ function paintTenfuwarisu(ctx) {
   glossOval(ctx, 0, 12, 15, 14, "#ffffff", "#e8f7ff", "#3a6f8f", 3);
   starSpark(ctx, 24, -34, 6, "#fff4c2");
   shine(ctx, -12, -14, 12, 6);
-  eye(ctx, -11, -6, 9);
-  eye(ctx, 11, -6, 9);
+  eyeGlare(ctx, -11, -6, 9);
+  eyeGlare(ctx, 11, -6, 9);
   tri(ctx, -5, 1, 5, 1, 0, 10, "#f5a13d", "#c97c22", 1.5);
   ctx.strokeStyle = "#f5a13d";
   ctx.lineWidth = 4;
@@ -454,8 +532,8 @@ function paintPachikoro(ctx) {
   ctx.stroke();
   glossOval(ctx, 0, 14, 13, 11, "#fff6d9", "#ffe9a8", "#6b4e0c", 2.5);
   shine(ctx, -12, -14, 11, 6);
-  eye(ctx, -10, -7, 8);
-  eye(ctx, 10, -7, 8);
+  eyeStar(ctx, -10, -7, 8);
+  eyeStar(ctx, 10, -7, 8);
   smile(ctx, 0, 4, 4.5);
   blush(ctx, -19, 1);
   blush(ctx, 19, 1);
@@ -497,8 +575,8 @@ function paintOrihiko(ctx) {
   ctx.stroke();
 
   ctx.restore();
-  eye(ctx, -5, -5, 7.5);
-  eye(ctx, 10, -2, 7.5);
+  eyeGlare(ctx, -5, -5, 7.5);
+  eyeGlare(ctx, 10, -2, 7.5);
   smile(ctx, 2, 10, 4);
   blush(ctx, -18, 6);
   blush(ctx, 20, 8);
@@ -577,8 +655,8 @@ function paintTsuboco(ctx) {
   ctx.stroke();
   ctx.restore();
   shine(ctx, -12, -12, 11, 6);
-  eye(ctx, -8, -4, 7);
-  eye(ctx, 8, -4, 7);
+  eyeDot(ctx, -8, -4, 7);
+  eyeDot(ctx, 8, -4, 7);
   smile(ctx, 0, 6, 4.2);
   blush(ctx, -18, 4);
   blush(ctx, 18, 4);
@@ -763,8 +841,8 @@ function paintHonbori(ctx) {
   shine(ctx, -12, -16, 11, 6);
 
   glossOval(ctx, 0, 12, 14, 10, "#fff2d6", "#ffe0a8", "#6b3f10", 2.5);
-  eye(ctx, -10, -4, 8);
-  eye(ctx, 10, -4, 8);
+  eyeGlare(ctx, -10, -4, 8);
+  eyeGlare(ctx, 10, -4, 8);
   tri(ctx, -4, 6, 4, 6, 0, 12, "#a8621f", null);
   blush(ctx, -20, 6);
   blush(ctx, 20, 6);
@@ -778,8 +856,8 @@ function paintTsubogame(ctx) {
   tri(ctx, -6, 26, 6, 26, 0, 34, "#a88a5c", "#5c4a30", 2);
 
   glossCircle(ctx, 0, -22, 12, "#e2c99a", "#a88a5c", "#5c4a30", 2.5);
-  eye(ctx, -5, -23, 6);
-  eye(ctx, 5, -23, 6);
+  eyeDot(ctx, -5, -23, 6);
+  eyeDot(ctx, 5, -23, 6);
   smile(ctx, 0, -17, 3.5);
 
   glossOval(ctx, 0, 4, 30, 26, "#8fc7ae", "#5a8f7a", "#2f5745", 6);
@@ -813,8 +891,8 @@ function paintSandango(ctx) {
   glossOval(ctx, 13, -18, 6, 9, "#8fce6a", "#5fa03e", "#345c22", 2.2);
   glossCircle(ctx, 0, -20, 14, "#a8dd82", "#7ac457", "#345c22", 3);
   shine(ctx, -6, -24, 6, 3.5);
-  eye(ctx, -6, -21, 6);
-  eye(ctx, 6, -21, 6);
+  eyeGlare(ctx, -6, -21, 6);
+  eyeGlare(ctx, 6, -21, 6);
   smile(ctx, 0, -16, 3.5);
   blush(ctx, -13, -17);
   blush(ctx, 13, -17);
@@ -842,8 +920,8 @@ function paintPukurin(ctx) {
   circle(ctx, -14, -8, 4, "rgba(255,255,255,0.55)", null);
   circle(ctx, 10, 4, 3, "rgba(255,255,255,0.4)", null);
   shine(ctx, -12, -10, 12, 7);
-  eye(ctx, -9, -4, 7.5);
-  eye(ctx, 9, -4, 7.5);
+  eyeBig(ctx, -9, -4, 7.5);
+  eyeBig(ctx, 9, -4, 7.5);
   smile(ctx, 0, 7, 4);
   blush(ctx, -18, 6);
   blush(ctx, 18, 6);
@@ -900,8 +978,8 @@ function paintHoshimogu(ctx) {
   shine(ctx, -13, -10, 12, 7);
 
   glossOval(ctx, 0, 14, 15, 11, "#efe9ff", "#cfc2f0", "#1c1730", 2.5);
-  eye(ctx, -9, -3, 7);
-  eye(ctx, 9, -3, 7);
+  eyeDot(ctx, -9, -3, 7);
+  eyeDot(ctx, 9, -3, 7);
   ctx.fillStyle = "#2b2440";
   tri(ctx, -4, 4, 4, 4, 0, 9, "#8a7ab0", null);
   smile(ctx, 0, 12, 3.6);
@@ -937,8 +1015,8 @@ function paintFuyudama(ctx) {
 
   shine(ctx, -13, -12, 13, 8);
   glossOval(ctx, 0, 12, 14, 9, "#f2fbff", "#dcf1fb", "#8fbcd8", 2.2);
-  eye(ctx, -9, -2, 7.5);
-  eye(ctx, 9, -2, 7.5);
+  eyeSleepy(ctx, -9, -2, 7.5);
+  eyeSleepy(ctx, 9, -2, 7.5);
   smile(ctx, 0, 9, 3.8);
   ctx.globalAlpha = 0.45;
   circle(ctx, -18, 6, 4.5, "#8fd0ee", null);
@@ -978,8 +1056,8 @@ function paintNejiko(ctx) {
   shine(ctx, -12, -12, 12, 7);
 
   glossOval(ctx, 0, 13, 14, 10, "#fff4d9", "#f0dba8", "#5c4a26", 2.5);
-  eye(ctx, -9, -3, 7.5);
-  eye(ctx, 9, -3, 7.5);
+  eyeHollow(ctx, -9, -3, 7.5);
+  eyeHollow(ctx, 9, -3, 7.5);
   tri(ctx, -4, 4, 4, 4, 0, 8, "#a8621f", null);
   smile(ctx, 0, 11, 3.8);
   blush(ctx, -18, 7);
@@ -1007,8 +1085,8 @@ function paintKaigaran(ctx) {
   shine(ctx, -12, -6, 12, 7);
 
   glossOval(ctx, 0, 18, 15, 10, "#ffe6c2", "#f2c48a", "#7a4620", 2.5);
-  eye(ctx, -9, 4, 7);
-  eye(ctx, 9, 4, 7);
+  eyeBig(ctx, -9, 4, 7);
+  eyeBig(ctx, 9, 4, 7);
   smile(ctx, 0, 15, 3.6);
   blush(ctx, -19, 12);
   blush(ctx, 19, 12);
@@ -1032,8 +1110,8 @@ function paintAwairuka(ctx) {
 
   shine(ctx, -12, -6, 12, 7);
   glossOval(ctx, 0, 14, 15, 10, "#eaf9ff", "#c3ecff", "#1f5e78", 2.5);
-  eye(ctx, -9, 0, 7);
-  eye(ctx, 9, 0, 7);
+  eyeBig(ctx, -9, 0, 7);
+  eyeBig(ctx, 9, 0, 7);
   smile(ctx, 0, 11, 4);
   blush(ctx, -18, 8);
   blush(ctx, 18, 8);
@@ -1072,8 +1150,8 @@ function paintHikariebi(ctx) {
 
   shine(ctx, -10, -10, 11, 6);
   glossOval(ctx, -2, 8, 13, 9, "#eafff8", "#c9fff0", "#3fa88a", 2.2);
-  eye(ctx, -8, -6, 6.5);
-  eye(ctx, 4, -6, 6.5);
+  eyeBig(ctx, -8, -6, 6.5);
+  eyeBig(ctx, 4, -6, 6.5);
   smile(ctx, -2, 10, 3.4);
   blush(ctx, -16, 6);
 }
@@ -1131,8 +1209,8 @@ function paintYamiankou(ctx) {
   }
 
   glossOval(ctx, 0, 20, 14, 9, "#8a75b0", "#6a5590", "#241c38", 2.2);
-  eye(ctx, -9, 6, 6.5);
-  eye(ctx, 9, 6, 6.5);
+  eyeBig(ctx, -9, 6, 6.5);
+  eyeBig(ctx, 9, 6, 6.5);
   blush(ctx, -18, 12);
   blush(ctx, 18, 12);
 }
@@ -1160,8 +1238,8 @@ function paintYukimaro(ctx) {
   shine(ctx, -13, -8, 12, 7);
 
   glossOval(ctx, 0, 16, 14, 10, "#ffffff", "#f2f8fc", "#a8c8d8", 2.2);
-  eye(ctx, -9, 2, 7);
-  eye(ctx, 9, 2, 7);
+  eyeSleepy(ctx, -9, 2, 7);
+  eyeSleepy(ctx, 9, 2, 7);
   tri(ctx, -4, 10, 4, 10, 0, 15, "#f5a8c0", null);
   smile(ctx, 0, 18, 3.4);
   blush(ctx, -18, 10);
@@ -1197,8 +1275,8 @@ function paintKooritsumu(ctx) {
   shine(ctx, -13, -4, 12, 7);
 
   glossOval(ctx, 0, 18, 14, 10, "#eafcff", "#c9f0fc", "#3f8aa8", 2.2);
-  eye(ctx, -9, 4, 7);
-  eye(ctx, 9, 4, 7);
+  eyeSleepy(ctx, -9, 4, 7);
+  eyeSleepy(ctx, 9, 4, 7);
   smile(ctx, 0, 20, 3.4);
   blush(ctx, -18, 12);
   blush(ctx, 18, 12);
@@ -1236,8 +1314,8 @@ function paintPengiri(ctx) {
   glossOval(ctx, 0, -20, 15, 15, "#3a4a5a", "#232d38", "#141a20", 5);
   glossOval(ctx, 0, -14, 9, 10, "#eef5fb", "#dcedf7", "#141a20", 2.2);
   tri(ctx, -3, -13, 3, -13, 0, -6, "#e8a23a", "#8a4e18", 1.8);
-  eye(ctx, -6, -19, 6);
-  eye(ctx, 6, -19, 6);
+  eyeSleepy(ctx, -6, -19, 6);
+  eyeSleepy(ctx, 6, -19, 6);
   blush(ctx, -14, -13);
   blush(ctx, 14, -13);
 }
@@ -1337,8 +1415,8 @@ function paintSunasasori(ctx) {
   shine(ctx, -13, -6, 12, 7);
 
   glossOval(ctx, 0, 16, 14, 9, "#fff0c9", "#f0d99a", "#8a621c", 2.2);
-  eye(ctx, -9, 2, 7);
-  eye(ctx, 9, 2, 7);
+  eyeDot(ctx, -9, 2, 7);
+  eyeDot(ctx, 9, 2, 7);
   smile(ctx, 0, 14, 3.4);
   blush(ctx, -18, 8);
   blush(ctx, 18, 8);
@@ -1376,8 +1454,8 @@ function paintRakudan(ctx) {
     ctx.stroke();
     ctx.restore();
   }
-  eye(ctx, 17, -34, 5.5);
-  eye(ctx, 27, -34, 5.5);
+  eyeDot(ctx, 17, -34, 5.5);
+  eyeDot(ctx, 27, -34, 5.5);
   smile(ctx, 22, -28, 3);
   blush(ctx, 10, -30);
 
@@ -1409,8 +1487,8 @@ function paintSunamiira(ctx) {
   ctx.stroke();
 
   glossOval(ctx, 0, 4, 15, 10, "#3a3020", "#241c14", "#8a7550", 2.2);
-  eye(ctx, -8, 2, 6);
-  eye(ctx, 8, 2, 6);
+  eyeHollow(ctx, -8, 2, 6);
+  eyeHollow(ctx, 8, 2, 6);
   blush(ctx, -18, 8);
   blush(ctx, 18, 8);
 }
@@ -1660,8 +1738,8 @@ function paintSparkun(ctx) {
   shine(ctx, -13, -6, 12, 7);
 
   glossOval(ctx, 0, 16, 14, 9, "#fffbe0", "#fff0a0", "#a8842a", 2.2);
-  eye(ctx, -9, 2, 7);
-  eye(ctx, 9, 2, 7);
+  eyeStar(ctx, -9, 2, 7);
+  eyeStar(ctx, 9, 2, 7);
   smile(ctx, 0, 14, 3.4);
   blush(ctx, -18, 8);
   blush(ctx, 18, 8);
@@ -1884,8 +1962,8 @@ function paintAkumakko(ctx) {
   tri(ctx, 12, -20, 6, -8, 18, -6, "#3a0f1e", "#1a0812", 1.6);
 
   glossOval(ctx, 0, 14, 13, 8, "#e8c9d8", "#d89ab8", "#1a0812", 2);
-  eye(ctx, -8, 0, 6.5);
-  eye(ctx, 8, 0, 6.5);
+  eyeGlare(ctx, -8, 0, 6.5);
+  eyeGlare(ctx, 8, 0, 6.5);
   ctx.strokeStyle = "#1a0812";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -2091,8 +2169,8 @@ function paintNoroigumo(ctx) {
   shine(ctx, -10, 2, 10, 6);
 
   glossCircle(ctx, 0, -12, 15, "#3a2450", "#1a1024", "#0d0812", 4.5);
-  eye(ctx, -8, -13, 6.5);
-  eye(ctx, 8, -13, 6.5);
+  eyeDot(ctx, -8, -13, 6.5);
+  eyeDot(ctx, 8, -13, 6.5);
   circle(ctx, -4, -6, 2, "#0d0812", null);
   circle(ctx, 4, -6, 2, "#0d0812", null);
 }
@@ -2807,8 +2885,8 @@ function paintMizukusa(ctx) {
   ctx.moveTo(3, 18);
   ctx.quadraticCurveTo(8, 32, 2, 36);
   ctx.stroke();
-  eye(ctx, -6, -4, 6.5);
-  eye(ctx, 6, -4, 6.5);
+  eyeDot(ctx, -6, -4, 6.5);
+  eyeDot(ctx, 6, -4, 6.5);
   smile(ctx, 0, 8, 3.2);
   scaleMark(ctx, -10, 6, 4, "rgba(255,255,255,0.25)");
   scaleMark(ctx, 10, 6, 4, "rgba(255,255,255,0.25)");
@@ -2829,8 +2907,8 @@ function paintSunamaru(ctx) {
   }
   ctx.fill();
   ctx.stroke();
-  eye(ctx, -7, -2, 6.8);
-  eye(ctx, 7, -2, 6.8);
+  eyeDot(ctx, -7, -2, 6.8);
+  eyeDot(ctx, 7, -2, 6.8);
   smile(ctx, 0, 8, 3.2);
 }
 
@@ -2851,8 +2929,8 @@ function paintTsukihane(ctx) {
   ctx.quadraticCurveTo(22, 22, 16, 34);
   ctx.stroke();
   starSpark(ctx, -14, -10, 4.2, "#fff1a6");
-  eye(ctx, -6, -3, 6.8);
-  eye(ctx, 6, -3, 6.8);
+  eyeHollow(ctx, -6, -3, 6.8);
+  eyeHollow(ctx, 6, -3, 6.8);
   smile(ctx, 0, 8, 3.2);
 }
 
@@ -2865,8 +2943,8 @@ function paintMizutama(ctx) {
   glossCircle(ctx, 0, 10, 16, body, "#63cfe3", line, 4);
   scaleMark(ctx, -5, 6, 3.4, "rgba(255,255,255,0.28)");
   scaleMark(ctx, 7, 14, 3.4, "rgba(255,255,255,0.28)");
-  eye(ctx, -6, 8, 5.8);
-  eye(ctx, 6, 8, 5.8);
+  eyeBig(ctx, -6, 8, 5.8);
+  eyeBig(ctx, 6, 8, 5.8);
   smile(ctx, 0, 16, 3.0);
 }
 
@@ -2898,8 +2976,8 @@ function paintIshimaru(ctx) {
   ctx.moveTo(-7, 4);
   ctx.lineTo(10, 0);
   ctx.stroke();
-  eye(ctx, -6, -1, 6.2);
-  eye(ctx, 6, -1, 6.2);
+  eyeDot(ctx, -6, -1, 6.2);
+  eyeDot(ctx, 6, -1, 6.2);
   smile(ctx, 0, 9, 3.0);
 }
 
@@ -2917,8 +2995,8 @@ function paintKazepeko(ctx) {
   ctx.moveTo(-18, 10);
   ctx.quadraticCurveTo(-31, 16, -42, 18);
   ctx.stroke();
-  eye(ctx, -6, -3, 6.5);
-  eye(ctx, 6, -3, 6.5);
+  eyeGlare(ctx, -6, -3, 6.5);
+  eyeGlare(ctx, 6, -3, 6.5);
   smile(ctx, 0, 7, 3.1);
 }
 
@@ -2937,8 +3015,8 @@ function paintHikariame(ctx) {
   ctx.moveTo(11, 16);
   ctx.lineTo(14, 28);
   ctx.stroke();
-  eye(ctx, -6, 0, 6.2);
-  eye(ctx, 6, 0, 6.2);
+  eyeBig(ctx, -6, 0, 6.2);
+  eyeBig(ctx, 6, 0, 6.2);
   smile(ctx, 0, 10, 3.1);
 }
 
@@ -3007,8 +3085,8 @@ function paintHaribune(ctx) {
   ctx.moveTo(-14, 0);
   ctx.lineTo(14, 0);
   ctx.stroke();
-  eye(ctx, -6, -2, 6.3);
-  eye(ctx, 6, -2, 6.3);
+  eyeBig(ctx, -6, -2, 6.3);
+  eyeBig(ctx, 6, -2, 6.3);
   smile(ctx, 0, 8, 3.0);
 }
 
