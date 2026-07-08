@@ -3269,12 +3269,76 @@ function paintKazaribi(ctx) {
   ctx.globalAlpha = 1;
 }
 
-const paintGamadon = evolvedVariant(paintPyokotan, -18, (ctx) => {
-  tinyLeaf(ctx, 0, -34, 0, "#2fd9c0");
-});
-const paintPachiking = evolvedVariant(paintPachikoro, 14, (ctx) => {
-  tri(ctx, -6, -36, 0, -48, 6, -36, "#fff2a0", "#c99a12", 2);
-});
+function paintGamadon(ctx) {
+  // 王冠のような大きな水玉(丸い体だけだった前身から一歩進んだ姿に)
+  ctx.save();
+  ctx.translate(0, -38);
+  glossOval(ctx, 0, 0, 11, 15, "#2fd9c0", "#1f8f7f", "#155c50", 3);
+  circle(ctx, -3, -5, 2, "#ffffff", null);
+  ctx.restore();
+
+  glossOval(ctx, -20, 28, 11, 7, "#7ee0c8", "#1f8f7f", "#155c50", 3);
+  glossOval(ctx, 20, 28, 11, 7, "#7ee0c8", "#1f8f7f", "#155c50", 3);
+
+  // 横に大きく広がった、王者らしいどっしりした体
+  glossOval(ctx, 0, 6, 38, 30, "#9df0d8", "#1f8f7f", "#155c50", 6);
+
+  glossCircle(ctx, -16, -12, 12, "#ffffff", "#dff7ee", "#155c50", 3);
+  glossCircle(ctx, 16, -12, 12, "#ffffff", "#dff7ee", "#155c50", 3);
+  circle(ctx, -16, -8, 7, "#2b2b33", null);
+  circle(ctx, 16, -8, 7, "#2b2b33", null);
+  circle(ctx, -19, -11, 2.6, "#ffffff", null);
+  circle(ctx, 13, -11, 2.6, "#ffffff", null);
+
+  // 大きく膨らんだのど袋(このモンスターならではのシルエット)
+  glossOval(ctx, 0, 22, 20, 15, "#c9fbe8", "#7ee0c8", "#155c50", 3);
+
+  smile(ctx, 0, 8, 6);
+  blush(ctx, -26, 14);
+  blush(ctx, 26, 14);
+
+  for (const [wx, wy] of [[-24, -2], [24, -2], [-14, 20], [14, 20]]) {
+    circle(ctx, wx, wy, 2.4, "#7ee0c8", null);
+  }
+}
+
+function paintPachiking(ctx) {
+  ctx.strokeStyle = "#8a6b12";
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-8, -30); ctx.quadraticCurveTo(-14, -42, -22, -46);
+  ctx.moveTo(8, -30); ctx.quadraticCurveTo(14, -42, 22, -46);
+  ctx.stroke();
+  starSpark(ctx, -23, -48, 6, "#fff4a3");
+  starSpark(ctx, 23, -48, 6, "#fff4a3");
+  starSpark(ctx, 0, -40, 5, "#fff4a3");
+
+  // 甲虫らしく頭・胸・腹の3節に分かれたシルエット(丸い体だけだった前身から進化)
+  glossOval(ctx, 0, -16, 16, 13, "#ffe27a", "#c99a1e", "#6b4e0c", 5);
+  glossOval(ctx, 0, 10, 24, 20, "#ffe27a", "#e0a52e", "#6b4e0c", 6);
+  glossOval(ctx, 0, 34, 18, 15, "#f6d97a", "#c99a1e", "#6b4e0c", 5);
+
+  // 大きく広げた、ふちが稲妻状の羽
+  tri(ctx, -20, -4, -46, -14, -32, 20, "#fff6d9", "#6b4e0c", 3);
+  tri(ctx, 20, -4, 46, -14, 32, 20, "#fff6d9", "#6b4e0c", 3);
+  ctx.strokeStyle = "#e0a52e";
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(-38, -8); ctx.lineTo(-32, 0); ctx.lineTo(-38, 4); ctx.lineTo(-30, 14);
+  ctx.moveTo(38, -8); ctx.lineTo(32, 0); ctx.lineTo(38, 4); ctx.lineTo(30, 14);
+  ctx.stroke();
+
+  glossCircle(ctx, -12, -18, 8, "#ffffff", "#dff7ee", "#6b4e0c", 2.5);
+  glossCircle(ctx, 12, -18, 8, "#ffffff", "#dff7ee", "#6b4e0c", 2.5);
+  circle(ctx, -12, -15, 4.6, "#2b2b33", null);
+  circle(ctx, 12, -15, 4.6, "#2b2b33", null);
+  starSpark(ctx, -12, -16, 2, "#fff4a3");
+  starSpark(ctx, 12, -16, 2, "#fff4a3");
+
+  glossOval(ctx, 0, 34, 10, 8, "#fff6d9", "#ffe9a8", "#6b4e0c", 2);
+}
 const paintOrifalcon = evolvedVariant(paintOrihiko, 22, (ctx) => {
   shine(ctx, -10, -30, 12, 5);
 });
