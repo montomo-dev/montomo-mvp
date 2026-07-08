@@ -100,9 +100,9 @@ export const STAGES = {
       "2222222222222222",
     ],
     npcs: [
-      { x: 2, y: 4, line: "ここは はじまりのまち。 やどやで つかれを いやせるよ。" },
-      { x: 6, y: 4, line: "ぼうけんの ちょうしは どうだい？ たまには まちで やすむのも いいものさ。" },
-      { x: 9, y: 7, line: "むらの おくには まだ みたことのない せかいが ひろがっているらしい…" },
+      { x: 2, y: 4, line: "ここは はじまりのまち。 やどやで つかれを いやせるよ。", lineEn: "This is the starting town. You can heal your fatigue at the inn." },
+      { x: 6, y: 4, line: "ぼうけんの ちょうしは どうだい？ たまには まちで やすむのも いいものさ。", lineEn: "How's the adventure going? It's good to rest in town once in a while." },
+      { x: 9, y: 7, line: "むらの おくには まだ みたことのない せかいが ひろがっているらしい…", lineEn: "Deep beyond the village, they say an unseen world stretches out..." },
     ],
   },
   stage2: {
@@ -465,9 +465,9 @@ export const STAGES = {
       "2222222222222222",
     ],
     npcs: [
-      { x: 2, y: 4, line: "なみおとが きもちいい まちだろう。やどやで ひとやすみ していきな。" },
-      { x: 6, y: 4, line: "うみの おくには まだ だれも みたことのない いきものが いるらしい。" },
-      { x: 9, y: 7, line: "しんかいヌシに いどむ まえには、ここで じゅんびを ととのえるといい。" },
+      { x: 2, y: 4, line: "なみおとが きもちいい まちだろう。やどやで ひとやすみ していきな。", lineEn: "Nice sound of the waves, isn't it? Take a rest at the inn." },
+      { x: 6, y: 4, line: "うみの おくには まだ だれも みたことのない いきものが いるらしい。", lineEn: "Deep in the sea, they say there are creatures no one has ever seen." },
+      { x: 9, y: 7, line: "しんかいヌシに いどむ まえには、ここで じゅんびを ととのえるといい。", lineEn: "Before challenging the Deep Sea Nushi, you should prepare here." },
     ],
   },
   sea_stage2: {
@@ -665,9 +665,9 @@ export const STAGES = {
       "2222222222222222",
     ],
     npcs: [
-      { x: 2, y: 4, line: "さむいだろう。やどやの だんろで あたたまっていくといい。" },
-      { x: 6, y: 4, line: "ゆきの おくに すむ ヌシに ちかづく ときは きを つけて。" },
-      { x: 9, y: 7, line: "ゆきどけの きせつには この まちも にぎわうんだ。" },
+      { x: 2, y: 4, line: "さむいだろう。やどやの だんろで あたたまっていくといい。", lineEn: "Must be cold, huh? Warm yourself by the fireplace at the inn." },
+      { x: 6, y: 4, line: "ゆきの おくに すむ ヌシに ちかづく ときは きを つけて。", lineEn: "Be careful when approaching the Nushi that lives deep in the snow." },
+      { x: 9, y: 7, line: "ゆきどけの きせつには この まちも にぎわうんだ。", lineEn: "This town gets lively when the snow melts each season." },
     ],
   },
   snow_stage2: {
@@ -865,9 +865,9 @@ export const STAGES = {
       "2222222222222222",
     ],
     npcs: [
-      { x: 2, y: 4, line: "オアシスの みずは きちょうだ。やどやで のどを うるおしていけ。" },
-      { x: 6, y: 4, line: "すなあらしの まえには かならず ここに たちよるんだ。" },
-      { x: 9, y: 7, line: "さばくの おくには こだいの いせきが ねむっているとか…" },
+      { x: 2, y: 4, line: "オアシスの みずは きちょうだ。やどやで のどを うるおしていけ。", lineEn: "The oasis water is precious. Quench your thirst at the inn." },
+      { x: 6, y: 4, line: "すなあらしの まえには かならず ここに たちよるんだ。", lineEn: "Always stop by here before a sandstorm hits." },
+      { x: 9, y: 7, line: "さばくの おくには こだいの いせきが ねむっているとか…", lineEn: "Deep in the desert, an ancient ruin is said to be sleeping..." },
     ],
   },
   desert_stage2: {
@@ -1065,9 +1065,9 @@ export const STAGES = {
       "2222222222222222",
     ],
     npcs: [
-      { x: 2, y: 4, line: "この まちの きかいは みんな てづくりさ。やどやで さびを おとしていけ。" },
-      { x: 6, y: 4, line: "はいきこうじょうの おくには あぶない きかいが うごいているらしい。" },
-      { x: 9, y: 7, line: "きんぞくの においが すきなんだ。おちついた ばしょだよ、ここは。" },
+      { x: 2, y: 4, line: "この まちの きかいは みんな てづくりさ。やどやで さびを おとしていけ。", lineEn: "All the machines in this town are handmade. Scrub off the rust at the inn." },
+      { x: 6, y: 4, line: "はいきこうじょうの おくには あぶない きかいが うごいているらしい。", lineEn: "Deep in the scrapped factory, dangerous machines are said to be running." },
+      { x: 9, y: 7, line: "きんぞくの においが すきなんだ。おちついた ばしょだよ、ここは。", lineEn: "I love the smell of metal. This is a calm place, this town." },
     ],
   },
   factory_stage2: {
@@ -1265,9 +1265,9 @@ export const STAGES = {
       "2222222222222222",
     ],
     npcs: [
-      { x: 2, y: 4, line: "この まちすら いつ ほろぶか わからない…おだやかな うちに やすんでいけ。" },
-      { x: 6, y: 4, line: "まおうの ちからは まちの すみずみまで しみついている。ゆだんするな。" },
-      { x: 9, y: 7, line: "ここが さいごの やすらぎの ばしょかもしれない。" },
+      { x: 2, y: 4, line: "この まちすら いつ ほろぶか わからない…おだやかな うちに やすんでいけ。", lineEn: "No one knows when even this town might fall... rest while it's still peaceful." },
+      { x: 6, y: 4, line: "まおうの ちからは まちの すみずみまで しみついている。ゆだんするな。", lineEn: "The Demon Lord's power has seeped into every corner of this town. Don't let your guard down." },
+      { x: 9, y: 7, line: "ここが さいごの やすらぎの ばしょかもしれない。", lineEn: "This might be the last place of peace." },
     ],
   },
   castle_stage2: {
