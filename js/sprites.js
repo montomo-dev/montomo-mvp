@@ -3777,7 +3777,224 @@ const paintSunoboriking = evolvedVariant(paintSunobori, 8, (ctx) => {
   starSpark(ctx, 0, -46, 4, "#fff4a3");
 });
 
+const paint_kurihari = evolvedVariant(paintMofuri, 300, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kurihariking = evolvedVariant(paint_kurihari, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_tsuchigani = evolvedVariant(paintDogura, 90, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_tsuchiganigou = evolvedVariant(paint_tsuchigani, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_kabumushi = evolvedVariant(paintHagumon, 200, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kabutotitan = evolvedVariant(paint_kabumushi, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_kagerouzu = evolvedVariant(paintKageuri, 140, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kagerouking = evolvedVariant(paint_kagerouzu, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_shizukudama = evolvedVariant(paintShizukuya, 160, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_shizukudamahime = evolvedVariant(paint_shizukudama, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_kaigaramaru = evolvedVariant(paintKaigaran, 40, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kaigaramaou = evolvedVariant(paint_kaigaramaru, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_kamomeru = evolvedVariant(paintFuwarisu, 210, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kamomeking = evolvedVariant(paint_kamomeru, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_unizoku = evolvedVariant(paintHikariebi, 260, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_unizokuoh = evolvedVariant(paint_unizoku, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_kooridama = evolvedVariant(paintFuyudama, 30, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kooridamaryu = evolvedVariant(paint_kooridama, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_shirokitsune = evolvedVariant(paintYukimaro, 50, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_shirokitsuneki = evolvedVariant(paint_shirokitsune, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_sunatokage = evolvedVariant(paintSunasasori, 300, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_sunatokagon = evolvedVariant(paint_sunatokage, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_saboko = evolvedVariant(paintSabotenko, 320, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_sabokolossal = evolvedVariant(paint_saboko, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_rakudako = evolvedVariant(paintRakudan, 250, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_rakudakoou = evolvedVariant(paint_rakudako, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_nejimaru = evolvedVariant(paintNejiko, 180, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_nejimarudragon = evolvedVariant(paint_nejimaru, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_kandenkko = evolvedVariant(paintSparkun, 100, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kandenoh = evolvedVariant(paint_kandenkko, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_yamikko = evolvedVariant(paintKuroguri, 60, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_yamikkolord = evolvedVariant(paint_yamikko, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_obakenoko = evolvedVariant(paintObako, 220, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_obakenoou = evolvedVariant(paint_obakenoko, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+const paint_kumogumo = evolvedVariant(paintNoroigumo, 90, (ctx) => {
+  shine(ctx, 0, -38, 9, 4.5);
+  starSpark(ctx, 0, -44, 3.5, "#fff4c0");
+});
+const paint_kumogumolord = evolvedVariant(paint_kumogumo, 20, (ctx) => {
+  shine(ctx, 0, -42, 11, 5.5);
+  starSpark(ctx, -14, -30, 3, "#fff4c0");
+  starSpark(ctx, 14, -30, 3, "#fff4c0");
+});
+
+
 const PAINTERS = {
+  kurihari: paint_kurihari,
+  kurihariking: paint_kurihariking,
+  tsuchigani: paint_tsuchigani,
+  tsuchiganigou: paint_tsuchiganigou,
+  kabumushi: paint_kabumushi,
+  kabutotitan: paint_kabutotitan,
+  kagerouzu: paint_kagerouzu,
+  kagerouking: paint_kagerouking,
+  shizukudama: paint_shizukudama,
+  shizukudamahime: paint_shizukudamahime,
+  kaigaramaru: paint_kaigaramaru,
+  kaigaramaou: paint_kaigaramaou,
+  kamomeru: paint_kamomeru,
+  kamomeking: paint_kamomeking,
+  unizoku: paint_unizoku,
+  unizokuoh: paint_unizokuoh,
+  kooridama: paint_kooridama,
+  kooridamaryu: paint_kooridamaryu,
+  shirokitsune: paint_shirokitsune,
+  shirokitsuneki: paint_shirokitsuneki,
+  sunatokage: paint_sunatokage,
+  sunatokagon: paint_sunatokagon,
+  saboko: paint_saboko,
+  sabokolossal: paint_sabokolossal,
+  rakudako: paint_rakudako,
+  rakudakoou: paint_rakudakoou,
+  nejimaru: paint_nejimaru,
+  nejimarudragon: paint_nejimarudragon,
+  kandenkko: paint_kandenkko,
+  kandenoh: paint_kandenoh,
+  yamikko: paint_yamikko,
+  yamikkolord: paint_yamikkolord,
+  obakenoko: paint_obakenoko,
+  obakenoou: paint_obakenoou,
+  kumogumo: paint_kumogumo,
+  kumogumolord: paint_kumogumolord,
   mofuri: paintMofuri,
   dogura: paintDogura,
   hibachi: paintHibachi,
