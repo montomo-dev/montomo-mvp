@@ -161,7 +161,7 @@ export class BattleScene {
       return;
     }
     if (this.after === "gameover") {
-      for (const m of this.game.party) m.hp = m.maxHp;
+      for (const m of this.game.party) { m.hp = m.maxHp; m.mp = m.maxMp; }
       this.game.field.resetPosition();
 
       const moneyBefore = this.game.money || 0;

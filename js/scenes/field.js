@@ -214,7 +214,7 @@ export class FieldScene {
 
   onStep(tile) {
     if (tile === T_SPRING) {
-      for (const m of this.game.party) m.hp = m.maxHp;
+      for (const m of this.game.party) { m.hp = m.maxHp; m.mp = m.maxMp; }
       this.showToast(tr(this.game, "いずみの ちからで みんな げんきに なった！", "The spring's power restored everyone!"));
       return;
     }
@@ -248,7 +248,7 @@ export class FieldScene {
       return;
     }
     if (tile === T_INN) {
-      for (const m of this.game.party) m.hp = m.maxHp;
+      for (const m of this.game.party) { m.hp = m.maxHp; m.mp = m.maxMp; }
       this.game.save();
       this.showToast(tr(this.game, "やどやで ぐっすり やすみ、げんきを とりもどした！", "You rested well at the inn and recovered!"));
       return;
