@@ -25,92 +25,93 @@ export const SPECIAL_RESULTS = {
   "tsukinone+yukibouzu": "reiseiou",
 
   // ここから下は「特殊配合」を増やすために追加したレシピ。
-  // 新しいモンスターは作らず、既存の野生種同士の組み合わせで
-  // 別の既存種が生まれるようにして、配合表の手応えを増やしている
-  "hibachi+sunasasori": "rakudan", // 炎+砂漠のさそり → 砂漠のふたこぶ
-  "kaigaran+pyokotan": "awairuka", // 水系どうしがとけあい → あわ吹きいるか
-  "fuwarisu+kazeneko": "sorane", // 空+風 → そらうさぎ
-  "hagurumaru+pachikoro": "karakuribat", // 歯車+でんき → からくりこうもり
-  "fuyudama+yukimaro": "kooritsumu", // 雪玉+雪うさぎ → つららの結晶
-  "akumakko+kageuri": "kokushou", // 小悪魔+かげのうり → やみのよろい
-  "sunamiira+yuureiking": "tsukihane", // いにしえの布+さまようゆうれい → つきかげの獣
-  "mizukusa+noroigumo": "sumiremo", // 水草の虫+のろいのくも → よるちょう(羽化のイメージ)
+  // 以前は既存の野生種がそのまま生まれる組み合わせが多く、
+  // 「配合しても野生で会える姿しか手に入らない」と不評だったため、
+  // すべて野生では出会えない専用の姿(進化後の姿、または配合限定の姿)に変更している
+  "hibachi+sunasasori": "rakudaking", // 炎+砂漠のさそり → ラクダキング(配合限定)
+  "kaigaran+pyokotan": "awarukaqueen", // 水系どうしがとけあい → アワイルカクイーン(配合限定)
+  "fuwarisu+kazeneko": "amakumousagi", // 空+風 → 進化後のそらうさぎ
+  "hagurumaru+pachikoro": "karakuriking", // 歯車+でんき → カラクリキング(配合限定)
+  "fuyudama+yukimaro": "kooritsumuking", // 雪玉+雪うさぎ → コオリツムオウ(配合限定)
+  "akumakko+kageuri": "kokushouking", // 小悪魔+かげのうり → コクショウオウ(配合限定)
+  "sunamiira+yuureiking": "tsukihanehime", // いにしえの布+さまようゆうれい → ツキハネヒメ(配合限定)
+  "mizukusa+noroigumo": "sumiremoking", // 水草の虫+のろいのくも → スミレモオウ(配合限定)
 
   // ここから下は「進化後の姿」そのものを親に指定したときだけ成立するレシピ。
   // baseSpeciesIdによる基礎形への丸め込みより先に判定されるため、
   // 進化前(例: モフリ)で配合した場合とは別の結果になる
-  "kotohana+mofurif": "hanamaro", // モフリーフ+ハナコトリ → ハナマロ
-  "harune+mofurif": "sakuraneko", // モフリーフ+ハルネ → サクラネコ
-  "borudogura+sunasasori": "sunaboko", // ボルドグラ+スナサソリ → スナボコ
-  "borudogura+sunamaru": "sunamiira", // ボルドグラ+スナマル → スナミイラ
-  "bakuhibachi+moriame": "tsuyuhika", // バクヒバチ+モリアメ → ツユヒカ
-  "bakuhibachi+hikariame": "shizukuya", // バクヒバチ+ヒカリアメ → シズクヤ
-  "sorane+tenfuwarisu": "kazepeko", // テンフワリス+ソラネ → カゼペコ
-  "kazeneko+tenfuwarisu": "torimugi", // テンフワリス+カゼネコ → トリムギ
+  "kotohana+mofurif": "hanaguruma", // モフリーフ+ハナコトリ → 進化後のハナマロ
+  "harune+mofurif": "sakuraouneko", // モフリーフ+ハルネ → 進化後のサクラネコ
+  "borudogura+sunasasori": "sunabokoking", // ボルドグラ+スナサソリ → スナボコオウ(配合限定)
+  "borudogura+sunamaru": "sunamiirasou", // ボルドグラ+スナマル → スナミイラソウ(配合限定)
+  "bakuhibachi+moriame": "tsuyuhikaking", // バクヒバチ+モリアメ → ツユヒカオウ(配合限定)
+  "bakuhibachi+hikariame": "shizukuyaseirei", // バクヒバチ+ヒカリアメ → シズクヤセイレイ(配合限定)
+  "sorane+tenfuwarisu": "hayatenoko", // テンフワリス+ソラネ → 進化後のカゼペコ
+  "kazeneko+tenfuwarisu": "oomugiwatari", // テンフワリス+カゼネコ → 進化後のトリムギ
 
   // ここから下は配合表のパターンを大幅に増やすために追加したレシピ。
   // これまで一度も配合レシピに登場していなかった種族を中心に、
-  // 既存種同士の組み合わせで別の既存種が生まれるようにしている
+  // 「野生では出会えない専用の姿」が生まれるようにしている
   "fuwarisu+orihiko": "tenfuwarisu", // 折り紙飛行機+空ことり→進化後の空ことり
-  "orihiko+sorane": "kazepeko", // 紙飛行機+空うさぎ→かぜのこ
-  "kiboko+sabotenko": "yamakibi", // 木彫り+さぼてん→やまきび
-  "kiboko+tsuboco": "tsubogame", // 木彫り+つぼ→やきものがめ
-  "kaigaran+tsuboco": "haribune", // つぼ+やどかり→はりぶね
-  "honbori+yuureiking": "shizumegane", // あんどん+ゆうれい王→しずめめだま
+  "orihiko+sorane": "hayatenoko", // 紙飛行機+空うさぎ→進化後のかぜのこ
+  "kiboko+sabotenko": "hounenkibi", // 木彫り+さぼてん→進化後のやまきび
+  "kiboko+tsuboco": "dosugame", // 木彫り+つぼ→進化後のやきものがめ
+  "kaigaran+tsuboco": "haribuneking", // つぼ+やどかり→ハリブネオウ(配合限定)
+  "honbori+yuureiking": "shizumeganeseirei", // あんどん+ゆうれい王→シズメガネセイレイ(配合限定)
   "akumakko+honbori": "takarabox", // あんどん+こあくま→ばけばこ
-  "sunamaru+tsubogame": "hoshimogu", // やきものがめ+すなまる→ほしずなもぐら
-  "kuroguri+takarabox": "yuureiking", // ばけばこ+くろちいさま→ゆうれい王
-  "awairuka+pukurin": "sazanami", // みずぶくろくらげ+いるか→さざなみまんぼう
-  "mizutama+pukurin": "mizugoma", // みずぶくろくらげ+みずだまがい→みずごま
-  "hoshimogu+sunasasori": "sunamaru", // ほしずなもぐら+さそり→すなまる
+  "sunamaru+tsubogame": "hoshimoguking", // やきものがめ+すなまる→ホシモグオウ(配合限定)
+  "kuroguri+takarabox": "yuureiteiou", // ばけばこ+くろちいさま→ユウレイテイオウ(配合限定)
+  "awairuka+pukurin": "sazanamiking", // みずぶくろくらげ+いるか→サザナミオウ(配合限定)
+  "mizutama+pukurin": "mizugomaking", // みずぶくろくらげ+みずだまがい→ミズゴマオウ(配合限定)
+  "hoshimogu+sunasasori": "sunamaruking", // ほしずなもぐら+さそり→スナマルオウ(配合限定)
   "hoshimogu+sunamiira": "hoshizora", // ほしずなもぐら+いにしえの布→ほしぞらむし
-  "shizumegane+yamiankou": "shizukuya", // やみひかりうお+しずめめだま→しずくやどり
-  "kuroguri+yamiankou": "noroigumo", // やみひかりうお+くろちいさま→のろいのくも
-  "pengiri+yukigamo": "yukimaro", // ペンギン+しらかも→ゆきごろもうさぎ
-  "fuyudama+pengiri": "kooritsumu", // ペンギン+ゆきむすびだま→つららけっしょう
-  "rakudan+sabotenko": "sunasasori", // さぼてん+らくだ→すなばのさそり
-  "momijiri+sabotenko": "harune", // さぼてん+もみじぎつね→はるうさぎ
-  "nejiko+sparkun": "hagurumaru", // でんきスパーク+ぜんまいねこ→がんじょうはぐるま
-  "pachikoro+sparkun": "paipon", // でんきスパーク+でんこうむし→はいかんロボ
-  "hagurumaru+paipon": "nejiko", // はいかんロボ+がんじょうはぐるま→ぜんまいねこ
-  "karakuribat+paipon": "hagurumaru", // はいかんロボ+からくりこうもり→がんじょうはぐるま
-  "mizuhane+torimugi": "sandango", // みずとり+むぎわたりどり→みたらしことり
-  "kotohana+mizuhane": "mizutama", // みずとり+はなことり→みずだまがい
-  "momijiri+sakuraneko": "hanamaro", // もみじぎつね+はなねこ→はなこいぬ
-  "harune+momijiri": "kazeneko", // もみじぎつね+はるうさぎ→かぜねこ
-  "haribune+mizugoma": "mizutama", // みずごま+はりぶね→みずだまがい
-  "sunaboko+sunobori": "sunamaru", // すなのり+すなころがし→すなまる
-  "sunamaru+sunobori": "sunasasori", // すなのり+すなまる→すなばのさそり
-  "kaigaran+mizutama": "tsubogame", // みずだまがい+やどかり→やきものがめ
-  "hanamaro+yamakibi": "sakuraneko", // やまきび+はなこいぬ→はなねこ
-  "kiboko+yamakibi": "sabotenko", // きぼりこけし+やまきび→さぼてん
-  "shizumegane+tsukihane": "sunamiira", // しずめめだま+つきけもり→いにしえの布
-  "haribune+mizutama": "mizuhane", // はりぶね+みずだまがい→みずとり
-  "kageuri+kuroguri": "akumakko", // くろちいさま+かげひそみうり→こあくま
-  "kuroguri+noroigumo": "kageuri", // くろちいさま+のろいのくも→かげひそみうり
-  "kooritsumu+yukimaro": "yukibouzu", // つららけっしょう+ゆきごろもうさぎ→ふぶきのようせい
-  "fuyudama+yukigamo": "pengiri", // しらかも+ゆきむすびだま→ペンギン
-  "haribune+kaigaran": "pukurin", // はりぶね+やどかり→みずぶくろくらげ
-  "mizutama+sazanami": "yamiankou", // みずだまがい+さざなみまんぼう→やみひかりうお
-  "shizukuya+tsuyuhika": "hikariame", // しずくやどり+つゆひかり→ひかりあめ
-  "moriame+shizukuya": "mizugoma", // しずくやどり+もりあめ→みずごま
-  "kazepeko+sorane": "orihiko", // かぜのこ+そらうさぎ→おりがみひこうき
-  "kazeneko+torimugi": "honbori", // かぜねこ+むぎわたりどり→あんどんふくろう
-  "ishimaru+sunaboko": "tsuboco", // すなころがし+ころころいし→せとものつぼ
-  "rakudan+sunamaru": "hoshimogu", // すなまる+らくだ→ほしずなもぐら
-  "reiseiou+yukibouzu": "yukigamo", // ふぶきのようせい+れいしょうおう→しらかも
-  "sabotenko+sunamaru": "sunobori", // さぼてん+すなまる→すなのり
-  "kotohana+momijiri": "sakuraneko", // もみじぎつね+はなことり→はなねこ
-  "mizukusa+sumiremo": "noroigumo", // みずくさむし+よるちょう→のろいのくも
-  "hoshizora+sumiremo": "sunamiira", // ほしぞらむし+よるちょう→いにしえの布
-  "sunamiira+takarabox": "kokushou", // ばけばこ+いにしえの布→やみのよろい
-  "kokushou+kuroguri": "akumakko", // やみのよろい+くろちいさま→こあくま
-  "paipon+sparkun": "pachikoro", // はいかんロボ+でんきスパーク→でんこうむし
-  "haribune+mizuhane": "sazanami", // みずとり+はりぶね→さざなみまんぼう
+  "shizumegane+yamiankou": "shizukuyaseirei", // やみひかりうお+しずめめだま→シズクヤセイレイ(配合限定)
+  "kuroguri+yamiankou": "noroigumoking", // やみひかりうお+くろちいさま→ノロイグモオウ(配合限定)
+  "pengiri+yukigamo": "yukimaroking", // ペンギン+しらかも→ユキマロオウ(配合限定)
+  "fuyudama+pengiri": "kooritsumuking", // ペンギン+ゆきむすびだま→コオリツムオウ(配合限定)
+  "rakudan+sabotenko": "sunasasoriking", // さぼてん+らくだ→スナサソリオウ(配合限定)
+  "momijiri+sabotenko": "hanafubukiusagi", // さぼてん+もみじぎつね→進化後のはるうさぎ
+  "nejiko+sparkun": "hagurumaruking", // でんきスパーク+ぜんまいねこ→ハグルマルオウ(配合限定)
+  "pachikoro+sparkun": "paiponking", // でんきスパーク+でんこうむし→パイポンオウ(配合限定)
+  "hagurumaru+paipon": "nejikoking", // はいかんロボ+がんじょうはぐるま→ネジコオウ(配合限定)
+  "karakuribat+paipon": "hagurumaruking", // はいかんロボ+からくりこうもり→ハグルマルオウ(配合限定)
+  "mizuhane+torimugi": "oodangou", // みずとり+むぎわたりどり→進化後のみたらしことり
+  "kotohana+mizuhane": "mizutamaking", // みずとり+はなことり→ミズタマオウ(配合限定)
+  "momijiri+sakuraneko": "hanaguruma", // もみじぎつね+はなねこ→進化後のはなこいぬ
+  "harune+momijiri": "kazagurumaneko", // もみじぎつね+はるうさぎ→進化後のかぜねこ
+  "haribune+mizugoma": "mizutamaking", // みずごま+はりぶね→ミズタマオウ(配合限定)
+  "sunaboko+sunobori": "sunamaruking", // すなのり+すなころがし→スナマルオウ(配合限定)
+  "sunamaru+sunobori": "sunasasoriking", // すなのり+すなまる→スナサソリオウ(配合限定)
+  "kaigaran+mizutama": "dosugame", // みずだまがい+やどかり→進化後のやきものがめ
+  "hanamaro+yamakibi": "sakuraouneko", // やまきび+はなこいぬ→進化後のはなねこ
+  "kiboko+yamakibi": "sabotenkoking", // きぼりこけし+やまきび→サボテンコオウ(配合限定)
+  "shizumegane+tsukihane": "sunamiirasou", // しずめめだま+つきけもり→スナミイラソウ(配合限定)
+  "haribune+mizutama": "mizuhaneking", // はりぶね+みずだまがい→ミズハネオウ(配合限定)
+  "kageuri+kuroguri": "akumakkoking", // くろちいさま+かげひそみうり→アクマッコオウ(配合限定)
+  "kuroguri+noroigumo": "kageurilord", // くろちいさま+のろいのくも→カゲウリロード(配合限定)
+  "kooritsumu+yukimaro": "yukibouzuking", // つららけっしょう+ゆきごろもうさぎ→ユキボウズオウ(配合限定)
+  "fuyudama+yukigamo": "pengiriking", // しらかも+ゆきむすびだま→ペンギリオウ(配合限定)
+  "haribune+kaigaran": "pukurinseirei", // はりぶね+やどかり→プクリンセイレイ(配合限定)
+  "mizutama+sazanami": "yamiankouking", // みずだまがい+さざなみまんぼう→ヤミアンコウオウ(配合限定)
+  "shizukuya+tsuyuhika": "hikariameseirei", // しずくやどり+つゆひかり→ヒカリアメセイレイ(配合限定)
+  "moriame+shizukuya": "mizugomaking", // しずくやどり+もりあめ→ミズゴマオウ(配合限定)
+  "kazepeko+sorane": "orifalcon", // かぜのこ+そらうさぎ→進化後のおりがみひこうき
+  "kazeneko+torimugi": "honborido", // かぜねこ+むぎわたりどり→進化後のあんどんふくろう
+  "ishimaru+sunaboko": "koganetsubo", // すなころがし+ころころいし→進化後のせとものつぼ
+  "rakudan+sunamaru": "hoshimoguking", // すなまる+らくだ→ホシモグオウ(配合限定)
+  "reiseiou+yukibouzu": "yukigamohime", // ふぶきのようせい+れいしょうおう→ユキガモヒメ(配合限定)
+  "sabotenko+sunamaru": "sunoboriking", // さぼてん+すなまる→スノボリオウ(配合限定)
+  "kotohana+momijiri": "sakuraouneko", // もみじぎつね+はなことり→進化後のはなねこ
+  "mizukusa+sumiremo": "noroigumoking", // みずくさむし+よるちょう→ノロイグモオウ(配合限定)
+  "hoshizora+sumiremo": "sunamiirasou", // ほしぞらむし+よるちょう→スナミイラソウ(配合限定)
+  "sunamiira+takarabox": "kokushouking", // ばけばこ+いにしえの布→コクショウオウ(配合限定)
+  "kokushou+kuroguri": "akumakkoking", // やみのよろい+くろちいさま→アクマッコオウ(配合限定)
+  "paipon+sparkun": "pachiking", // はいかんロボ+でんきスパーク→進化後のでんこうむし
+  "haribune+mizuhane": "sazanamiking", // みずとり+はりぶね→サザナミオウ(配合限定)
   "ishimaru+tsubogame": "kurista", // やきものがめ+ころころいし→かけらせいれい
-  "sunamaru+yamakibi": "rakudan", // やまきび+すなまる→らくだ
-  "honbori+shizumegane": "yamiankou", // あんどんふくろう+しずめめだま→やみひかりうお
-  "kokushou+takarabox": "sunamiira", // ばけばこ+やみのよろい→いにしえの布
+  "sunamaru+yamakibi": "rakudaking", // やまきび+すなまる→ラクダキング(配合限定)
+  "honbori+shizumegane": "yamiankouking", // あんどんふくろう+しずめめだま→ヤミアンコウオウ(配合限定)
+  "kokushou+takarabox": "sunamiirasou", // ばけばこ+やみのよろい→スナミイラソウ(配合限定)
 };
 
 const PRIMARY_BLENDS = {

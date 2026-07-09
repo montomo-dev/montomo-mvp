@@ -3632,6 +3632,151 @@ function paintTenstorm(ctx) {
   ctx.stroke();
 }
 
+const paintRakudaking = evolvedVariant(paintRakudan, 12, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintAwarukaqueen = evolvedVariant(paintAwairuka, -14, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintKarakuriking = evolvedVariant(paintKarakuribat, 18, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintKooritsumuking = evolvedVariant(paintKooritsumu, -10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintKokushouking = evolvedVariant(paintKokushou, 16, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintTsukihanehime = evolvedVariant(paintTsukihane, 20, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSumiremoking = evolvedVariant(paintSumiremo, 14, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSunabokoking = evolvedVariant(paintSunaboko, 10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSunamiirasou = evolvedVariant(paintSunamiira, -8, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintTsuyuhikaking = evolvedVariant(paintTsuyuhika, 12, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintShizukuyaseirei = evolvedVariant(paintShizukuya, -12, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintHaribuneking = evolvedVariant(paintHaribune, 14, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintShizumeganeseirei = evolvedVariant(paintShizumegane, -16, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintHoshimoguking = evolvedVariant(paintHoshimogu, 18, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintYuureiteiou = evolvedVariant(paintYuureiking, 10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSazanamiking = evolvedVariant(paintSazanami, -10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintMizugomaking = evolvedVariant(paintMizugoma, 14, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSunamaruking = evolvedVariant(paintSunamaru, 8, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintNoroigumoking = evolvedVariant(paintNoroigumo, 18, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintYukimaroking = evolvedVariant(paintYukimaro, -14, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSunasasoriking = evolvedVariant(paintSunasasori, 12, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintHagurumaruking = evolvedVariant(paintHagurumaru, 16, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintPaiponking = evolvedVariant(paintPaipon, 14, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintNejikoking = evolvedVariant(paintNejiko, 10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintMizutamaking = evolvedVariant(paintMizutama, -12, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSabotenkoking = evolvedVariant(paintSabotenko, 10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintMizuhaneking = evolvedVariant(paintMizuhane, -10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintAkumakkoking = evolvedVariant(paintAkumakko, 18, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintKageurilord = evolvedVariant(paintKageuri, -16, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintYukibouzuking = evolvedVariant(paintYukibouzu, -12, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintPengiriking = evolvedVariant(paintPengiri, 10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintPukurinseirei = evolvedVariant(paintPukurin, -14, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintYamiankouking = evolvedVariant(paintYamiankou, 16, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintHikariameseirei = evolvedVariant(paintHikariame, 12, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintYukigamohime = evolvedVariant(paintYukigamo, -10, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+const paintSunoboriking = evolvedVariant(paintSunobori, 8, (ctx) => {
+  shine(ctx, 0, -40, 10, 5);
+  starSpark(ctx, 0, -46, 4, "#fff4a3");
+});
+
 const PAINTERS = {
   mofuri: paintMofuri,
   dogura: paintDogura,
@@ -3745,6 +3890,43 @@ const PAINTERS = {
   hoshizora: paintKuroguri,
   omegazenmaiya: paintReiseiou,
   kazaribi: paintKazaribi,
+
+  rakudaking: paintRakudaking,
+  awarukaqueen: paintAwarukaqueen,
+  karakuriking: paintKarakuriking,
+  kooritsumuking: paintKooritsumuking,
+  kokushouking: paintKokushouking,
+  tsukihanehime: paintTsukihanehime,
+  sumiremoking: paintSumiremoking,
+  sunabokoking: paintSunabokoking,
+  sunamiirasou: paintSunamiirasou,
+  tsuyuhikaking: paintTsuyuhikaking,
+  shizukuyaseirei: paintShizukuyaseirei,
+  haribuneking: paintHaribuneking,
+  shizumeganeseirei: paintShizumeganeseirei,
+  hoshimoguking: paintHoshimoguking,
+  yuureiteiou: paintYuureiteiou,
+  sazanamiking: paintSazanamiking,
+  mizugomaking: paintMizugomaking,
+  sunamaruking: paintSunamaruking,
+  noroigumoking: paintNoroigumoking,
+  yukimaroking: paintYukimaroking,
+  sunasasoriking: paintSunasasoriking,
+  hagurumaruking: paintHagurumaruking,
+  paiponking: paintPaiponking,
+  nejikoking: paintNejikoking,
+  mizutamaking: paintMizutamaking,
+  sabotenkoking: paintSabotenkoking,
+  mizuhaneking: paintMizuhaneking,
+  akumakkoking: paintAkumakkoking,
+  kageurilord: paintKageurilord,
+  yukibouzuking: paintYukibouzuking,
+  pengiriking: paintPengiriking,
+  pukurinseirei: paintPukurinseirei,
+  yamiankouking: paintYamiankouking,
+  hikariameseirei: paintHikariameseirei,
+  yukigamohime: paintYukigamohime,
+  sunoboriking: paintSunoboriking,
 };
 
 export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
