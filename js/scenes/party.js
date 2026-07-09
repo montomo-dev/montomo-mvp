@@ -11,6 +11,7 @@ import { sfxBreed, sfxConfirm, sfxCancel, sfxItemGet } from "../audio.js";
 import { BreedingChartScene } from "./breedingChart.js";
 import { ITEMS } from "../data/items.js";
 import { clearStatus } from "../systems/status.js";
+import { equipItem, unequipItem } from "../systems/equipment.js";
 import { tr } from "../i18n.js";
 
 function skillName(game, id) {
@@ -125,6 +126,15 @@ export class PartyScene {
       if (input.wasPressed("ok")) this.useItemOn(this.game.party[this.actionTarget], owned[this.itemCursor]);
       return;
     }
+    if (this.mode === "equip") {
+      const options = this.equipOptions();
+      if (input.wasPressed("cancel")) { sfxCancel(); this.mode = "action"; this.actionCursor = 0; return; }
+      if (options.length === 0) return;
+      if (input.wasPressed("up")) this.equipCursor = (this.equipCursor + options.length - 1) % options.length;
+      if (input.wasPressed("down")) this.equipCursor = (this.equipCursor + 1) % options.length;
+      if (input.wasPressed("ok")) this.chooseEquip(options[this.equipCursor]);
+      return;
+    }
 
     if (input.wasPressed("up")) this.cursor = (this.cursor + count - 1) % count;
     if (input.wasPressed("down")) this.cursor = (this.cursor + 1) % count;
@@ -147,6 +157,7 @@ export class PartyScene {
     const options = [];
     if (this.actionTarget > 0) options.push("front");
     options.push("item");
+    options.push("equip");
     options.push("cancel");
     return options;
   }
@@ -166,6 +177,9 @@ export class PartyScene {
       }
       this.mode = "item";
       this.itemCursor = 0;
+    } else if (action === "equip") {
+      this.mode = "equip";
+      this.equipCursor = 0;
     } else {
       this.mode = "list";
     }
@@ -173,7 +187,37 @@ export class PartyScene {
 
   usableItemIds() {
     return Object.keys(this.game.items || {})
-      .filter((id) => (this.game.items[id] || 0) > 0 && ITEMS[id].kind !== "bait");
+      .filter((id) => (this.game.items[id] || 0) > 0 && ITEMS[id].kind !== "bait" && ITEMS[id].kind !== "armor");
+  }
+
+  // 装備メニューの選択肢: 所持している防具 + すでに装備中なら「はずす」
+  equipOptions() {
+    const target = this.game.party[this.actionTarget];
+    const armorIds = Object.keys(this.game.items || {})
+      .filter((id) => (this.game.items[id] || 0) > 0 && ITEMS[id].kind === "armor");
+    const options = armorIds.map((id) => ({ type: "equip", itemId: id }));
+    if (target?.equipped) options.push({ type: "unequip" });
+    return options;
+  }
+
+  chooseEquip(option) {
+    const target = this.game.party[this.actionTarget];
+    if (option.type === "unequip") {
+      const name = itemName(this.game, ITEMS[target.equipped]);
+      unequipItem(this.game, target);
+      this.message = tr(this.game, `${name}を はずした。`, `Unequipped ${name}.`);
+    } else {
+      const item = ITEMS[option.itemId];
+      equipItem(this.game, target, option.itemId);
+      this.message = tr(
+        this.game,
+        `${monsterName(target, this.game.lang)}に ${itemName(this.game, item)}を そうびした！`,
+        `Equipped ${itemName(this.game, item)} on ${monsterName(target, this.game.lang)}!`
+      );
+    }
+    sfxItemGet();
+    this.mode = "list";
+    this.game.save();
   }
 
   useItemOn(monster, itemId) {
@@ -350,11 +394,17 @@ export class PartyScene {
 
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText(`${monsterName(monster, this.game.lang)}  Lv.${monster.level}`, 160, y + 32);
+      const shinyLabel = monster.shiny ? "✨" : "";
+      ctx.fillText(`${shinyLabel}${monsterName(monster, this.game.lang)}  Lv.${monster.level}`, 160, y + 32);
       ctx.font = FONT;
       ctx.fillText(tr(this.game, SPECIES[monster.speciesId].genus, SPECIES[monster.speciesId].genusEn), 300, y + 32);
+      if (monster.equipped) {
+        ctx.fillStyle = "#5d8ce3";
+        ctx.fillText(tr(this.game, `装備: ${itemName(this.game, ITEMS[monster.equipped])}`, `Equip: ${itemName(this.game, ITEMS[monster.equipped])}`), 430, y + 32);
+        ctx.fillStyle = "#3a3a52";
+      }
       hpBar(ctx, 130, y + 46, 190, 12, monster.hp / monster.maxHp);
-      ctx.fillText(`${monster.hp} / ${monster.maxHp}`, 335, y + 58);
+      ctx.fillText(`${monster.hp} / ${monster.maxHp}  MP ${monster.mp || 0}/${monster.maxMp || 0}`, 335, y + 58);
       ctx.fillText(
         monster.level >= MAX_LEVEL
           ? tr(this.game, "レベル MAX", "Level MAX")
@@ -402,6 +452,7 @@ export class PartyScene {
       const labels = {
         front: tr(this.game, "せんとうに する", "Set as Lead"),
         item: tr(this.game, "どうぐを つかう", "Use Item"),
+        equip: tr(this.game, "そうびを かえる", "Change Equipment"),
         cancel: tr(this.game, "やめる", "Cancel"),
       };
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
@@ -443,6 +494,38 @@ export class PartyScene {
       ctx.font = FONT;
       ctx.fillStyle = "#5a5a70";
       ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: つかう ／ X: もどる", "Up/Down: Choose / Z: Use / X: Back"), 320, 186 + owned.length * 28 + 20);
+    }
+
+    if (this.mode === "equip") {
+      const target = this.game.party[this.actionTarget];
+      const options = this.equipOptions();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillRect(0, 0, 640, 480);
+      const rows = Math.max(1, options.length);
+      panel(ctx, 90, 130, 460, 60 + rows * 28);
+      ctx.fillStyle = "#3a3a52";
+      ctx.font = FONT_BOLD;
+      ctx.textAlign = "center";
+      const equippedLabel = target?.equipped ? tr(this.game, `（げんざい: ${itemName(this.game, ITEMS[target.equipped])}）`, `(Current: ${itemName(this.game, ITEMS[target.equipped])})`) : "";
+      ctx.fillText(tr(this.game, `${monsterName(target, this.game.lang)} の そうび${equippedLabel}`, `${monsterName(target, this.game.lang)}'s Equipment${equippedLabel}`), 320, 158);
+      ctx.textAlign = "left";
+      if (options.length === 0) {
+        ctx.fillStyle = "#5a5a70";
+        ctx.font = FONT;
+        ctx.fillText(tr(this.game, "もっている 防具が ないよ。", "You don't own any armor."), 120, 186);
+      }
+      options.forEach((opt, i) => {
+        const y = 186 + i * 28;
+        const label = opt.type === "unequip"
+          ? tr(this.game, "そうびを はずす", "Unequip")
+          : `${itemName(this.game, ITEMS[opt.itemId])}（+${ITEMS[opt.itemId].defBonus} ぼうぎょ）`;
+        ctx.fillStyle = this.equipCursor === i ? "#e8842e" : "#3a3a52";
+        ctx.fillText(label, 120, y);
+        if (this.equipCursor === i) ctx.fillText("▶", 100, y);
+      });
+      ctx.font = FONT;
+      ctx.fillStyle = "#5a5a70";
+      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: けってい ／ X: もどる", "Up/Down: Choose / Z: Confirm / X: Back"), 320, 186 + rows * 28 + 20);
     }
 
     if (this.confirm) {

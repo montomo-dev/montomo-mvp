@@ -1,5 +1,5 @@
 import { SKILLS } from "../data/skills.js";
-import { SPECIES, monsterName } from "../data/monsters.js";
+import { SPECIES, monsterName, createMonster } from "../data/monsters.js";
 import { ITEMS } from "../data/items.js";
 import { gainExp, expToNext, MAX_LEVEL } from "../systems/growth.js";
 import { MAX_PARTY, moveToFront } from "../systems/party.js";
@@ -12,6 +12,8 @@ import { getRank } from "../systems/rank.js";
 import { sfxHit, sfxFaint, sfxLevelUp, sfxEvolve, sfxCatchSuccess, sfxCatchFail, sfxConfirm, sfxCancel, sfxCry } from "../audio.js";
 import { typeOf, typeEffectiveness, typeNameEn } from "../data/types.js";
 import { STATUS_LABEL, STATUS_LABEL_EN, maybeInflictStatus, canAct, applyEndOfTurnStatus, clearStatus } from "../systems/status.js";
+import { effectiveDef } from "../systems/equipment.js";
+import { SHINY_HUE } from "../systems/shiny.js";
 import { bossIntroText, bossVictoryLines } from "../data/story.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
@@ -111,6 +113,11 @@ export class BattleScene {
       return;
     }
     if (this.after === "ending") {
+      if (this.recruitedMonster) {
+        if (this.game.party.length < MAX_PARTY) this.game.party.push(this.recruitedMonster);
+        else (this.game.ranch = this.game.ranch || []).push(this.recruitedMonster);
+        this.recruitedMonster = null;
+      }
       if (this.stageId === "stage3") {
         this.game.changeScene(new ChoiceScene(this.game));
       } else if (this.stageId === "reverse_stage3") {
@@ -201,7 +208,13 @@ export class BattleScene {
       if (input.wasPressed("down")) this.skillCursor = (this.skillCursor + 1) % skills.length;
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; }
       else if (input.wasPressed("ok")) {
-        this.resolveTurn({ type: "skill", skillId: skills[this.skillCursor] });
+        const skillId = skills[this.skillCursor];
+        if ((this.ally.mp || 0) < SKILLS[skillId].mpCost) {
+          sfxCancel();
+          this.say([tr(this.game, "MPが たりない！", "Not enough MP!")], "command");
+        } else {
+          this.resolveTurn({ type: "skill", skillId });
+        }
       }
     } else if (this.phase === "item") {
       const owned = this.ownedItemIds();
@@ -337,6 +350,7 @@ export class BattleScene {
     const skill = action.type === "skill" ? SKILLS[action.skillId] : null;
     const actorName = monsterName(actor, this.game.lang);
     const targetName = monsterName(target, this.game.lang);
+    if (skill) actor.mp = Math.max(0, (actor.mp || 0) - skill.mpCost);
     messages.push(
       skill
         ? tr(this.game, `${actorName} の ${skillName(this.game, action.skillId)}！`, `${actorName} used ${skillName(this.game, action.skillId)}!`)
@@ -350,7 +364,7 @@ export class BattleScene {
     const power = skill ? skill.power : 1.0;
     const atkType = skill ? skill.type : typeOf(actor.speciesId);
     const eff = typeEffectiveness(atkType, typeOf(target.speciesId));
-    let damage = Math.max(1, Math.round(actor.atk * power - target.def / 2 + (Math.random() * 4 - 2)));
+    let damage = Math.max(1, Math.round(actor.atk * power - effectiveDef(target) / 2 + (Math.random() * 4 - 2)));
     if (actor.status === "burn") damage = Math.round(damage * 0.5);
     damage = eff === 0 ? 0 : Math.max(1, Math.round(damage * eff));
     if (target === this.ally && this.allyGuarding) {
@@ -370,14 +384,19 @@ export class BattleScene {
     if (eff > 0) maybeInflictStatus(atkType, target, messages, this.game);
   }
 
+  affordableSkills(monster) {
+    return monster.skills.filter((id) => (monster.mp || 0) >= SKILLS[id].mpCost);
+  }
+
   enemyAct(messages) {
     if (this.bossAI) {
       this.bossEnemyAct(messages);
       return;
     }
-    const useSkill = this.enemy.skills.length > 0 && Math.random() < 0.5;
+    const usable = this.affordableSkills(this.enemy);
+    const useSkill = usable.length > 0 && Math.random() < 0.5;
     const action = useSkill
-      ? { type: "skill", skillId: this.enemy.skills[Math.floor(Math.random() * this.enemy.skills.length)] }
+      ? { type: "skill", skillId: usable[Math.floor(Math.random() * usable.length)] }
       : { type: "attack" };
     this.performAction(this.enemy, this.ally, action, messages);
   }
@@ -409,7 +428,7 @@ export class BattleScene {
       return;
     }
     const enraged = state.phase > 0;
-    const skills = this.enemy.skills;
+    const skills = this.affordableSkills(this.enemy);
     let action = { type: "attack" };
     if (skills.length > 0 && Math.random() < (enraged ? 0.75 : 0.5)) {
       const skillId = enraged && Math.random() < 0.7
@@ -427,7 +446,7 @@ export class BattleScene {
     const chargeName = tr(this.game, charge.name, charge.nameEn || charge.name);
     messages.push(tr(this.game, `${enemyName} の ${chargeName}！`, `${enemyName} used ${chargeName}!`));
     const eff = typeEffectiveness(typeOf(this.enemy.speciesId), typeOf(this.ally.speciesId));
-    let damage = Math.max(1, Math.round(this.enemy.atk * charge.power - this.ally.def / 2 + (Math.random() * 4 - 2)));
+    let damage = Math.max(1, Math.round(this.enemy.atk * charge.power - effectiveDef(this.ally) / 2 + (Math.random() * 4 - 2)));
     damage = eff === 0 ? 0 : Math.max(1, Math.round(damage * eff));
     if (this.allyGuarding) {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
@@ -552,7 +571,7 @@ export class BattleScene {
     const reserveExp = Math.round(exp * 0.5);
     const reserveEvolutions = [];
     for (const member of this.game.party) {
-      if (member === this.ally) continue;
+      if (member === this.ally || member.hp <= 0) continue;
       for (const event of gainExp(member, SPECIES, reserveExp)) {
         if (event.type === "evolve") {
           reserveEvolutions.push(event);
@@ -571,6 +590,7 @@ export class BattleScene {
 
     const ranchExp = Math.round(exp * 0.1);
     for (const member of this.game.ranch || []) {
+      if (member.hp <= 0) continue;
       for (const event of gainExp(member, SPECIES, ranchExp)) {
         if (event.type === "evolve") markCaught(this.game, event.speciesId);
       }
@@ -592,7 +612,7 @@ export class BattleScene {
 
   tryRecruit() {
     if (this.isBoss) {
-      this.say([tr(this.game, "ヌシは なかまに なる きは なさそうだ！", "The Nushi shows no sign of wanting to join you!")], "command");
+      this.tryRecruitBoss();
       return;
     }
     const species = SPECIES[this.enemy.speciesId];
@@ -637,6 +657,38 @@ export class BattleScene {
     }
   }
 
+  // ヌシは通常の仲間化とは別に、低確率で「なかまに くわわる」ことがある。
+  // 成功時もヌシを撃破したのと同じ扱い(ステージクリア・エンディングへ進む)にし、
+  // さらに手持ち/牧場にヌシ自身が加わる(進行が飛ばせてしまわないようにするため)
+  tryRecruitBoss() {
+    const damageRatio = Math.min(1, this.totalDamageDealt / this.enemy.maxHp);
+    const chance = Math.min(0.2, 0.03 + damageRatio * 0.17);
+    const percentage = Math.round(chance * 100);
+    const allyName = monsterName(this.ally, this.game.lang);
+    const enemyName = monsterName(this.enemy, this.game.lang);
+    const messages = [
+      tr(this.game, `${allyName} は ${enemyName} に なかまに なるよう よびかけた！`, `${allyName} called out for ${enemyName} to join!`),
+      tr(this.game, `せいこうりつ ${percentage}%`, `Success rate ${percentage}%`),
+    ];
+    if (Math.random() < chance) {
+      this.recruitedMonster = createMonster(this.enemy.speciesId, this.enemy.level);
+      this.recruitedMonster.legend = true;
+      this.legendCapture = true;
+      markCaught(this.game, this.enemy.speciesId);
+      messages.push(
+        tr(this.game, `${enemyName} は ちからを みとめ、なかまに なった！`, `${enemyName} acknowledged your strength and joined you!`)
+      );
+      sfxCatchSuccess();
+      this.enemy.hp = 0;
+      this.victory(messages);
+    } else {
+      messages.push(tr(this.game, `${enemyName} は なかまに なる きは なさそうだ…`, `${enemyName} shows no sign of wanting to join...`));
+      sfxCatchFail();
+      this.enemyAct(messages);
+      this.finishTurn(messages);
+    }
+  }
+
   tryFlee() {
     const chance = Math.max(0.25, Math.min(0.9, 0.55 + (this.ally.spd - this.enemy.spd) * 0.04));
     if (Math.random() < chance) {
@@ -663,11 +715,14 @@ export class BattleScene {
     ctx.fill();
 
     if (this.enemy.hp > 0 || this.shownHp.enemy > 0.5) {
-      drawMonster(ctx, this.enemy.speciesId, 470, 150, 1.6, this.time);
+      drawMonster(ctx, this.enemy.speciesId, 470, 150, 1.6, this.time, this.enemy.shiny ? SHINY_HUE : 0);
     }
-    drawMonster(ctx, this.ally.speciesId, 170, 305, 1.3, this.time + 1.7, this.ally.tintHue || 0);
+    drawMonster(ctx, this.ally.speciesId, 170, 305, 1.3, this.time + 1.7, this.ally.shiny ? SHINY_HUE : (this.ally.tintHue || 0));
     if (this.phase === "message" && ((this.queue[0] || "").includes("しんかした") || (this.queue[0] || "").includes("evolved into"))) {
       this.drawEvolveSparkle(ctx, 170, 305);
+    }
+    if (this.legendCapture && this.phase === "message" && ((this.queue[0] || "").includes("なかまに なった") || (this.queue[0] || "").includes("joined you"))) {
+      this.drawLegendSparkle(ctx, 470, 150);
     }
 
     panel(ctx, 16, 14, 250, 64);
@@ -679,7 +734,8 @@ export class BattleScene {
     const enemyType = tr(this.game, typeOf(this.enemy.speciesId), typeNameEn(typeOf(this.enemy.speciesId)));
     const enemyStatus = this.enemy.status ? `  [${statusLabel(this.game, this.enemy.status)}]` : "";
     const ownedLabel = (this.game.dex?.caught || []).includes(this.enemy.speciesId) ? tr(this.game, "  ✓なかまずみ", "  ✓Caught") : "";
-    ctx.fillText(`${monsterName(this.enemy, this.game.lang)}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 40);
+    const shinyLabel = this.enemy.shiny ? "✨" : "";
+    ctx.fillText(`${shinyLabel}${monsterName(this.enemy, this.game.lang)}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 40);
     hpBar(ctx, 30, 52, 220, 12, this.shownHp.enemy / this.enemy.maxHp);
 
     panel(ctx, 372, 234, 252, 108);
@@ -690,7 +746,7 @@ export class BattleScene {
     ctx.fillText(`${monsterName(this.ally, this.game.lang)}  Lv.${this.ally.level}  ${allyType}${allyStatus}`, 388, 262);
     hpBar(ctx, 388, 274, 220, 14, this.shownHp.ally / this.ally.maxHp);
     ctx.font = FONT;
-    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))} / ${this.ally.maxHp}`, 388, 310);
+    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))}/${this.ally.maxHp}  MP ${this.ally.mp || 0}/${this.ally.maxMp || 0}`, 388, 310);
     ctx.fillText(
       this.ally.level >= MAX_LEVEL
         ? tr(this.game, "レベル MAX", "Level MAX")
@@ -721,8 +777,14 @@ export class BattleScene {
       ctx.fillText(tr(this.game, "どの スキルを つかう？（X: もどる）", "Which skill? (X: Back)"), 36, 374);
       ctx.font = FONT_BOLD;
       this.drawScrollList(ctx, this.ally.skills, this.skillCursor, (skillId, x, y) => {
-        const typeLabel = tr(this.game, SKILLS[skillId].type, typeNameEn(SKILLS[skillId].type));
-        ctx.fillText(`${skillName(this.game, skillId)}（${typeLabel}）`, x, y);
+        const s = SKILLS[skillId];
+        const typeLabel = tr(this.game, s.type, typeNameEn(s.type));
+        ctx.fillStyle = (this.ally.mp || 0) < s.mpCost ? "#b0455a" : "#3a3a52";
+        ctx.fillText(
+          tr(this.game, `${skillName(this.game, skillId)}（${typeLabel}）MP${s.mpCost} 命中${s.accuracy}%`, `${skillName(this.game, skillId)} (${typeLabel}) MP${s.mpCost} Acc${s.accuracy}%`),
+          x, y
+        );
+        ctx.fillStyle = "#3a3a52";
       });
     } else if (this.phase === "item") {
       ctx.font = FONT;
@@ -776,6 +838,30 @@ export class BattleScene {
     });
     if (scroll > 0) ctx.fillText("▲", 340, 400);
     if (scroll + visibleRows < list.length) ctx.fillText("▼", 340, 460);
+  }
+
+  // ヌシがなかまになった瞬間、金色のオーラで演出する
+  drawLegendSparkle(ctx, x, y) {
+    const t = this.time;
+    ctx.save();
+    const glow = ctx.createRadialGradient(x, y, 6, x, y, 130);
+    glow.addColorStop(0, "rgba(255,224,120,0.6)");
+    glow.addColorStop(1, "rgba(255,224,120,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, 130, 0, Math.PI * 2);
+    ctx.fill();
+    for (let i = 0; i < 12; i++) {
+      const angle = t * 1.2 + (i / 12) * Math.PI * 2;
+      const r = 80 + Math.sin(t * 4 + i) * 10;
+      const sx = x + Math.cos(angle) * r;
+      const sy = y + Math.sin(angle) * r * 0.6;
+      ctx.fillStyle = i % 2 === 0 ? "#ffd75e" : "#fff7d6";
+      ctx.beginPath();
+      ctx.arc(sx, sy, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   // 進化メッセージの表示中、モンスターの周りにきらめきを演出する

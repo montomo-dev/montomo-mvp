@@ -2447,6 +2447,9 @@ export function createMonster(speciesId, level) {
     atk: stats.atk,
     def: stats.def,
     spd: stats.spd,
+    maxMp: stats.maxMp,
+    mp: stats.maxMp,
+    equipped: null,
     skills: species.learnset.filter((e) => e.level <= clampedLevel).map((e) => e.skill),
   };
 }

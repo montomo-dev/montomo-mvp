@@ -1,4 +1,4 @@
-import { ITEMS, shopInventoryFor } from "../data/items.js";
+import { ITEMS, shopInventoryFor, sellPriceOf } from "../data/items.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { sfxCancel, sfxSelect, sfxItemGet } from "../audio.js";
 import { tr } from "../i18n.js";
@@ -24,11 +24,20 @@ export class ShopScene {
     this.message = null;
     this.itemIds = shopInventoryFor(prevScene?.stageId);
     this.phase = "list";
+    this.tab = "buy";
     this.buyQty = 1;
   }
 
+  get listIds() {
+    return this.tab === "buy" ? this.itemIds : this.sellableItemIds();
+  }
+
+  sellableItemIds() {
+    return Object.keys(this.game.items || {}).filter((id) => (this.game.items[id] || 0) > 0);
+  }
+
   get totalPages() {
-    return Math.max(1, Math.ceil(this.itemIds.length / PAGE_SIZE));
+    return Math.max(1, Math.ceil(this.listIds.length / PAGE_SIZE));
   }
 
   get page() {
@@ -44,11 +53,15 @@ export class ShopScene {
     }
     if (this.phase === "quantity") {
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "list"; return; }
+      const maxQty = this.tab === "buy" ? MAX_BUY_QTY : (this.game.items[this.listIds[this.cursor]] || 0);
       if (input.wasPressed("left")) { this.buyQty = Math.max(1, this.buyQty - 1); sfxSelect(); }
-      if (input.wasPressed("right")) { this.buyQty = Math.min(MAX_BUY_QTY, this.buyQty + 1); sfxSelect(); }
-      if (input.wasPressed("up")) { this.buyQty = Math.min(MAX_BUY_QTY, this.buyQty + 10); sfxSelect(); }
+      if (input.wasPressed("right")) { this.buyQty = Math.min(maxQty, this.buyQty + 1); sfxSelect(); }
+      if (input.wasPressed("up")) { this.buyQty = Math.min(maxQty, this.buyQty + 10); sfxSelect(); }
       if (input.wasPressed("down")) { this.buyQty = Math.max(1, this.buyQty - 10); sfxSelect(); }
-      if (input.wasPressed("ok")) this.buy(this.itemIds[this.cursor], this.buyQty);
+      if (input.wasPressed("ok")) {
+        if (this.tab === "buy") this.buy(this.listIds[this.cursor], this.buyQty);
+        else this.sell(this.listIds[this.cursor], this.buyQty);
+      }
       return;
     }
     if (input.wasPressed("cancel")) {
@@ -57,8 +70,16 @@ export class ShopScene {
       this.game.changeScene(this.prev);
       return;
     }
-    if (input.wasPressed("up")) { this.cursor = (this.cursor + this.itemIds.length - 1) % this.itemIds.length; sfxSelect(); }
-    if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % this.itemIds.length; sfxSelect(); }
+    if (input.wasPressed("rename")) {
+      sfxSelect();
+      this.tab = this.tab === "buy" ? "sell" : "buy";
+      this.cursor = 0;
+      return;
+    }
+    const n = this.listIds.length;
+    if (n === 0) return;
+    if (input.wasPressed("up")) { this.cursor = (this.cursor + n - 1) % n; sfxSelect(); }
+    if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % n; sfxSelect(); }
     if (input.wasPressed("ok")) {
       sfxSelect();
       this.phase = "quantity";
@@ -83,6 +104,23 @@ export class ShopScene {
       : tr(this.game, `${name}を かった！`, `Bought ${name}!`);
     sfxItemGet();
     this.phase = "list";
+    this.cursor = 0;
+    this.game.save();
+  }
+
+  sell(itemId, qty = 1) {
+    const item = ITEMS[itemId];
+    const owned = this.game.items[itemId] || 0;
+    const sellQty = Math.min(owned, qty);
+    if (sellQty <= 0) { this.phase = "list"; return; }
+    const totalGain = sellPriceOf(item) * sellQty;
+    this.game.items[itemId] = owned - sellQty;
+    this.game.money = (this.game.money || 0) + totalGain;
+    const name = itemName(this.game, item);
+    this.message = tr(this.game, `${name}を ${sellQty}こ うった！ ${totalGain}円 てにいれた！`, `Sold ${sellQty}x ${name} for ${totalGain}g!`);
+    sfxItemGet();
+    this.phase = "list";
+    this.cursor = 0;
     this.game.save();
   }
 
@@ -92,7 +130,7 @@ export class ShopScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText(tr(this.game, "どうぐや", "Item Shop"), 30, 44);
+    ctx.fillText(tr(this.game, this.tab === "buy" ? "どうぐや（かう）" : "どうぐや（うる）", this.tab === "buy" ? "Item Shop (Buy)" : "Item Shop (Sell)"), 30, 44);
     ctx.textAlign = "right";
     ctx.font = FONT_BOLD;
     ctx.fillText(tr(this.game, `しょじきん ${this.game.money || 0}円`, `Money: ${this.game.money || 0}`), 610, 44);
@@ -104,11 +142,18 @@ export class ShopScene {
       ctx.textAlign = "left";
     }
 
+    const listIds = this.listIds;
     const pageStart = this.page * PAGE_SIZE;
-    const pageItemIds = this.itemIds.slice(pageStart, pageStart + PAGE_SIZE);
+    const pageItemIds = listIds.slice(pageStart, pageStart + PAGE_SIZE);
+    if (pageItemIds.length === 0) {
+      ctx.fillStyle = "#a8a8c0";
+      ctx.font = FONT;
+      ctx.fillText(tr(this.game, "うれる どうぐが ないよ。", "You have nothing to sell."), 48, 110);
+    }
     pageItemIds.forEach((itemId, i) => {
       const item = ITEMS[itemId];
       const y = 78 + i * (ROW_H + ROW_GAP);
+      const price = this.tab === "buy" ? item.price : sellPriceOf(item);
       panel(ctx, 30, y, 580, ROW_H);
       if (this.cursor === pageStart + i) {
         ctx.beginPath();
@@ -125,7 +170,7 @@ export class ShopScene {
       ctx.textAlign = "right";
       ctx.font = FONT_BOLD;
       ctx.fillStyle = "#a8621f";
-      ctx.fillText(tr(this.game, `${item.price}円`, `${item.price}g`), 592, y + 22);
+      ctx.fillText(tr(this.game, `${price}円`, `${price}g`), 592, y + 22);
       ctx.fillStyle = "#5a5a70";
       ctx.font = FONT;
       ctx.fillText(tr(this.game, `もちすう ${this.game.items[itemId] || 0}`, `Owned: ${this.game.items[itemId] || 0}`), 592, y + 42);
@@ -134,18 +179,29 @@ export class ShopScene {
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
-    ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: かう ／ X: もどる", "Up/Down: Choose / Z: Buy / X: Back"), 30, 470);
+    ctx.fillText(
+      this.tab === "buy"
+        ? tr(this.game, "↑↓: えらぶ ／ Z: かう ／ N: うるに切替 ／ X: もどる", "Up/Down: Choose / Z: Buy / N: Switch to Sell / X: Back")
+        : tr(this.game, "↑↓: えらぶ ／ Z: うる ／ N: かうに切替 ／ X: もどる", "Up/Down: Choose / Z: Sell / N: Switch to Buy / X: Back"),
+      30, 470
+    );
 
     if (this.phase === "quantity") {
-      const item = ITEMS[this.itemIds[this.cursor]];
-      const total = item.price * this.buyQty;
+      const item = ITEMS[listIds[this.cursor]];
+      const unitPrice = this.tab === "buy" ? item.price : sellPriceOf(item);
+      const total = unitPrice * this.buyQty;
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
       ctx.fillRect(0, 0, 640, 480);
       panel(ctx, 120, 170, 400, 150);
       ctx.textAlign = "center";
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText(tr(this.game, `${itemName(this.game, item)} を なんこ かう？`, `How many ${itemName(this.game, item)}?`), 320, 202);
+      ctx.fillText(
+        this.tab === "buy"
+          ? tr(this.game, `${itemName(this.game, item)} を なんこ かう？`, `How many ${itemName(this.game, item)}?`)
+          : tr(this.game, `${itemName(this.game, item)} を なんこ うる？`, `How many ${itemName(this.game, item)} to sell?`),
+        320, 202
+      );
       ctx.font = 'bold 32px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
       ctx.fillText(`× ${this.buyQty}`, 320, 250);
       ctx.font = FONT;
@@ -153,7 +209,9 @@ export class ShopScene {
       ctx.fillText(tr(this.game, `ごうけい ${total}円`, `Total: ${total}g`), 320, 280);
       ctx.fillStyle = "#5a5a70";
       ctx.fillText(
-        tr(this.game, "←→: 1こ ／ ↑↓: 10こ ／ Z: こうにゅう ／ X: やめる", "Left/Right: ±1 / Up/Down: ±10 / Z: Buy / X: Cancel"),
+        this.tab === "buy"
+          ? tr(this.game, "←→: 1こ ／ ↑↓: 10こ ／ Z: こうにゅう ／ X: やめる", "Left/Right: ±1 / Up/Down: ±10 / Z: Buy / X: Cancel")
+          : tr(this.game, "←→: 1こ ／ ↑↓: 10こ ／ Z: うる ／ X: やめる", "Left/Right: ±1 / Up/Down: ±10 / Z: Sell / X: Cancel"),
         320, 306
       );
       ctx.textAlign = "left";

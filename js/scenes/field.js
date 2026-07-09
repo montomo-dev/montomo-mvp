@@ -14,6 +14,9 @@ import { canClaimLegend, grantLegendReward } from "../systems/legend.js";
 import { ITEMS } from "../data/items.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
+import { rollShiny } from "../systems/shiny.js";
+
+const TAKARABOX_RATE = 1 / 3;
 
 function stageLabel(game, stage) {
   return tr(game, stage.shortName, stage.nameEn);
@@ -149,9 +152,11 @@ export class FieldScene {
       if (gained) {
         const name = monsterName(gained, this.game.lang);
         this.showToast(tr(this.game, `レジェンド解放！ ${name} を てにいれた！`, `Legend unlocked! You got ${name}!`));
+        this.legendFlash = 1.6;
       }
     }
     if (this.toast && (this.toast.timer -= dt) <= 0) this.toast = null;
+    if (this.legendFlash > 0) this.legendFlash -= dt;
     if (this.flash > 0) {
       this.flash -= dt;
       if (this.flash <= 0) {
@@ -249,7 +254,17 @@ export class FieldScene {
       return;
     }
     if (tile === T_TOWN_ENTER && this.stage.townStage) {
-      this.moveStage(this.stage.townStage, "fromField", tr(this.game, "まちに はいった！", "Entered the town!"));
+      const townId = this.stage.townStage;
+      this.game.flags = this.game.flags || {};
+      this.game.flags.warpPointsKnown = this.game.flags.warpPointsKnown || {};
+      const isNewWarpPoint = !this.game.flags.warpPointsKnown[townId];
+      let message = tr(this.game, "まちに はいった！", "Entered the town!");
+      if (isNewWarpPoint) {
+        this.game.flags.warpPointsKnown[townId] = true;
+        message += tr(this.game, " ワープポイントが とうろくされた！", " A new warp point was registered!");
+        this.game.save();
+      }
+      this.moveStage(townId, "fromField", message);
       return;
     }
     if (tile === T_TOWN_EXIT && this.stage.townExitStage) {
@@ -273,10 +288,12 @@ export class FieldScene {
         const [minLevel, maxLevel] = this.stage.wildLevels;
         const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
         this.pendingEnemy = createMonster(speciesId, level);
+        if (rollShiny()) this.pendingEnemy.shiny = true;
         this.flash = 0.45;
       } else if (this.stage.rareSpecies && Math.random() < 0.005) {
         const rareData = this.stage.rareSpecies[Math.floor(Math.random() * this.stage.rareSpecies.length)];
         this.pendingEnemy = createMonster(rareData.speciesId, rareData.level);
+        if (rollShiny()) this.pendingEnemy.shiny = true;
         this.flash = 0.45;
       }
     }
@@ -298,10 +315,11 @@ export class FieldScene {
         const treasureKey = `${this.stageId}:${treasure.id}`;
         if (!this.game.treasureState[treasureKey]) {
           this.game.treasureState[treasureKey] = true;
-          if (treasure.trap && this.game.party.length > 0) {
+          if (treasure.trap && this.game.party.length > 0 && Math.random() < TAKARABOX_RATE) {
             const [minLevel, maxLevel] = this.stage.wildLevels;
             const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
             this.pendingEnemy = createMonster("takarabox", level);
+            if (rollShiny()) this.pendingEnemy.shiny = true;
             this.showToast(tr(this.game, "たからばこは タカラボックスだった！", "The treasure chest was a Takarabox!"));
             this.flash = 0.45;
           } else {
@@ -560,6 +578,30 @@ export class FieldScene {
       ctx.fillStyle = `rgba(255, 255, 255, ${Math.sin((this.flash / 0.45) * Math.PI)})`;
       ctx.fillRect(0, 0, 640, 480);
     }
+
+    if (this.legendFlash > 0) this.drawLegendFlash(ctx);
+  }
+
+  // レジェンド解放の瞬間、画面に金色のオーラをかがやかせる
+  drawLegendFlash(ctx) {
+    const p = Math.min(1, this.legendFlash / 1.6);
+    ctx.save();
+    const glow = ctx.createRadialGradient(320, 240, 20, 320, 240, 340);
+    glow.addColorStop(0, `rgba(255, 224, 120, ${0.5 * Math.sin(p * Math.PI)})`);
+    glow.addColorStop(1, "rgba(255, 224, 120, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, 640, 480);
+    for (let i = 0; i < 14; i++) {
+      const angle = this.time * 1.5 + (i / 14) * Math.PI * 2;
+      const r = 90 + Math.sin(this.time * 5 + i) * 14;
+      const sx = 320 + Math.cos(angle) * r;
+      const sy = 240 + Math.sin(angle) * r * 0.6;
+      ctx.fillStyle = `rgba(255, 247, 214, ${Math.sin(p * Math.PI)})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   drawTreasures(ctx) {

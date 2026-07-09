@@ -32,14 +32,24 @@ function dexEntries() {
   return Object.values(SPECIES).filter((s) => !s.boss);
 }
 
+function legendEntries() {
+  return Object.values(SPECIES).filter((s) => s.boss);
+}
+
 export class PokedexScene {
   constructor(game, prevScene) {
     this.game = game;
     this.prev = prevScene;
     this.cursor = 0;
     this.time = 0;
-    this.entries = dexEntries();
+    this.tab = "normal";
+    this.normalEntries = dexEntries();
+    this.legendEntries = legendEntries();
     this.detail = false;
+  }
+
+  get entries() {
+    return this.tab === "normal" ? this.normalEntries : this.legendEntries;
   }
 
   get totalPages() {
@@ -71,6 +81,12 @@ export class PokedexScene {
       this.game.changeScene(this.prev);
       return;
     }
+    if (input.wasPressed("warp")) {
+      sfxSelect();
+      this.tab = this.tab === "normal" ? "legend" : "normal";
+      this.cursor = 0;
+      return;
+    }
     if (input.wasPressed("right")) { this.cursor = (this.cursor + 1) % n; sfxSelect(); }
     if (input.wasPressed("left")) { this.cursor = (this.cursor + n - 1) % n; sfxSelect(); }
     if (input.wasPressed("down") && this.cursor + COLS < n) { this.cursor += COLS; sfxSelect(); }
@@ -90,7 +106,7 @@ export class PokedexScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText(tr(this.game, "図鑑", "Dex"), 30, 44);
+    ctx.fillText(tr(this.game, this.tab === "normal" ? "図鑑" : "図鑑（ヌシ）", this.tab === "normal" ? "Dex" : "Dex (Bosses)"), 30, 44);
 
     const seen = this.game.dex?.seen || [];
     const caught = this.game.dex?.caught || [];
@@ -111,22 +127,27 @@ export class PokedexScene {
 
     const caughtSet = new Set(caught);
     ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    if (hasLegendReward(this.game)) {
-      ctx.fillStyle = "#ffd75e";
-      ctx.fillText(tr(this.game, "★ レジェンド解放ずみ: カザリビ を なかまにした！", "★ Legend unlocked: Kazaribi joined your team!"), 30, 64);
+    if (this.tab === "normal") {
+      if (hasLegendReward(this.game)) {
+        ctx.fillStyle = "#ffd75e";
+        ctx.fillText(tr(this.game, "★ レジェンド解放ずみ: カザリビ を なかまにした！", "★ Legend unlocked: Kazaribi joined your team!"), 30, 64);
+      } else {
+        ctx.fillStyle = "#a8a8c0";
+        const requirementText = LEGEND_REQUIREMENT
+          .map((id) => `${speciesName(this.game, SPECIES[id])}${caughtSet.has(id) ? "✓" : ""}`)
+          .join(tr(this.game, "・", ", "));
+        ctx.fillText(
+          tr(
+            this.game,
+            `★ レジェンド条件(${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`,
+            `★ Legend requirement (${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`
+          ),
+          30, 64
+        );
+      }
     } else {
       ctx.fillStyle = "#a8a8c0";
-      const requirementText = LEGEND_REQUIREMENT
-        .map((id) => `${speciesName(this.game, SPECIES[id])}${caughtSet.has(id) ? "✓" : ""}`)
-        .join(tr(this.game, "・", ", "));
-      ctx.fillText(
-        tr(
-          this.game,
-          `★ レジェンド条件(${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`,
-          `★ Legend requirement (${legendProgress(this.game)}/${LEGEND_REQUIREMENT.length}): ${requirementText}`
-        ),
-        30, 64
-      );
+      ctx.fillText(tr(this.game, "★ せんとうで であった ヌシたちの きろく", "★ A record of the Nushi you've encountered in battle"), 30, 64);
     }
 
     this.pageEntries().forEach((species, i) => {
@@ -196,7 +217,7 @@ export class PokedexScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
     ctx.fillText(
-      tr(this.game, "↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ X: もどる", "Arrows: Choose/Page / Z: Details / X: Back"),
+      tr(this.game, "↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ W: ヌシ図鑑に切替 ／ X: もどる", "Arrows: Choose/Page / Z: Details / W: Toggle Boss Dex / X: Back"),
       30, 462
     );
 
