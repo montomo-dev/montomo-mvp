@@ -12,7 +12,7 @@ export const SPECIES = {
     growth: { hp: 5, atk: 2.2, def: 1.6, spd: 1.8 },
     exp: 10,
     recruitEase: 0.1,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "mofurif",
     learnset: [
       { level: 3, skill: "happashusshu" },
@@ -30,7 +30,7 @@ export const SPECIES = {
     growth: { hp: 6, atk: 1.8, def: 2.2, spd: 1.2 },
     exp: 9,
     recruitEase: 0.3,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "borudogura",
     learnset: [
       { level: 3, skill: "moguradrill" },
@@ -49,7 +49,7 @@ export const SPECIES = {
     growth: { hp: 4.5, atk: 2.6, def: 1.4, spd: 1.7 },
     exp: 12,
     recruitEase: 0.16,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "bakuhibachi",
     learnset: [
       { level: 3, skill: "hinokodance" },
@@ -68,7 +68,7 @@ export const SPECIES = {
     growth: { hp: 4, atk: 2, def: 1.2, spd: 2.4 },
     exp: 10,
     recruitEase: 0.22,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "tenfuwarisu",
     learnset: [
       { level: 3, skill: "soyokazecutter" },
@@ -88,7 +88,7 @@ export const SPECIES = {
     recruitEase: 0.05,
     evolvesAt: 30,
     evolvesTo: "mofurigarden",
-    learnset: [{ level: 12, skill: "seiryokuha" }],
+    learnset: [{ level: 26, skill: "seiryokuha" }],
   },
   borudogura: {
     id: "borudogura",
@@ -103,7 +103,7 @@ export const SPECIES = {
     recruitEase: 0.14,
     evolvesAt: 30,
     evolvesTo: "borudrill",
-    learnset: [{ level: 12, skill: "daichiwari" }],
+    learnset: [{ level: 26, skill: "daichiwari" }],
   },
   bakuhibachi: {
     id: "bakuhibachi",
@@ -119,7 +119,7 @@ export const SPECIES = {
     recruitEase: 0.07,
     evolvesAt: 30,
     evolvesTo: "bakuphoenix",
-    learnset: [{ level: 12, skill: "daibakuhatsu" }],
+    learnset: [{ level: 26, skill: "daibakuhatsu" }],
   },
   tenfuwarisu: {
     id: "tenfuwarisu",
@@ -135,7 +135,7 @@ export const SPECIES = {
     recruitEase: 0.1,
     evolvesAt: 30,
     evolvesTo: "tenstorm",
-    learnset: [{ level: 12, skill: "senpugeki" }],
+    learnset: [{ level: 26, skill: "senpugeki" }],
   },
   pyokotan: {
     id: "pyokotan",
@@ -148,7 +148,7 @@ export const SPECIES = {
     growth: { hp: 5, atk: 1.8, def: 2.0, spd: 1.4 },
     exp: 9,
     recruitEase: 0.28,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "gamadon",
     learnset: [
       { level: 3, skill: "bubblesplash" },
@@ -166,7 +166,7 @@ export const SPECIES = {
     growth: { hp: 6.75, atk: 2.43, def: 2.7, spd: 1.89 },
     exp: 18,
     recruitEase: 0.14,
-    learnset: [{ level: 12, skill: "gekiryuuha" }],
+    learnset: [{ level: 26, skill: "gekiryuuha" }],
   },
   pachikoro: {
     id: "pachikoro",
@@ -180,7 +180,7 @@ export const SPECIES = {
     growth: { hp: 4.2, atk: 2.2, def: 1.3, spd: 2.0 },
     exp: 11,
     recruitEase: 0.18,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "pachiking",
     learnset: [
       { level: 3, skill: "biribiritouch" },
@@ -199,7 +199,7 @@ export const SPECIES = {
     growth: { hp: 5.67, atk: 2.97, def: 1.76, spd: 2.7 },
     exp: 22,
     recruitEase: 0.09,
-    learnset: [{ level: 12, skill: "raikouzan" }],
+    learnset: [{ level: 26, skill: "raikouzan" }],
   },
   orihiko: {
     id: "orihiko",
@@ -212,7 +212,7 @@ export const SPECIES = {
     growth: { hp: 4.1, atk: 2.4, def: 1.0, spd: 2.7 },
     exp: 13,
     recruitEase: 0.24,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "orifalcon",
     learnset: [
       { level: 3, skill: "soyokazecutter" },
@@ -230,7 +230,7 @@ export const SPECIES = {
     growth: { hp: 5.54, atk: 3.24, def: 1.35, spd: 3.65 },
     exp: 26,
     recruitEase: 0.12,
-    learnset: [{ level: 12, skill: "kamihikouha" }],
+    learnset: [{ level: 26, skill: "kamihikouha" }],
   },
   kiboko: {
     id: "kiboko",
@@ -243,7 +243,7 @@ export const SPECIES = {
     growth: { hp: 6.4, atk: 2.0, def: 2.7, spd: 1.1 },
     exp: 14,
     recruitEase: 0.17,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "kibouju",
     learnset: [
       { level: 3, skill: "moguradrill" },
@@ -261,7 +261,7 @@ export const SPECIES = {
     growth: { hp: 8.64, atk: 2.7, def: 3.65, spd: 1.49 },
     exp: 28,
     recruitEase: 0.09,
-    learnset: [{ level: 12, skill: "mokuseiha" }],
+    learnset: [{ level: 26, skill: "mokuseiha" }],
   },
   tsuboco: {
     id: "tsuboco",
@@ -274,7 +274,7 @@ export const SPECIES = {
     growth: { hp: 5.7, atk: 2.2, def: 2.1, spd: 1.7 },
     exp: 15,
     recruitEase: 0.2,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "koganetsubo",
     learnset: [
       { level: 3, skill: "bubblesplash" },
@@ -292,7 +292,7 @@ export const SPECIES = {
     growth: { hp: 7.7, atk: 2.97, def: 2.84, spd: 2.3 },
     exp: 30,
     recruitEase: 0.1,
-    learnset: [{ level: 12, skill: "koganeotoshi" }],
+    learnset: [{ level: 26, skill: "koganeotoshi" }],
   },
   obako: {
     id: "obako",
@@ -374,7 +374,7 @@ export const SPECIES = {
     growth: { hp: 4.4, atk: 2.1, def: 1.5, spd: 1.9 },
     exp: 10,
     recruitEase: 0.24,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "honborido",
     learnset: [
       { level: 3, skill: "hotarubi" },
@@ -393,7 +393,7 @@ export const SPECIES = {
     growth: { hp: 5.94, atk: 2.84, def: 2.03, spd: 2.57 },
     exp: 20,
     recruitEase: 0.12,
-    learnset: [{ level: 12, skill: "oozorakaze" }],
+    learnset: [{ level: 26, skill: "oozorakaze" }],
   },
   tsubogame: {
     id: "tsubogame",
@@ -406,7 +406,7 @@ export const SPECIES = {
     growth: { hp: 5.8, atk: 1.6, def: 2.3, spd: 1.0 },
     exp: 10,
     recruitEase: 0.26,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "dosugame",
     learnset: [
       { level: 3, skill: "kouratackle" },
@@ -424,7 +424,7 @@ export const SPECIES = {
     growth: { hp: 7.83, atk: 2.16, def: 3.11, spd: 1.35 },
     exp: 20,
     recruitEase: 0.13,
-    learnset: [{ level: 12, skill: "dosugeki" }],
+    learnset: [{ level: 26, skill: "dosugeki" }],
   },
   sandango: {
     id: "sandango",
@@ -437,7 +437,7 @@ export const SPECIES = {
     growth: { hp: 3.8, atk: 1.9, def: 1.3, spd: 2.1 },
     exp: 9,
     recruitEase: 0.27,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "oodangou",
     learnset: [
       { level: 3, skill: "mitarashihane" },
@@ -455,7 +455,7 @@ export const SPECIES = {
     growth: { hp: 5.13, atk: 2.57, def: 1.76, spd: 2.84 },
     exp: 18,
     recruitEase: 0.14,
-    learnset: [{ level: 12, skill: "dangoarashi" }],
+    learnset: [{ level: 26, skill: "dangoarashi" }],
   },
   nushi: {
     id: "nushi",
@@ -1054,7 +1054,7 @@ export const SPECIES = {
     growth: { hp: 4.7, atk: 2.0, def: 1.5, spd: 2.1 },
     exp: 11,
     recruitEase: 0.26,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "hanaguruma",
     learnset: [
       { level: 3, skill: "happashusshu" },
@@ -1073,7 +1073,7 @@ export const SPECIES = {
     growth: { hp: 6.35, atk: 2.7, def: 2.03, spd: 2.84 },
     exp: 22,
     recruitEase: 0.13,
-    learnset: [{ level: 12, skill: "hanafubukidan" }],
+    learnset: [{ level: 26, skill: "hanafubukidan" }],
   },
   torimugi: {
     id: "torimugi",
@@ -1087,7 +1087,7 @@ export const SPECIES = {
     growth: { hp: 4.2, atk: 2.2, def: 1.2, spd: 2.6 },
     exp: 12,
     recruitEase: 0.22,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "oomugiwatari",
     learnset: [
       { level: 3, skill: "soyokazecutter" },
@@ -1106,7 +1106,7 @@ export const SPECIES = {
     growth: { hp: 5.67, atk: 2.97, def: 1.62, spd: 3.51 },
     exp: 24,
     recruitEase: 0.11,
-    learnset: [{ level: 12, skill: "mugiarashi" }],
+    learnset: [{ level: 26, skill: "mugiarashi" }],
   },
   sazanami: {
     id: "sazanami",
@@ -1154,7 +1154,7 @@ export const SPECIES = {
     growth: { hp: 4.1, atk: 2.1, def: 1.7, spd: 2.2 },
     exp: 11,
     recruitEase: 0.27,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "hanautadori",
     learnset: [
       { level: 3, skill: "happashusshu" },
@@ -1173,7 +1173,7 @@ export const SPECIES = {
     growth: { hp: 5.54, atk: 2.84, def: 2.3, spd: 2.97 },
     exp: 22,
     recruitEase: 0.14,
-    learnset: [{ level: 12, skill: "hanautagoe" }],
+    learnset: [{ level: 26, skill: "hanautagoe" }],
   },
   sunaboko: {
     id: "sunaboko",
@@ -1203,7 +1203,7 @@ export const SPECIES = {
     growth: { hp: 4.0, atk: 2.2, def: 1.2, spd: 2.8 },
     exp: 12,
     recruitEase: 0.25,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "amakumousagi",
     learnset: [
       { level: 3, skill: "soyokazecutter" },
@@ -1222,7 +1222,7 @@ export const SPECIES = {
     growth: { hp: 5.4, atk: 2.97, def: 1.62, spd: 3.78 },
     exp: 24,
     recruitEase: 0.13,
-    learnset: [{ level: 12, skill: "amadarerenda" }],
+    learnset: [{ level: 26, skill: "amadarerenda" }],
   },
   momijiri: {
     id: "momijiri",
@@ -1236,7 +1236,7 @@ export const SPECIES = {
     growth: { hp: 4.4, atk: 2.1, def: 1.8, spd: 2.0 },
     exp: 13,
     recruitEase: 0.21,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "momijiou",
     learnset: [
       { level: 3, skill: "happashusshu" },
@@ -1255,7 +1255,7 @@ export const SPECIES = {
     growth: { hp: 5.94, atk: 2.84, def: 2.43, spd: 2.7 },
     exp: 26,
     recruitEase: 0.11,
-    learnset: [{ level: 12, skill: "kouyouken" }],
+    learnset: [{ level: 26, skill: "kouyouken" }],
   },
   shizukuya: {
     id: "shizukuya",
@@ -1286,7 +1286,7 @@ export const SPECIES = {
     growth: { hp: 4.1, atk: 2.1, def: 1.3, spd: 2.7 },
     exp: 12,
     recruitEase: 0.23,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "kazagurumaneko",
     learnset: [
       { level: 3, skill: "soyokazecutter" },
@@ -1305,7 +1305,7 @@ export const SPECIES = {
     growth: { hp: 5.54, atk: 2.84, def: 1.76, spd: 3.65 },
     exp: 24,
     recruitEase: 0.12,
-    learnset: [{ level: 12, skill: "kazagurumasenpu" }],
+    learnset: [{ level: 26, skill: "kazagurumasenpu" }],
   },
   tsuyuhika: {
     id: "tsuyuhika",
@@ -1353,7 +1353,7 @@ export const SPECIES = {
     growth: { hp: 4.2, atk: 2.0, def: 1.5, spd: 2.5 },
     exp: 12,
     recruitEase: 0.24,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "hanafubukiusagi",
     learnset: [
       { level: 3, skill: "happashusshu" },
@@ -1372,7 +1372,7 @@ export const SPECIES = {
     growth: { hp: 5.67, atk: 2.7, def: 2.03, spd: 3.38 },
     exp: 24,
     recruitEase: 0.12,
-    learnset: [{ level: 12, skill: "haruichiban" }],
+    learnset: [{ level: 26, skill: "haruichiban" }],
   },
   mizugoma: {
     id: "mizugoma",
@@ -1419,7 +1419,7 @@ export const SPECIES = {
     growth: { hp: 4.4, atk: 2.1, def: 1.5, spd: 2.4 },
     exp: 12,
     recruitEase: 0.23,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "sakuraouneko",
     learnset: [
       { level: 3, skill: "happashusshu" },
@@ -1438,7 +1438,7 @@ export const SPECIES = {
     growth: { hp: 5.94, atk: 2.84, def: 2.03, spd: 3.24 },
     exp: 24,
     recruitEase: 0.12,
-    learnset: [{ level: 12, skill: "sakurafubuki" }],
+    learnset: [{ level: 26, skill: "sakurafubuki" }],
   },
   mizukusa: {
     id: "mizukusa",
@@ -1535,7 +1535,7 @@ export const SPECIES = {
     growth: { hp: 4.0, atk: 2.0, def: 1.5, spd: 3.0 },
     exp: 15,
     recruitEase: 0.24,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "hayatenoko",
     learnset: [
       { level: 3, skill: "soyoquiver" },
@@ -1554,7 +1554,7 @@ export const SPECIES = {
     growth: { hp: 5.4, atk: 2.7, def: 2.03, spd: 4.05 },
     exp: 30,
     recruitEase: 0.12,
-    learnset: [{ level: 12, skill: "hayatetsumuji" }],
+    learnset: [{ level: 26, skill: "hayatetsumuji" }],
   },
   hikariame: {
     id: "hikariame",
@@ -1584,7 +1584,7 @@ export const SPECIES = {
     growth: { hp: 5.4, atk: 2.2, def: 2.6, spd: 1.2 },
     exp: 16,
     recruitEase: 0.18,
-    evolvesAt: 10,
+    evolvesAt: 25,
     evolvesTo: "hounenkibi",
     learnset: [
       { level: 3, skill: "moguradrill" },
@@ -1602,7 +1602,7 @@ export const SPECIES = {
     growth: { hp: 7.29, atk: 2.97, def: 3.51, spd: 1.62 },
     exp: 32,
     recruitEase: 0.09,
-    learnset: [{ level: 12, skill: "daichinominori" }],
+    learnset: [{ level: 26, skill: "daichinominori" }],
   },
   shizumegane: {
     id: "shizumegane",
