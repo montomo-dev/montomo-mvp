@@ -71,11 +71,28 @@ function shine(ctx, x, y, rx, ry, rot = -0.4) {
   ctx.restore();
 }
 
+// 体だけを少し大きく見せるための全体スケール(drawMonsterで適用)。
+// 目はここで打ち消して元の大きさのまま描くため、体だけが大きくなって見える。
+const BODY_SCALE = 1.12;
+
+// 目を描く関数は、周囲の体がBODY_SCALEで拡大されても目そのものの絶対サイズは
+// 元のまま(1/BODY_SCALEで打ち消す)にするための共通ラッパー。位置(x,y)は
+// 体と一緒に動くので顔の上からずれない。
+function withFixedEyeScale(ctx, x, y, draw) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1 / BODY_SCALE, 1 / BODY_SCALE);
+  draw();
+  ctx.restore();
+}
+
 function eye(ctx, x, y, r = 8) {
-  circle(ctx, x, y, r, "#ffffff", "#2b2b33", 2.5);
-  circle(ctx, x + 0.5, y + r * 0.3, r * 0.56, "#2b2b33");
-  circle(ctx, x - r * 0.22, y - r * 0.28, r * 0.26, "#ffffff");
-  circle(ctx, x + r * 0.32, y + r * 0.18, r * 0.12, "#ffffff");
+  withFixedEyeScale(ctx, x, y, () => {
+    circle(ctx, 0, 0, r, "#ffffff", "#2b2b33", 2.5);
+    circle(ctx, 0.5, r * 0.3, r * 0.56, "#2b2b33");
+    circle(ctx, -r * 0.22, -r * 0.28, r * 0.26, "#ffffff");
+    circle(ctx, r * 0.32, r * 0.18, r * 0.12, "#ffffff");
+  });
 }
 
 // 目のバリエーション: タイプ・性格ごとに描き分けて「目の使い回し感」を減らすためのセット。
@@ -83,77 +100,91 @@ function eye(ctx, x, y, r = 8) {
 
 // ほのお/むし系: きりっとした吊り目
 function eyeSharp(ctx, x, y, r = 8) {
-  ctx.beginPath();
-  ctx.moveTo(x - r, y + r * 0.1);
-  ctx.quadraticCurveTo(x - r * 0.3, y - r * 0.78, x + r * 0.95, y - r * 0.35);
-  ctx.quadraticCurveTo(x + r * 0.3, y + r * 0.55, x - r, y + r * 0.1);
-  ctx.closePath();
-  ctx.fillStyle = "#ffffff";
-  ctx.fill();
-  ctx.strokeStyle = "#2b2b33";
-  ctx.lineWidth = 2.5;
-  ctx.lineJoin = "round";
-  ctx.stroke();
-  circle(ctx, x + r * 0.15, y - r * 0.05, r * 0.42, "#2b2b33");
-  circle(ctx, x + r * 0.35, y - r * 0.2, r * 0.12, "#ffffff");
+  withFixedEyeScale(ctx, x, y, () => {
+    ctx.beginPath();
+    ctx.moveTo(-r, r * 0.1);
+    ctx.quadraticCurveTo(-r * 0.3, -r * 0.78, r * 0.95, -r * 0.35);
+    ctx.quadraticCurveTo(r * 0.3, r * 0.55, -r, r * 0.1);
+    ctx.closePath();
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.strokeStyle = "#2b2b33";
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = "round";
+    ctx.stroke();
+    circle(ctx, r * 0.15, -r * 0.05, r * 0.42, "#2b2b33");
+    circle(ctx, r * 0.35, -r * 0.2, r * 0.12, "#ffffff");
+  });
 }
 
-// みず系: 大きくてまるい、あどけない目
+// みず系: まるくて、あどけない目(大きさはeye()と同じ、瞳の描き方だけ違う)
 function eyeBig(ctx, x, y, r = 8) {
-  circle(ctx, x, y, r * 1.15, "#ffffff", "#2b2b33", 2.5);
-  circle(ctx, x, y + r * 0.15, r * 0.62, "#2b2b33");
-  circle(ctx, x - r * 0.28, y - r * 0.32, r * 0.32, "#ffffff");
-  circle(ctx, x + r * 0.3, y + r * 0.35, r * 0.12, "#ffffff");
+  withFixedEyeScale(ctx, x, y, () => {
+    circle(ctx, 0, 0, r, "#ffffff", "#2b2b33", 2.5);
+    circle(ctx, 0, r * 0.15, r * 0.62, "#2b2b33");
+    circle(ctx, -r * 0.28, -r * 0.32, r * 0.32, "#ffffff");
+    circle(ctx, r * 0.3, r * 0.35, r * 0.12, "#ffffff");
+  });
 }
 
 // でんき系: 瞳が星形(スパーク)になっている目
 function eyeStar(ctx, x, y, r = 8) {
-  circle(ctx, x, y, r, "#ffffff", "#2b2b33", 2.5);
-  starSpark(ctx, x, y + r * 0.08, r * 0.58, "#2b2b33");
-  circle(ctx, x - r * 0.22, y - r * 0.26, r * 0.16, "#ffffff");
+  withFixedEyeScale(ctx, x, y, () => {
+    circle(ctx, 0, 0, r, "#ffffff", "#2b2b33", 2.5);
+    starSpark(ctx, 0, r * 0.08, r * 0.58, "#2b2b33");
+    circle(ctx, -r * 0.22, -r * 0.26, r * 0.16, "#ffffff");
+  });
 }
 
 // こおり系: 半分閉じた、落ち着いた目
 function eyeSleepy(ctx, x, y, r = 8) {
-  ctx.beginPath();
-  ctx.arc(x, y + r * 0.12, r, Math.PI * 0.05, Math.PI * 0.95);
-  ctx.closePath();
-  ctx.fillStyle = "#ffffff";
-  ctx.fill();
-  ctx.strokeStyle = "#2b2b33";
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
-  circle(ctx, x, y + r * 0.42, r * 0.4, "#2b2b33");
-  circle(ctx, x - r * 0.15, y + r * 0.3, r * 0.12, "#ffffff");
+  withFixedEyeScale(ctx, x, y, () => {
+    ctx.beginPath();
+    ctx.arc(0, r * 0.12, r, Math.PI * 0.05, Math.PI * 0.95);
+    ctx.closePath();
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.strokeStyle = "#2b2b33";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    circle(ctx, 0, r * 0.42, r * 0.4, "#2b2b33");
+    circle(ctx, -r * 0.15, r * 0.3, r * 0.12, "#ffffff");
+  });
 }
 
 // じめん/いわ/むし系: 白目を持たない、素朴な小さい黒目
 function eyeDot(ctx, x, y, r = 8) {
-  circle(ctx, x, y, r * 0.55, "#2b2b33", null);
-  circle(ctx, x - r * 0.15, y - r * 0.15, r * 0.16, "#ffffff");
+  withFixedEyeScale(ctx, x, y, () => {
+    circle(ctx, 0, 0, r * 0.55, "#2b2b33", null);
+    circle(ctx, -r * 0.15, -r * 0.15, r * 0.16, "#ffffff");
+  });
 }
 
 // あく/ひこう系: 鋭くつり上がった、やや威圧的な目
 function eyeGlare(ctx, x, y, r = 8) {
-  ctx.beginPath();
-  ctx.moveTo(x - r, y - r * 0.3);
-  ctx.lineTo(x + r, y + r * 0.15);
-  ctx.lineTo(x + r * 0.7, y + r * 0.65);
-  ctx.lineTo(x - r * 0.8, y + r * 0.35);
-  ctx.closePath();
-  ctx.fillStyle = "#ffffff";
-  ctx.fill();
-  ctx.strokeStyle = "#2b2b33";
-  ctx.lineWidth = 2.5;
-  ctx.lineJoin = "round";
-  ctx.stroke();
-  circle(ctx, x + r * 0.15, y + r * 0.2, r * 0.38, "#2b2b33");
+  withFixedEyeScale(ctx, x, y, () => {
+    ctx.beginPath();
+    ctx.moveTo(-r, -r * 0.3);
+    ctx.lineTo(r, r * 0.15);
+    ctx.lineTo(r * 0.7, r * 0.65);
+    ctx.lineTo(-r * 0.8, r * 0.35);
+    ctx.closePath();
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.strokeStyle = "#2b2b33";
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = "round";
+    ctx.stroke();
+    circle(ctx, r * 0.15, r * 0.2, r * 0.38, "#2b2b33");
+  });
 }
 
 // はがね/ゴースト系: 白目のない、うつろに光る目
 function eyeHollow(ctx, x, y, r = 8, glow = "#9ad9ff") {
-  circle(ctx, x, y, r, "#1a1a24", "#2b2b33", 2);
-  circle(ctx, x, y, r * 0.4, glow, null);
+  withFixedEyeScale(ctx, x, y, () => {
+    circle(ctx, 0, 0, r, "#1a1a24", "#2b2b33", 2);
+    circle(ctx, 0, 0, r * 0.4, glow, null);
+  });
 }
 
 function blush(ctx, x, y) {
@@ -3724,7 +3755,7 @@ export function drawMonster(ctx, speciesId, cx, cy, scale, t, hueRotate = 0) {
   ctx.ellipse(cx, cy + 36 * scale, 30 * scale, 8 * scale, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.translate(cx, cy + bob);
-  ctx.scale(scale, scale);
+  ctx.scale(scale * BODY_SCALE, scale * BODY_SCALE);
   if (hueRotate) ctx.filter = `hue-rotate(${hueRotate}deg) saturate(1.2)`;
   const painter = PAINTERS[speciesId] || paintMofuri;
   painter(ctx);

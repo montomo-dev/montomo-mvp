@@ -2323,3 +2323,34 @@ test("手持ち・牧場を合わせて最後の1体は逃がせない(誤って
   backedUpScene.askRelease();
   assert.ok(backedUpScene.confirm, "牧場に控えがいるのに逃がす確認画面が出ない");
 });
+
+test("体は少し大きく描かれるが、目の絶対サイズは元のままになっている", async () => {
+  const { drawMonster } = await import("../js/sprites.js");
+  let m = { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+  const stack = [];
+  const apply = (x, y) => ({ x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f });
+  const arcRadii = [];
+  const ctx = new Proxy(
+    {
+      save: () => stack.push({ ...m }),
+      restore: () => { m = stack.pop(); },
+      translate: (x, y) => { const p = apply(x, y); m = { ...m, e: p.x, f: p.y }; },
+      scale: (sx, sy) => { m = { a: m.a * sx, b: m.b * sx, c: m.c * sy, d: m.d * sy, e: m.e, f: m.f }; },
+      arc: (x, y, r) => {
+        const c = apply(x, y);
+        const edge = apply(x + r, y);
+        arcRadii.push(Math.hypot(edge.x - c.x, edge.y - c.y));
+      },
+      createLinearGradient: () => ({ addColorStop() {} }),
+      createRadialGradient: () => ({ addColorStop() {} }),
+    },
+    { get: (t, k) => (k in t ? t[k] : () => {}), set: () => true }
+  );
+  drawMonster(ctx, "mofuri", 0, 0, 1, 0, 0);
+  // mofuriのeye()半径は8。BODY_SCALEが乗っていれば8より大きくなってしまう
+  const eyeRadius = arcRadii.find((r) => Math.abs(r - 8) < 0.01);
+  assert.ok(eyeRadius, `目の絶対サイズが8pxのまま描かれていない: ${arcRadii.slice(0, 10).map((r) => r.toFixed(2))}`);
+  // 体(半径30)はBODY_SCALEぶん大きく描かれているはず
+  const bodyRadius = arcRadii.find((r) => r > 30);
+  assert.ok(bodyRadius, `体が拡大されていない: ${arcRadii.slice(0, 10).map((r) => r.toFixed(2))}`);
+});
