@@ -16,6 +16,7 @@ import { BOSS_STORY, bossIntroText, bossVictoryLines } from "../js/data/story.js
 import { gainExp, MAX_LEVEL, statsFor, expToNext } from "../js/systems/growth.js";
 import { LEGEND_REQUIREMENT, LEGEND_REWARD_ID, legendProgress, hasLegendReward, canClaimLegend, grantLegendReward } from "../js/systems/legend.js";
 import { drawMonster } from "../js/sprites.js";
+import { TRIBE_LIST } from "../js/data/tribes.js";
 
 test("レア枠は乱数5%未満でツキノネになる", () => {
   assert.equal(rollWildSpecies(undefined, () => 0.049), "tsukinone");
@@ -41,6 +42,41 @@ test("breedMonstersの計算自体は親オブジェクトを変更せず、Lv.1
   for (const skillId of inheritedSkills) assert.ok(child.skills.includes(skillId));
   assert.equal(parentA.level, 3);
   assert.equal(parentB.level, 3);
+});
+
+test("全SPECIESにTRIBE_LISTに含まれる有効なtribeが設定されている", () => {
+  for (const [id, species] of Object.entries(SPECIES)) {
+    assert.ok(species.tribe, `${id} にtribeが設定されていない`);
+    assert.ok(TRIBE_LIST.includes(species.tribe), `${id} のtribe「${species.tribe}」がTRIBE_LISTに存在しない`);
+  }
+});
+
+test("ボス種族(boss: true)は必ずtribe「boss」を持つ", () => {
+  for (const [id, species] of Object.entries(SPECIES)) {
+    if (species.boss) assert.equal(species.tribe, "boss", `${id} はボスなのにtribeが「boss」でない`);
+  }
+});
+
+test("同じ種族(tribe)どうしの配合はステータスが高く育つ(純血ボーナス)", () => {
+  // mofuri(kemono)とdogura(kemono)は同種族
+  const parentA = createMonster("mofuri", 20);
+  const parentB = createMonster("dogura", 20);
+  const { child, sameTribe } = breedMonsters(parentA, parentB);
+  assert.equal(sameTribe, true);
+
+  const plainAvg = Math.max(1, Math.floor((parentA.maxHp + parentB.maxHp) / 4));
+  assert.ok(child.maxHp > plainAvg, "同種族配合なのにステータスボーナスが乗っていない");
+});
+
+test("異なる種族(tribe)どうしの配合はステータスボーナスが乗らない", () => {
+  // mofuri(kemono)とhibachi(dragon)は異種族
+  const parentA = createMonster("mofuri", 20);
+  const parentB = createMonster("hibachi", 20);
+  const { child, sameTribe } = breedMonsters(parentA, parentB);
+  assert.equal(sameTribe, false);
+
+  const plainAvg = Math.max(1, Math.floor((parentA.maxHp + parentB.maxHp) / 4));
+  assert.equal(child.maxHp, plainAvg);
 });
 
 test("PartySceneで配合すると親2体はパーティから消え、子だけが残る", async () => {

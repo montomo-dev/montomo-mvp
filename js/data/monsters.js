@@ -3,6 +3,7 @@ import { statsFor, MAX_LEVEL } from "../systems/growth.js";
 export const SPECIES = {
   mofuri: {
     id: "mofuri",
+    tribe: "kemono",
     nameEn: "Mofuri",
     genusEn: "Grass Cat",
     name: "モフリ",
@@ -21,6 +22,7 @@ export const SPECIES = {
   },
   dogura: {
     id: "dogura",
+    tribe: "kemono",
     nameEn: "Dogura",
     genusEn: "Soil Mole",
     name: "ドグラ",
@@ -39,6 +41,7 @@ export const SPECIES = {
   },
   hibachi: {
     id: "hibachi",
+    tribe: "dragon",
     nameEn: "Hibachi",
     genusEn: "Flame Lizard",
     name: "ヒバチ",
@@ -58,6 +61,7 @@ export const SPECIES = {
   },
   fuwarisu: {
     id: "fuwarisu",
+    tribe: "bird",
     nameEn: "Fuwarisu",
     genusEn: "Sky Squirrel",
     name: "フワリス",
@@ -77,6 +81,7 @@ export const SPECIES = {
   },
   mofurif: {
     id: "mofurif",
+    tribe: "kemono",
     nameEn: "Mofurif",
     genusEn: "Bountiful Grass Cat",
     name: "モフリーフ",
@@ -92,6 +97,7 @@ export const SPECIES = {
   },
   borudogura: {
     id: "borudogura",
+    tribe: "kemono",
     nameEn: "Borudogura",
     genusEn: "Boulder Mole",
     name: "ボルドグラ",
@@ -107,6 +113,7 @@ export const SPECIES = {
   },
   bakuhibachi: {
     id: "bakuhibachi",
+    tribe: "dragon",
     nameEn: "Bakuhibachi",
     genusEn: "Blast Lizard",
     name: "バクヒバチ",
@@ -123,6 +130,7 @@ export const SPECIES = {
   },
   tenfuwarisu: {
     id: "tenfuwarisu",
+    tribe: "bird",
     nameEn: "Tenfuwarisu",
     genusEn: "Heavenly Sky Squirrel",
     name: "テンフワリス",
@@ -139,6 +147,7 @@ export const SPECIES = {
   },
   pyokotan: {
     id: "pyokotan",
+    tribe: "aqua",
     nameEn: "Pyokotan",
     genusEn: "Water-Drop Frog",
     name: "ピョコタン",
@@ -157,6 +166,7 @@ export const SPECIES = {
   },
   gamadon: {
     id: "gamadon",
+    tribe: "aqua",
     nameEn: "Gamadon",
     genusEn: "Toad King",
     name: "ガマドン",
@@ -170,6 +180,7 @@ export const SPECIES = {
   },
   pachikoro: {
     id: "pachikoro",
+    tribe: "bug",
     nameEn: "Pachikoro",
     genusEn: "Spark Bug",
     name: "パチコロ",
@@ -189,6 +200,7 @@ export const SPECIES = {
   },
   pachiking: {
     id: "pachiking",
+    tribe: "bug",
     nameEn: "Pachiking",
     genusEn: "Thunder Bug",
     name: "パチキング",
@@ -203,6 +215,7 @@ export const SPECIES = {
   },
   orihiko: {
     id: "orihiko",
+    tribe: "bird",
     nameEn: "Orihiko",
     genusEn: "Paper Airplane",
     name: "オリヒコ",
@@ -221,6 +234,7 @@ export const SPECIES = {
   },
   orifalcon: {
     id: "orifalcon",
+    tribe: "bird",
     nameEn: "Orifalcon",
     genusEn: "Sky Glider",
     name: "オリファルコン",
@@ -234,6 +248,7 @@ export const SPECIES = {
   },
   kiboko: {
     id: "kiboko",
+    tribe: "material",
     nameEn: "Kiboko",
     genusEn: "Carved Kokeshi",
     name: "キボコ",
@@ -252,6 +267,7 @@ export const SPECIES = {
   },
   kibouju: {
     id: "kibouju",
+    tribe: "plant",
     nameEn: "Kibouju",
     genusEn: "Heartwood Tree",
     name: "キボウジュ",
@@ -265,6 +281,7 @@ export const SPECIES = {
   },
   tsuboco: {
     id: "tsuboco",
+    tribe: "material",
     nameEn: "Tsuboco",
     genusEn: "Clay Pot",
     name: "ツボコ",
@@ -283,6 +300,7 @@ export const SPECIES = {
   },
   koganetsubo: {
     id: "koganetsubo",
+    tribe: "material",
     nameEn: "Koganetsubo",
     genusEn: "Golden Pot Spirit",
     name: "コガネツボ",
@@ -296,6 +314,7 @@ export const SPECIES = {
   },
   obako: {
     id: "obako",
+    tribe: "ghost",
     nameEn: "Obako",
     genusEn: "Wavering Ghost",
     name: "オバコ",
@@ -313,6 +332,7 @@ export const SPECIES = {
   },
   kurista: {
     id: "kurista",
+    tribe: "rock",
     nameEn: "Kurista",
     genusEn: "Shard Spirit",
     name: "クリスタ",
@@ -330,6 +350,7 @@ export const SPECIES = {
   },
   hagumon: {
     id: "hagumon",
+    tribe: "bug",
     nameEn: "Hagumon",
     genusEn: "Wind-Up Bug",
     name: "ハグモン",
@@ -347,6 +368,7 @@ export const SPECIES = {
   },
   tsukinone: {
     id: "tsukinone",
+    tribe: "kemono",
     nameEn: "Tsukinone",
     genusEn: "Star-Eared Rabbit",
     name: "ツキノネ",
@@ -364,6 +386,7 @@ export const SPECIES = {
   },
   honbori: {
     id: "honbori",
+    tribe: "bird",
     nameEn: "Honbori",
     genusEn: "Lantern Owl",
     name: "ホンボリ",
@@ -383,6 +406,7 @@ export const SPECIES = {
   },
   honborido: {
     id: "honborido",
+    tribe: "bird",
     nameEn: "Honborido",
     genusEn: "Night-Guide Owl",
     name: "ホンボリード",
@@ -397,6 +421,7 @@ export const SPECIES = {
   },
   tsubogame: {
     id: "tsubogame",
+    tribe: "rock",
     nameEn: "Tsubogame",
     genusEn: "Fired-Clay Turtle",
     name: "ツボガメ",
@@ -415,6 +440,7 @@ export const SPECIES = {
   },
   dosugame: {
     id: "dosugame",
+    tribe: "rock",
     nameEn: "Dosugame",
     genusEn: "Hardshell Turtle",
     name: "ドスガメ",
@@ -428,6 +454,7 @@ export const SPECIES = {
   },
   sandango: {
     id: "sandango",
+    tribe: "bird",
     nameEn: "Sandango",
     genusEn: "Sweet-Glaze Bird",
     name: "サンダンゴ",
@@ -446,6 +473,7 @@ export const SPECIES = {
   },
   oodangou: {
     id: "oodangou",
+    tribe: "bird",
     nameEn: "Oodangou",
     genusEn: "Great Dumpling Bird",
     name: "オオダンゴウ",
@@ -459,6 +487,7 @@ export const SPECIES = {
   },
   nushi: {
     id: "nushi",
+    tribe: "boss",
     nameEn: "Nushi",
     genusEn: "Lord of the Forest",
     name: "モリノヌシ",
@@ -481,6 +510,7 @@ export const SPECIES = {
   },
   reverseNushi: {
     id: "reverseNushi",
+    tribe: "boss",
     nameEn: "Reverse Nushi",
     genusEn: "Lord of the Reverse World",
     name: "ウラノヌシ",
@@ -504,6 +534,7 @@ export const SPECIES = {
   },
   takarabox: {
     id: "takarabox",
+    tribe: "ghost",
     nameEn: "Takarabox",
     genusEn: "Mimic Chest",
     name: "タカラボックス",
@@ -521,6 +552,7 @@ export const SPECIES = {
   },
   pukurin: {
     id: "pukurin",
+    tribe: "aqua",
     nameEn: "Pukurin",
     genusEn: "Water-Bag Jelly",
     name: "プクリン",
@@ -538,6 +570,7 @@ export const SPECIES = {
   },
   kageuri: {
     id: "kageuri",
+    tribe: "ghost",
     nameEn: "Kageuri",
     genusEn: "Shade-Melon Sprite",
     name: "カゲウリ",
@@ -554,6 +587,7 @@ export const SPECIES = {
   },
   hoshimogu: {
     id: "hoshimogu",
+    tribe: "kemono",
     nameEn: "Hoshimogu",
     genusEn: "Starsand Mole",
     name: "ホシモグ",
@@ -570,6 +604,7 @@ export const SPECIES = {
   },
   fuyudama: {
     id: "fuyudama",
+    tribe: "rock",
     nameEn: "Fuyudama",
     genusEn: "Snowball Charm",
     name: "フユダマ",
@@ -587,6 +622,7 @@ export const SPECIES = {
   },
   nejiko: {
     id: "nejiko",
+    tribe: "kemono",
     nameEn: "Nejiko",
     genusEn: "Wind-Up Cat",
     name: "ネジコ",
@@ -603,6 +639,7 @@ export const SPECIES = {
   },
   kaigaran: {
     id: "kaigaran",
+    tribe: "aqua",
     nameEn: "Kaigaran",
     genusEn: "Shell-Dragging Crab",
     name: "カイガラン",
@@ -619,6 +656,7 @@ export const SPECIES = {
   },
   awairuka: {
     id: "awairuka",
+    tribe: "aqua",
     nameEn: "Awairuka",
     genusEn: "Bubble Dolphin",
     name: "アワイルカ",
@@ -636,6 +674,7 @@ export const SPECIES = {
   },
   hikariebi: {
     id: "hikariebi",
+    tribe: "aqua",
     nameEn: "Hikariebi",
     genusEn: "Glowing Shrimp",
     name: "ヒカリエビ",
@@ -653,6 +692,7 @@ export const SPECIES = {
   },
   yamiankou: {
     id: "yamiankou",
+    tribe: "aqua",
     nameEn: "Yamiankou",
     genusEn: "Dark Anglerfish",
     name: "ヤミアンコウ",
@@ -669,6 +709,7 @@ export const SPECIES = {
   },
   seaNushi: {
     id: "seaNushi",
+    tribe: "boss",
     nameEn: "Sea Nushi",
     genusEn: "Lord of the Deep Sea",
     name: "シンカイヌシ",
@@ -692,6 +733,7 @@ export const SPECIES = {
   },
   yukimaro: {
     id: "yukimaro",
+    tribe: "kemono",
     nameEn: "Yukimaro",
     genusEn: "Snow-Coat Rabbit",
     name: "ユキマロ",
@@ -708,6 +750,7 @@ export const SPECIES = {
   },
   kooritsumu: {
     id: "kooritsumu",
+    tribe: "rock",
     nameEn: "Kooritsumu",
     genusEn: "Icicle Crystal",
     name: "コオリツム",
@@ -725,6 +768,7 @@ export const SPECIES = {
   },
   pengiri: {
     id: "pengiri",
+    tribe: "bird",
     nameEn: "Pengiri",
     genusEn: "Sledding Penguin",
     name: "ペンギリ",
@@ -741,6 +785,7 @@ export const SPECIES = {
   },
   yukibouzu: {
     id: "yukibouzu",
+    tribe: "rock",
     nameEn: "Yukibouzu",
     genusEn: "Blizzard Sprite",
     name: "ユキボウズ",
@@ -757,6 +802,7 @@ export const SPECIES = {
   },
   hyougaNushi: {
     id: "hyougaNushi",
+    tribe: "boss",
     nameEn: "Hyouga Nushi",
     genusEn: "Lord of the Glacier",
     name: "ヒョウガヌシ",
@@ -780,6 +826,7 @@ export const SPECIES = {
   },
   sabotenko: {
     id: "sabotenko",
+    tribe: "plant",
     nameEn: "Sabotenko",
     genusEn: "Spiky Cactus",
     name: "サボテンコ",
@@ -796,6 +843,7 @@ export const SPECIES = {
   },
   sunasasori: {
     id: "sunasasori",
+    tribe: "bug",
     nameEn: "Sunasasori",
     genusEn: "Desert Scorpion",
     name: "スナサソリ",
@@ -812,6 +860,7 @@ export const SPECIES = {
   },
   rakudan: {
     id: "rakudan",
+    tribe: "kemono",
     nameEn: "Rakudan",
     genusEn: "Desert Camel",
     name: "ラクダン",
@@ -828,6 +877,7 @@ export const SPECIES = {
   },
   sunamiira: {
     id: "sunamiira",
+    tribe: "ghost",
     nameEn: "Sunamiira",
     genusEn: "Ancient Wrapped One",
     name: "スナミイラ",
@@ -844,6 +894,7 @@ export const SPECIES = {
   },
   sunaNushi: {
     id: "sunaNushi",
+    tribe: "boss",
     nameEn: "Suna Nushi",
     genusEn: "Lord of the Sands",
     name: "スナヌシ",
@@ -867,6 +918,7 @@ export const SPECIES = {
   },
   hagurumaru: {
     id: "hagurumaru",
+    tribe: "machine",
     nameEn: "Hagurumaru",
     genusEn: "Sturdy Gear",
     name: "ハグルマル",
@@ -883,6 +935,7 @@ export const SPECIES = {
   },
   sparkun: {
     id: "sparkun",
+    tribe: "machine",
     nameEn: "Sparkun",
     genusEn: "Electric Spark",
     name: "スパークン",
@@ -900,6 +953,7 @@ export const SPECIES = {
   },
   karakuribat: {
     id: "karakuribat",
+    tribe: "machine",
     nameEn: "Karakuribat",
     genusEn: "Clockwork Bat",
     name: "カラクリバット",
@@ -916,6 +970,7 @@ export const SPECIES = {
   },
   paipon: {
     id: "paipon",
+    tribe: "machine",
     nameEn: "Paipon",
     genusEn: "Pipe-Dwelling Robot",
     name: "パイポン",
@@ -932,6 +987,7 @@ export const SPECIES = {
   },
   koujouNushi: {
     id: "koujouNushi",
+    tribe: "boss",
     nameEn: "Koujou Nushi",
     genusEn: "Lord of the Factory",
     name: "コウジョウヌシ",
@@ -955,6 +1011,7 @@ export const SPECIES = {
   },
   akumakko: {
     id: "akumakko",
+    tribe: "devil",
     nameEn: "Akumakko",
     genusEn: "Little Devil",
     name: "アクマッコ",
@@ -971,6 +1028,7 @@ export const SPECIES = {
   },
   kokushou: {
     id: "kokushou",
+    tribe: "devil",
     nameEn: "Kokushou",
     genusEn: "Dark Armor",
     name: "コクショウ",
@@ -987,6 +1045,7 @@ export const SPECIES = {
   },
   maou: {
     id: "maou",
+    tribe: "boss",
     nameEn: "Maou",
     genusEn: "Demon Lord",
     name: "マオウ",
@@ -1012,6 +1071,7 @@ export const SPECIES = {
   },
   yuureiking: {
     id: "yuureiking",
+    tribe: "ghost",
     nameEn: "Yuureiking",
     genusEn: "Wandering Ghost King",
     name: "ユウレイキング",
@@ -1028,6 +1088,7 @@ export const SPECIES = {
   },
   noroigumo: {
     id: "noroigumo",
+    tribe: "bug",
     nameEn: "Noroigumo",
     genusEn: "Cursed Spider",
     name: "ノロイグモ",
@@ -1044,6 +1105,7 @@ export const SPECIES = {
   },
   hanamaro: {
     id: "hanamaro",
+    tribe: "kemono",
     nameEn: "Hanamaro",
     genusEn: "Flower Puppy",
     name: "ハナマロ",
@@ -1063,6 +1125,7 @@ export const SPECIES = {
   },
   hanaguruma: {
     id: "hanaguruma",
+    tribe: "kemono",
     nameEn: "Hanaguruma",
     genusEn: "Flower Wheel Dog",
     name: "ハナグルマ",
@@ -1077,6 +1140,7 @@ export const SPECIES = {
   },
   torimugi: {
     id: "torimugi",
+    tribe: "bird",
     nameEn: "Torimugi",
     genusEn: "Wheat Migrant Bird",
     name: "トリムギ",
@@ -1096,6 +1160,7 @@ export const SPECIES = {
   },
   oomugiwatari: {
     id: "oomugiwatari",
+    tribe: "bird",
     nameEn: "Oomugiwatari",
     genusEn: "Grain Storm Bird",
     name: "オオムギワタリ",
@@ -1110,6 +1175,7 @@ export const SPECIES = {
   },
   sazanami: {
     id: "sazanami",
+    tribe: "aqua",
     nameEn: "Sazanami",
     genusEn: "Rippling Sunfish",
     name: "サザナミ",
@@ -1127,6 +1193,7 @@ export const SPECIES = {
   },
   mizuhane: {
     id: "mizuhane",
+    tribe: "bird",
     nameEn: "Mizuhane",
     genusEn: "Water Bird",
     name: "ミズハネ",
@@ -1144,6 +1211,7 @@ export const SPECIES = {
   },
   kotohana: {
     id: "kotohana",
+    tribe: "bird",
     nameEn: "Kotohana",
     genusEn: "Flower Songbird",
     name: "コトハナ",
@@ -1163,6 +1231,7 @@ export const SPECIES = {
   },
   hanautadori: {
     id: "hanautadori",
+    tribe: "bird",
     nameEn: "Hanautadori",
     genusEn: "Singing Blossom Bird",
     name: "ハナウタドリ",
@@ -1177,6 +1246,7 @@ export const SPECIES = {
   },
   sunaboko: {
     id: "sunaboko",
+    tribe: "kemono",
     nameEn: "Sunaboko",
     genusEn: "Sand Roller",
     name: "スナボコ",
@@ -1193,6 +1263,7 @@ export const SPECIES = {
   },
   sorane: {
     id: "sorane",
+    tribe: "kemono",
     nameEn: "Sorane",
     genusEn: "Sky Rabbit",
     name: "ソラネ",
@@ -1212,6 +1283,7 @@ export const SPECIES = {
   },
   amakumousagi: {
     id: "amakumousagi",
+    tribe: "kemono",
     nameEn: "Amakumousagi",
     genusEn: "Rain-Cloud Rabbit",
     name: "アマクモウサギ",
@@ -1226,6 +1298,7 @@ export const SPECIES = {
   },
   momijiri: {
     id: "momijiri",
+    tribe: "plant",
     nameEn: "Momijiri",
     genusEn: "Maple Fox",
     name: "モミジリ",
@@ -1245,6 +1318,7 @@ export const SPECIES = {
   },
   momijiou: {
     id: "momijiou",
+    tribe: "plant",
     nameEn: "Momijiou",
     genusEn: "Autumn Fox King",
     name: "モミジオウ",
@@ -1259,6 +1333,7 @@ export const SPECIES = {
   },
   shizukuya: {
     id: "shizukuya",
+    tribe: "aqua",
     nameEn: "Shizukuya",
     genusEn: "Droplet Dweller",
     name: "シズクヤ",
@@ -1276,6 +1351,7 @@ export const SPECIES = {
   },
   kazeneko: {
     id: "kazeneko",
+    tribe: "kemono",
     nameEn: "Kazeneko",
     genusEn: "Wind Cat",
     name: "カゼネコ",
@@ -1295,6 +1371,7 @@ export const SPECIES = {
   },
   kazagurumaneko: {
     id: "kazagurumaneko",
+    tribe: "kemono",
     nameEn: "Kazagurumaneko",
     genusEn: "Pinwheel Cat",
     name: "カザグルマネコ",
@@ -1309,6 +1386,7 @@ export const SPECIES = {
   },
   tsuyuhika: {
     id: "tsuyuhika",
+    tribe: "aqua",
     nameEn: "Tsuyuhika",
     genusEn: "Dewy Sparkle",
     name: "ツユヒカ",
@@ -1326,6 +1404,7 @@ export const SPECIES = {
   },
   moriame: {
     id: "moriame",
+    tribe: "aqua",
     nameEn: "Moriame",
     genusEn: "Forest Rain",
     name: "モリアメ",
@@ -1343,6 +1422,7 @@ export const SPECIES = {
   },
   harune: {
     id: "harune",
+    tribe: "kemono",
     nameEn: "Harune",
     genusEn: "Spring Rabbit",
     name: "ハルネ",
@@ -1362,6 +1442,7 @@ export const SPECIES = {
   },
   hanafubukiusagi: {
     id: "hanafubukiusagi",
+    tribe: "kemono",
     nameEn: "Hanafubukiusagi",
     genusEn: "Petal-Storm Rabbit",
     name: "ハナフブキウサギ",
@@ -1376,6 +1457,7 @@ export const SPECIES = {
   },
   mizugoma: {
     id: "mizugoma",
+    tribe: "aqua",
     nameEn: "Mizugoma",
     genusEn: "Water Spinner",
     name: "ミズゴマ",
@@ -1393,6 +1475,7 @@ export const SPECIES = {
   },
   sunobori: {
     id: "sunobori",
+    tribe: "kemono",
     nameEn: "Sunobori",
     genusEn: "Dune Slider",
     name: "スノボリ",
@@ -1409,6 +1492,7 @@ export const SPECIES = {
   },
   sakuraneko: {
     id: "sakuraneko",
+    tribe: "kemono",
     nameEn: "Sakuraneko",
     genusEn: "Blossom Cat",
     name: "サクラネコ",
@@ -1428,6 +1512,7 @@ export const SPECIES = {
   },
   sakuraouneko: {
     id: "sakuraouneko",
+    tribe: "kemono",
     nameEn: "Sakuraouneko",
     genusEn: "Cherry-Blossom Queen Cat",
     name: "サクラオウネコ",
@@ -1442,6 +1527,7 @@ export const SPECIES = {
   },
   mizukusa: {
     id: "mizukusa",
+    tribe: "bug",
     nameEn: "Mizukusa",
     genusEn: "Waterweed Bug",
     name: "ミズクサ",
@@ -1459,6 +1545,7 @@ export const SPECIES = {
   },
   sunamaru: {
     id: "sunamaru",
+    tribe: "kemono",
     nameEn: "Sunamaru",
     genusEn: "Sand Roundling",
     name: "スナマル",
@@ -1475,6 +1562,7 @@ export const SPECIES = {
   },
   tsukihane: {
     id: "tsukihane",
+    tribe: "ghost",
     nameEn: "Tsukihane",
     genusEn: "Moonlit Beast",
     name: "ツキハネ",
@@ -1492,6 +1580,7 @@ export const SPECIES = {
   },
   mizutama: {
     id: "mizutama",
+    tribe: "aqua",
     nameEn: "Mizutama",
     genusEn: "Water-Drop Shell",
     name: "ミズタマ",
@@ -1509,6 +1598,7 @@ export const SPECIES = {
   },
   ishimaru: {
     id: "ishimaru",
+    tribe: "rock",
     nameEn: "Ishimaru",
     genusEn: "Rolling Stone",
     name: "イシマル",
@@ -1525,6 +1615,7 @@ export const SPECIES = {
   },
   kazepeko: {
     id: "kazepeko",
+    tribe: "bird",
     nameEn: "Kazepeko",
     genusEn: "Wind Child",
     name: "カゼペコ",
@@ -1544,6 +1635,7 @@ export const SPECIES = {
   },
   hayatenoko: {
     id: "hayatenoko",
+    tribe: "bird",
     nameEn: "Hayatenoko",
     genusEn: "Gale Child",
     name: "ハヤテノコ",
@@ -1558,6 +1650,7 @@ export const SPECIES = {
   },
   hikariame: {
     id: "hikariame",
+    tribe: "aqua",
     nameEn: "Hikariame",
     genusEn: "Glimmering Rain",
     name: "ヒカリアメ",
@@ -1575,6 +1668,7 @@ export const SPECIES = {
   },
   yamakibi: {
     id: "yamakibi",
+    tribe: "plant",
     nameEn: "Yamakibi",
     genusEn: "Mountain Millet",
     name: "ヤマキビ",
@@ -1593,6 +1687,7 @@ export const SPECIES = {
   },
   hounenkibi: {
     id: "hounenkibi",
+    tribe: "plant",
     nameEn: "Hounenkibi",
     genusEn: "Bountiful Harvest Scarecrow",
     name: "ホウネンキビ",
@@ -1606,6 +1701,7 @@ export const SPECIES = {
   },
   shizumegane: {
     id: "shizumegane",
+    tribe: "ghost",
     nameEn: "Shizumegane",
     genusEn: "Sunken Eye",
     name: "シズメガネ",
@@ -1622,6 +1718,7 @@ export const SPECIES = {
   },
   haribune: {
     id: "haribune",
+    tribe: "aqua",
     nameEn: "Haribune",
     genusEn: "Spiny Little Boat",
     name: "ハリブネ",
@@ -1639,6 +1736,7 @@ export const SPECIES = {
   },
   reiseiou: {
     id: "reiseiou",
+    tribe: "rock",
     nameEn: "Reiseiou",
     genusEn: "Frost-Calm King",
     name: "レイセイオウ",
@@ -1658,6 +1756,7 @@ export const SPECIES = {
   },
   kazaribi: {
     id: "kazaribi",
+    tribe: "machine",
     nameEn: "Kazaribi",
     genusEn: "Legendary Light",
     name: "カザリビ",
@@ -1679,6 +1778,7 @@ export const SPECIES = {
   },
   sumiremo: {
     id: "sumiremo",
+    tribe: "bug",
     nameEn: "Sumiremo",
     genusEn: "Violet Moth",
     name: "スミレモ",
@@ -1696,6 +1796,7 @@ export const SPECIES = {
   },
   yukigamo: {
     id: "yukigamo",
+    tribe: "bird",
     nameEn: "Yukigamo",
     genusEn: "Snow-White Duck",
     name: "ユキガモ",
@@ -1713,6 +1814,7 @@ export const SPECIES = {
   },
   kuroguri: {
     id: "kuroguri",
+    tribe: "devil",
     nameEn: "Kuroguri",
     genusEn: "Little Dark One",
     name: "クログリ",
@@ -1729,6 +1831,7 @@ export const SPECIES = {
   },
   mofurigarden: {
     id: "mofurigarden",
+    tribe: "kemono",
     nameEn: "Mofurigarden",
     genusEn: "Rainbow-Coat Cat",
     name: "モフリガーデン",
@@ -1743,6 +1846,7 @@ export const SPECIES = {
   },
   borudrill: {
     id: "borudrill",
+    tribe: "dragon",
     nameEn: "Borudrill",
     genusEn: "Drilling Wyrm",
     name: "ボルドリル",
@@ -1757,6 +1861,7 @@ export const SPECIES = {
   },
   bakuphoenix: {
     id: "bakuphoenix",
+    tribe: "dragon",
     nameEn: "Bakuphoenix",
     genusEn: "Blazing Phoenix",
     name: "バクフェニ",
@@ -1772,6 +1877,7 @@ export const SPECIES = {
   },
   tenstorm: {
     id: "tenstorm",
+    tribe: "bird",
     nameEn: "Tenstorm",
     genusEn: "Storm Bird",
     name: "テンストーム",
@@ -1787,6 +1893,7 @@ export const SPECIES = {
   },
   obagale: {
     id: "obagale",
+    tribe: "ghost",
     nameEn: "Obagale",
     genusEn: "Moonlit Witch",
     name: "オバゲイル",
@@ -1801,6 +1908,7 @@ export const SPECIES = {
   },
   kuricrown: {
     id: "kuricrown",
+    tribe: "material",
     nameEn: "Kuricrown",
     genusEn: "Jeweled King",
     name: "クリクラウン",
@@ -1815,6 +1923,7 @@ export const SPECIES = {
   },
   hagutitan: {
     id: "hagutitan",
+    tribe: "machine",
     nameEn: "Hagutitan",
     genusEn: "Clockwork Giant",
     name: "ハグタイタン",
@@ -1829,6 +1938,7 @@ export const SPECIES = {
   },
   oonamiwhale: {
     id: "oonamiwhale",
+    tribe: "aqua",
     nameEn: "Oonamiwhale",
     genusEn: "Great Wave Whale",
     name: "オオナミホエル",
@@ -1844,6 +1954,7 @@ export const SPECIES = {
   },
   hoshizora: {
     id: "hoshizora",
+    tribe: "bug",
     nameEn: "Hoshizora",
     genusEn: "Starry-Sky Bug",
     name: "ホシゾラ",
@@ -1858,6 +1969,7 @@ export const SPECIES = {
   },
   omegazenmaiya: {
     id: "omegazenmaiya",
+    tribe: "machine",
     nameEn: "Omegazenmaiya",
     genusEn: "Ancient Machine Spirit",
     name: "オメガゼンマイヤ",
@@ -1872,6 +1984,7 @@ export const SPECIES = {
   },
   rakudaking: {
     id: "rakudaking",
+    tribe: "kemono",
     nameEn: "Rakudaking",
     genusEn: "Desert Sovereign",
     name: "ラクダキング",
@@ -1886,6 +1999,7 @@ export const SPECIES = {
   },
   awarukaqueen: {
     id: "awarukaqueen",
+    tribe: "aqua",
     nameEn: "Awairukaqueen",
     genusEn: "Wave-Taming Queen",
     name: "アワイルカクイーン",
@@ -1901,6 +2015,7 @@ export const SPECIES = {
   },
   karakuriking: {
     id: "karakuriking",
+    tribe: "machine",
     nameEn: "Karakuriking",
     genusEn: "Clockwork Sovereign",
     name: "カラクリキング",
@@ -1915,6 +2030,7 @@ export const SPECIES = {
   },
   kooritsumuking: {
     id: "kooritsumuking",
+    tribe: "rock",
     nameEn: "Kooritsumuoh",
     genusEn: "Glacier Sovereign",
     name: "コオリツムオウ",
@@ -1930,6 +2046,7 @@ export const SPECIES = {
   },
   kokushouking: {
     id: "kokushouking",
+    tribe: "devil",
     nameEn: "Kokushouoh",
     genusEn: "Dark Armor King",
     name: "コクショウオウ",
@@ -1944,6 +2061,7 @@ export const SPECIES = {
   },
   tsukihanehime: {
     id: "tsukihanehime",
+    tribe: "ghost",
     nameEn: "Tsukihanehime",
     genusEn: "Moonlit Princess",
     name: "ツキハネヒメ",
@@ -1959,6 +2077,7 @@ export const SPECIES = {
   },
   sumiremoking: {
     id: "sumiremoking",
+    tribe: "bug",
     nameEn: "Sumiremooh",
     genusEn: "Night Moth Sovereign",
     name: "スミレモオウ",
@@ -1974,6 +2093,7 @@ export const SPECIES = {
   },
   sunabokoking: {
     id: "sunabokoking",
+    tribe: "kemono",
     nameEn: "Sunabokooh",
     genusEn: "Sand-Rolling Sovereign",
     name: "スナボコオウ",
@@ -1988,6 +2108,7 @@ export const SPECIES = {
   },
   sunamiirasou: {
     id: "sunamiirasou",
+    tribe: "ghost",
     nameEn: "Sunamiirasou",
     genusEn: "Ancient Wrapped Elder",
     name: "スナミイラソウ",
@@ -2002,6 +2123,7 @@ export const SPECIES = {
   },
   tsuyuhikaking: {
     id: "tsuyuhikaking",
+    tribe: "aqua",
     nameEn: "Tsuyuhikaoh",
     genusEn: "Dewlight Sovereign",
     name: "ツユヒカオウ",
@@ -2017,6 +2139,7 @@ export const SPECIES = {
   },
   shizukuyaseirei: {
     id: "shizukuyaseirei",
+    tribe: "aqua",
     nameEn: "Shizukuyaseirei",
     genusEn: "Droplet Spirit",
     name: "シズクヤセイレイ",
@@ -2032,6 +2155,7 @@ export const SPECIES = {
   },
   haribuneking: {
     id: "haribuneking",
+    tribe: "aqua",
     nameEn: "Haribuneoh",
     genusEn: "Spiny Boat Sovereign",
     name: "ハリブネオウ",
@@ -2047,6 +2171,7 @@ export const SPECIES = {
   },
   shizumeganeseirei: {
     id: "shizumeganeseirei",
+    tribe: "ghost",
     nameEn: "Shizumeganeseirei",
     genusEn: "Deep-Eye Spirit",
     name: "シズメガネセイレイ",
@@ -2061,6 +2186,7 @@ export const SPECIES = {
   },
   hoshimoguking: {
     id: "hoshimoguking",
+    tribe: "kemono",
     nameEn: "Hoshimoguoh",
     genusEn: "Starsand Sovereign",
     name: "ホシモグオウ",
@@ -2075,6 +2201,7 @@ export const SPECIES = {
   },
   yuureiteiou: {
     id: "yuureiteiou",
+    tribe: "ghost",
     nameEn: "Yuureiteiou",
     genusEn: "Wandering Soul Emperor",
     name: "ユウレイテイオウ",
@@ -2089,6 +2216,7 @@ export const SPECIES = {
   },
   sazanamiking: {
     id: "sazanamiking",
+    tribe: "aqua",
     nameEn: "Sazanamioh",
     genusEn: "Ripple Sovereign",
     name: "サザナミオウ",
@@ -2104,6 +2232,7 @@ export const SPECIES = {
   },
   mizugomaking: {
     id: "mizugomaking",
+    tribe: "aqua",
     nameEn: "Mizugomaoh",
     genusEn: "Water-Spinner Sovereign",
     name: "ミズゴマオウ",
@@ -2119,6 +2248,7 @@ export const SPECIES = {
   },
   sunamaruking: {
     id: "sunamaruking",
+    tribe: "kemono",
     nameEn: "Sunamaruoh",
     genusEn: "Sand-Round Sovereign",
     name: "スナマルオウ",
@@ -2133,6 +2263,7 @@ export const SPECIES = {
   },
   noroigumoking: {
     id: "noroigumoking",
+    tribe: "bug",
     nameEn: "Noroigumooh",
     genusEn: "Cursed Spider Sovereign",
     name: "ノロイグモオウ",
@@ -2147,6 +2278,7 @@ export const SPECIES = {
   },
   yukimaroking: {
     id: "yukimaroking",
+    tribe: "rock",
     nameEn: "Yukimarooh",
     genusEn: "Snow-Coat Sovereign",
     name: "ユキマロオウ",
@@ -2161,6 +2293,7 @@ export const SPECIES = {
   },
   sunasasoriking: {
     id: "sunasasoriking",
+    tribe: "bug",
     nameEn: "Sunasasorioh",
     genusEn: "Scorpion Sovereign",
     name: "スナサソリオウ",
@@ -2175,6 +2308,7 @@ export const SPECIES = {
   },
   hagurumaruking: {
     id: "hagurumaruking",
+    tribe: "machine",
     nameEn: "Hagurumaruoh",
     genusEn: "Gear Sovereign",
     name: "ハグルマルオウ",
@@ -2189,6 +2323,7 @@ export const SPECIES = {
   },
   paiponking: {
     id: "paiponking",
+    tribe: "machine",
     nameEn: "Paiponoh",
     genusEn: "Pipeline Sovereign",
     name: "パイポンオウ",
@@ -2203,6 +2338,7 @@ export const SPECIES = {
   },
   nejikoking: {
     id: "nejikoking",
+    tribe: "kemono",
     nameEn: "Nejikooh",
     genusEn: "Wind-Up Cat Sovereign",
     name: "ネジコオウ",
@@ -2217,6 +2353,7 @@ export const SPECIES = {
   },
   mizutamaking: {
     id: "mizutamaking",
+    tribe: "aqua",
     nameEn: "Mizutamaoh",
     genusEn: "Water-Drop Sovereign",
     name: "ミズタマオウ",
@@ -2232,6 +2369,7 @@ export const SPECIES = {
   },
   sabotenkoking: {
     id: "sabotenkoking",
+    tribe: "plant",
     nameEn: "Sabotenkooh",
     genusEn: "Cactus Sovereign",
     name: "サボテンコオウ",
@@ -2246,6 +2384,7 @@ export const SPECIES = {
   },
   mizuhaneking: {
     id: "mizuhaneking",
+    tribe: "bird",
     nameEn: "Mizuhaneoh",
     genusEn: "Water Bird Sovereign",
     name: "ミズハネオウ",
@@ -2261,6 +2400,7 @@ export const SPECIES = {
   },
   akumakkoking: {
     id: "akumakkoking",
+    tribe: "devil",
     nameEn: "Akumakkooh",
     genusEn: "Little Devil Sovereign",
     name: "アクマッコオウ",
@@ -2275,6 +2415,7 @@ export const SPECIES = {
   },
   kageurilord: {
     id: "kageurilord",
+    tribe: "ghost",
     nameEn: "Kageurilord",
     genusEn: "Shade-Melon Lord",
     name: "カゲウリロード",
@@ -2289,6 +2430,7 @@ export const SPECIES = {
   },
   yukibouzuking: {
     id: "yukibouzuking",
+    tribe: "rock",
     nameEn: "Yukibouzuoh",
     genusEn: "Blizzard Sprite Sovereign",
     name: "ユキボウズオウ",
@@ -2303,6 +2445,7 @@ export const SPECIES = {
   },
   pengiriking: {
     id: "pengiriking",
+    tribe: "rock",
     nameEn: "Pengirioh",
     genusEn: "Penguin Sovereign",
     name: "ペンギリオウ",
@@ -2317,6 +2460,7 @@ export const SPECIES = {
   },
   pukurinseirei: {
     id: "pukurinseirei",
+    tribe: "aqua",
     nameEn: "Pukurinseirei",
     genusEn: "Water-Bag Spirit",
     name: "プクリンセイレイ",
@@ -2332,6 +2476,7 @@ export const SPECIES = {
   },
   yamiankouking: {
     id: "yamiankouking",
+    tribe: "aqua",
     nameEn: "Yamiankouoh",
     genusEn: "Dark Anglerfish Sovereign",
     name: "ヤミアンコウオウ",
@@ -2346,6 +2491,7 @@ export const SPECIES = {
   },
   hikariameseirei: {
     id: "hikariameseirei",
+    tribe: "aqua",
     nameEn: "Hikariameseirei",
     genusEn: "Glimmering Rain Spirit",
     name: "ヒカリアメセイレイ",
@@ -2361,6 +2507,7 @@ export const SPECIES = {
   },
   yukigamohime: {
     id: "yukigamohime",
+    tribe: "bird",
     nameEn: "Yukigamohime",
     genusEn: "Snow Duck Princess",
     name: "ユキガモヒメ",
@@ -2376,6 +2523,7 @@ export const SPECIES = {
   },
   sunoboriking: {
     id: "sunoboriking",
+    tribe: "kemono",
     nameEn: "Sunoborioh",
     genusEn: "Dune-Sliding Sovereign",
     name: "スノボリオウ",
@@ -2391,6 +2539,7 @@ export const SPECIES = {
 
   kurihari: {
     id: "kurihari",
+    tribe: "kemono",
     nameEn: "Kurihari",
     genusEn: "Chestnut Hedgehog",
     name: "クリハリ",
@@ -2409,6 +2558,7 @@ export const SPECIES = {
   },
   kurihariking: {
     id: "kurihariking",
+    tribe: "plant",
     nameEn: "Kurihariking",
     genusEn: "Chestnut Sovereign",
     name: "クリハリキング",
@@ -2424,6 +2574,7 @@ export const SPECIES = {
   },
   tsuchigani: {
     id: "tsuchigani",
+    tribe: "bug",
     nameEn: "Tsuchigani",
     genusEn: "Mud Crab",
     name: "ツチガニ",
@@ -2442,6 +2593,7 @@ export const SPECIES = {
   },
   tsuchiganigou: {
     id: "tsuchiganigou",
+    tribe: "kemono",
     nameEn: "Tsuchiganigou",
     genusEn: "Mud Emperor",
     name: "ツチガニゴウ",
@@ -2457,6 +2609,7 @@ export const SPECIES = {
   },
   kabumushi: {
     id: "kabumushi",
+    tribe: "bug",
     nameEn: "Kabumushi",
     genusEn: "Beetle Grub",
     name: "カブムシ",
@@ -2475,6 +2628,7 @@ export const SPECIES = {
   },
   kabutotitan: {
     id: "kabutotitan",
+    tribe: "bug",
     nameEn: "Kabutotitan",
     genusEn: "Insect Titan",
     name: "カブトタイタン",
@@ -2490,6 +2644,7 @@ export const SPECIES = {
   },
   kagerouzu: {
     id: "kagerouzu",
+    tribe: "bug",
     nameEn: "Kagerouzu",
     genusEn: "Dusk Moth",
     name: "カゲロウズ",
@@ -2508,6 +2663,7 @@ export const SPECIES = {
   },
   kagerouking: {
     id: "kagerouking",
+    tribe: "devil",
     nameEn: "Kagerouking",
     genusEn: "Dark Dusk King",
     name: "カゲロウキング",
@@ -2523,6 +2679,7 @@ export const SPECIES = {
   },
   shizukudama: {
     id: "shizukudama",
+    tribe: "aqua",
     nameEn: "Shizukudama",
     genusEn: "Dewdrop",
     name: "シズクダマ",
@@ -2541,6 +2698,7 @@ export const SPECIES = {
   },
   shizukudamahime: {
     id: "shizukudamahime",
+    tribe: "aqua",
     nameEn: "Shizukudamahime",
     genusEn: "Dew Princess",
     name: "シズクダマヒメ",
@@ -2556,6 +2714,7 @@ export const SPECIES = {
   },
   kaigaramaru: {
     id: "kaigaramaru",
+    tribe: "aqua",
     nameEn: "Kaigaramaru",
     genusEn: "Shell Child",
     name: "カイガラマル",
@@ -2574,6 +2733,7 @@ export const SPECIES = {
   },
   kaigaramaou: {
     id: "kaigaramaou",
+    tribe: "aqua",
     nameEn: "Kaigaramaou",
     genusEn: "Shell Sovereign",
     name: "カイガラマオウ",
@@ -2589,6 +2749,7 @@ export const SPECIES = {
   },
   kamomeru: {
     id: "kamomeru",
+    tribe: "bird",
     nameEn: "Kamomeru",
     genusEn: "Seagull Chick",
     name: "カモメル",
@@ -2607,6 +2768,7 @@ export const SPECIES = {
   },
   kamomeking: {
     id: "kamomeking",
+    tribe: "bird",
     nameEn: "Kamomeking",
     genusEn: "Sea Sky Sovereign",
     name: "カモメキング",
@@ -2622,6 +2784,7 @@ export const SPECIES = {
   },
   unizoku: {
     id: "unizoku",
+    tribe: "aqua",
     nameEn: "Unizoku",
     genusEn: "Spiny Urchin",
     name: "ウニゾク",
@@ -2640,6 +2803,7 @@ export const SPECIES = {
   },
   unizokuoh: {
     id: "unizokuoh",
+    tribe: "aqua",
     nameEn: "Unizokuoh",
     genusEn: "Spiny Sea King",
     name: "ウニゾクオウ",
@@ -2655,6 +2819,7 @@ export const SPECIES = {
   },
   kooridama: {
     id: "kooridama",
+    tribe: "rock",
     nameEn: "Kooridama",
     genusEn: "Ice Egg",
     name: "コオリダマ",
@@ -2673,6 +2838,7 @@ export const SPECIES = {
   },
   kooridamaryu: {
     id: "kooridamaryu",
+    tribe: "dragon",
     nameEn: "Kooridamaryu",
     genusEn: "Glacier Dragon",
     name: "コオリダマリュウ",
@@ -2688,6 +2854,7 @@ export const SPECIES = {
   },
   shirokitsune: {
     id: "shirokitsune",
+    tribe: "rock",
     nameEn: "Shirokitsune",
     genusEn: "Snow Fox Kit",
     name: "シロキツネ",
@@ -2706,6 +2873,7 @@ export const SPECIES = {
   },
   shirokitsuneki: {
     id: "shirokitsuneki",
+    tribe: "rock",
     nameEn: "Shirokitsuneki",
     genusEn: "Snow Spirit Fox",
     name: "シロキツネキ",
@@ -2721,6 +2889,7 @@ export const SPECIES = {
   },
   sunatokage: {
     id: "sunatokage",
+    tribe: "dragon",
     nameEn: "Sunatokage",
     genusEn: "Desert Lizard",
     name: "スナトカゲ",
@@ -2739,6 +2908,7 @@ export const SPECIES = {
   },
   sunatokagon: {
     id: "sunatokagon",
+    tribe: "dragon",
     nameEn: "Sunatokagon",
     genusEn: "Desert Dragon King",
     name: "スナトカゴン",
@@ -2754,6 +2924,7 @@ export const SPECIES = {
   },
   saboko: {
     id: "saboko",
+    tribe: "plant",
     nameEn: "Saboko",
     genusEn: "Little Cactus",
     name: "サボコ",
@@ -2772,6 +2943,7 @@ export const SPECIES = {
   },
   sabokolossal: {
     id: "sabokolossal",
+    tribe: "plant",
     nameEn: "Sabokolossal",
     genusEn: "Colossal Cactus",
     name: "サボコロッサル",
@@ -2787,6 +2959,7 @@ export const SPECIES = {
   },
   rakudako: {
     id: "rakudako",
+    tribe: "kemono",
     nameEn: "Rakudako",
     genusEn: "Young Camel",
     name: "ラクダコ",
@@ -2805,6 +2978,7 @@ export const SPECIES = {
   },
   rakudakoou: {
     id: "rakudakoou",
+    tribe: "kemono",
     nameEn: "Rakudakoou",
     genusEn: "Desert Clan King",
     name: "ラクダコオウ",
@@ -2820,6 +2994,7 @@ export const SPECIES = {
   },
   nejimaru: {
     id: "nejimaru",
+    tribe: "bug",
     nameEn: "Nejimaru",
     genusEn: "Screw Bug",
     name: "ネジマル",
@@ -2838,6 +3013,7 @@ export const SPECIES = {
   },
   nejimarudragon: {
     id: "nejimarudragon",
+    tribe: "dragon",
     nameEn: "Nejimarudragon",
     genusEn: "Iron Dragon",
     name: "ネジマルドラゴン",
@@ -2853,6 +3029,7 @@ export const SPECIES = {
   },
   kandenkko: {
     id: "kandenkko",
+    tribe: "machine",
     nameEn: "Kandenkko",
     genusEn: "Static Sprite",
     name: "カンデンッコ",
@@ -2871,6 +3048,7 @@ export const SPECIES = {
   },
   kandenoh: {
     id: "kandenoh",
+    tribe: "machine",
     nameEn: "Kandenoh",
     genusEn: "Thunderclap Sovereign",
     name: "カンデンオウ",
@@ -2886,6 +3064,7 @@ export const SPECIES = {
   },
   yamikko: {
     id: "yamikko",
+    tribe: "ghost",
     nameEn: "Yamikko",
     genusEn: "Little Shadow",
     name: "ヤミッコ",
@@ -2904,6 +3083,7 @@ export const SPECIES = {
   },
   yamikkolord: {
     id: "yamikkolord",
+    tribe: "devil",
     nameEn: "Yamikkolord",
     genusEn: "Lord of Darkness",
     name: "ヤミッコロード",
@@ -2919,6 +3099,7 @@ export const SPECIES = {
   },
   obakenoko: {
     id: "obakenoko",
+    tribe: "ghost",
     nameEn: "Obakenoko",
     genusEn: "Little Ghost",
     name: "オバケノコ",
@@ -2937,6 +3118,7 @@ export const SPECIES = {
   },
   obakenoou: {
     id: "obakenoou",
+    tribe: "ghost",
     nameEn: "Obakenoou",
     genusEn: "Spirit Sovereign",
     name: "オバケノオウ",
@@ -2952,6 +3134,7 @@ export const SPECIES = {
   },
   kumogumo: {
     id: "kumogumo",
+    tribe: "bug",
     nameEn: "Kumogumo",
     genusEn: "Thread Spider",
     name: "クモグモ",
@@ -2970,6 +3153,7 @@ export const SPECIES = {
   },
   kumogumolord: {
     id: "kumogumolord",
+    tribe: "bug",
     nameEn: "Kumogumolord",
     genusEn: "Web Sovereign",
     name: "クモグモロード",

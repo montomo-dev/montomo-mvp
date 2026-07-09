@@ -124,6 +124,14 @@ function baseSpeciesId(monster) {
   return BASE_SPECIES[monster.speciesId] || monster.speciesId;
 }
 
+function tribeOf(speciesId) {
+  return SPECIES[speciesId]?.tribe;
+}
+
+// 同種族どうしの配合はステータスの伸びが良く(純血ボーナス)、
+// 異種族どうしの配合は技を多く受け継ぐ(雑種強勢)、という差をつける
+const SAME_TRIBE_STAT_BONUS = 1.15;
+
 function hexToRgb(hex) {
   const n = parseInt(hex.slice(1), 16);
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
@@ -202,11 +210,14 @@ export function breedMonsters(parentA, parentB) {
   }
   const child = createMonster(speciesId, 1);
 
-  child.maxHp = inheritStat(parentA.maxHp, parentB.maxHp);
+  const sameTribe = !!tribeOf(idA) && tribeOf(idA) === tribeOf(idB);
+  const statMultiplier = sameTribe ? SAME_TRIBE_STAT_BONUS : 1;
+
+  child.maxHp = Math.max(1, Math.round(inheritStat(parentA.maxHp, parentB.maxHp) * statMultiplier));
   child.hp = child.maxHp;
-  child.atk = inheritStat(parentA.atk, parentB.atk);
-  child.def = inheritStat(parentA.def, parentB.def);
-  child.spd = inheritStat(parentA.spd, parentB.spd);
+  child.atk = Math.max(1, Math.round(inheritStat(parentA.atk, parentB.atk) * statMultiplier));
+  child.def = Math.max(1, Math.round(inheritStat(parentA.def, parentB.def) * statMultiplier));
+  child.spd = Math.max(1, Math.round(inheritStat(parentA.spd, parentB.spd) * statMultiplier));
 
   const mixed = mixColors(SPECIES[idA], SPECIES[idB]);
   if (mixed) {
@@ -219,7 +230,7 @@ export function breedMonsters(parentA, parentB) {
   const candidateSkills = [...new Set([...parentA.skills, ...parentB.skills])]
     .filter((skillId) => !child.skills.includes(skillId));
   const inheritCount = candidateSkills.length > 0
-    ? Math.max(1, Math.ceil(candidateSkills.length / 2))
+    ? Math.min(candidateSkills.length, Math.max(1, Math.ceil(candidateSkills.length / 2) + (sameTribe ? 0 : 1)))
     : 0;
   const inheritedSkills = seededShuffle(candidateSkills, seed).slice(0, inheritCount);
   child.skills.push(...inheritedSkills);
@@ -228,5 +239,5 @@ export function breedMonsters(parentA, parentB) {
   const comboSkills = applyCombos(child);
 
   child.parents = [parentA.uid, parentB.uid];
-  return { child, inheritedSkills, comboSkills };
+  return { child, inheritedSkills, comboSkills, sameTribe };
 }

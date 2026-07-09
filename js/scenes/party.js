@@ -313,7 +313,7 @@ export class PartyScene {
       return;
     }
 
-    const { child, inheritedSkills, comboSkills } = breedMonsters(this.firstParent, selected);
+    const { child, inheritedSkills, comboSkills, sameTribe } = breedMonsters(this.firstParent, selected);
     this.game.party = this.game.party.filter(
       (m) => m.uid !== this.firstParent.uid && m.uid !== selected.uid
     );
@@ -331,11 +331,14 @@ export class PartyScene {
         )
       : "";
     const colorMessage = child.tintName ? tr(this.game, ` からだが ${child.tintName}いろに そまった！`, ` Its body was dyed a ${child.tintName} color!`) : "";
+    const tribeMessage = sameTribe
+      ? tr(this.game, ` 同じ種族どうしで、たくましく育った！`, ` Same-tribe parents made it grow up strong!`)
+      : tr(this.game, ` 異なる種族どうしで、多くの技を うけついだ！`, ` Cross-tribe parents passed on extra skills!`);
     const childName = monsterName(child, this.game.lang);
     this.message = tr(
       this.game,
-      `おやは ${childName}を のこして きえていった…${colorMessage}${skillMessage}${comboMessage}`,
-      `The parents vanished, leaving behind ${childName}...${colorMessage}${skillMessage}${comboMessage}`
+      `おやは ${childName}を のこして きえていった…${colorMessage}${tribeMessage}${skillMessage}${comboMessage}`,
+      `The parents vanished, leaving behind ${childName}...${colorMessage}${tribeMessage}${skillMessage}${comboMessage}`
     );
     this.mode = "list";
     this.firstParent = null;

@@ -6,6 +6,7 @@ import { typeOf, typeNameEn } from "../data/types.js";
 import { flavorTextOf } from "../data/flavor.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
 import { LEGEND_REQUIREMENT, legendProgress, hasLegendReward } from "../systems/legend.js";
+import { TRIBE_LIST, tribeName, tribeNameEn } from "../data/tribes.js";
 import { tr } from "../i18n.js";
 
 function speciesName(game, species) {
@@ -17,6 +18,10 @@ function speciesGenus(game, species) {
 function speciesTypeLabel(game, speciesId) {
   const type = typeOf(speciesId);
   return tr(game, type, typeNameEn(type));
+}
+function speciesTribeLabel(game, species) {
+  if (!species.tribe) return "";
+  return tr(game, tribeName(species.tribe), tribeNameEn(species.tribe));
 }
 
 const COLS = 4;
@@ -45,11 +50,14 @@ export class PokedexScene {
     this.tab = "normal";
     this.normalEntries = dexEntries();
     this.legendEntries = legendEntries();
+    this.tribeFilter = null;
     this.detail = false;
   }
 
   get entries() {
-    return this.tab === "normal" ? this.normalEntries : this.legendEntries;
+    const base = this.tab === "normal" ? this.normalEntries : this.legendEntries;
+    if (!this.tribeFilter) return base;
+    return base.filter((s) => s.tribe === this.tribeFilter);
   }
 
   get totalPages() {
@@ -84,9 +92,18 @@ export class PokedexScene {
     if (input.wasPressed("warp")) {
       sfxSelect();
       this.tab = this.tab === "normal" ? "legend" : "normal";
+      this.tribeFilter = null;
       this.cursor = 0;
       return;
     }
+    if (input.wasPressed("rename") && this.tab === "normal") {
+      sfxSelect();
+      const idx = this.tribeFilter ? TRIBE_LIST.indexOf(this.tribeFilter) : -1;
+      this.tribeFilter = idx + 1 >= TRIBE_LIST.length ? null : TRIBE_LIST[idx + 1];
+      this.cursor = 0;
+      return;
+    }
+    if (n === 0) return;
     if (input.wasPressed("right")) { this.cursor = (this.cursor + 1) % n; sfxSelect(); }
     if (input.wasPressed("left")) { this.cursor = (this.cursor + n - 1) % n; sfxSelect(); }
     if (input.wasPressed("down") && this.cursor + COLS < n) { this.cursor += COLS; sfxSelect(); }
@@ -106,7 +123,8 @@ export class PokedexScene {
     ctx.fillStyle = "#f0ead8";
     ctx.font = 'bold 24px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
-    ctx.fillText(tr(this.game, this.tab === "normal" ? "図鑑" : "図鑑（ヌシ）", this.tab === "normal" ? "Dex" : "Dex (Bosses)"), 30, 44);
+    const filterLabel = this.tribeFilter ? `（${tr(this.game, tribeName(this.tribeFilter), tribeNameEn(this.tribeFilter))}）` : "";
+    ctx.fillText(tr(this.game, this.tab === "normal" ? `図鑑${filterLabel}` : "図鑑（ヌシ）", this.tab === "normal" ? `Dex${filterLabel}` : "Dex (Bosses)"), 30, 44);
 
     const seen = this.game.dex?.seen || [];
     const caught = this.game.dex?.caught || [];
@@ -205,19 +223,21 @@ export class PokedexScene {
       ctx.fillText(speciesName(this.game, species), x + 50, y + 20);
       ctx.font = '11px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
       ctx.fillText(`${speciesGenus(this.game, species)}（${speciesTypeLabel(this.game, species.id)}）`, x + 50, y + 36);
-      if (!isCaught) {
-        ctx.fillStyle = "#a8a8c0";
-        ctx.fillText(tr(this.game, "みつけただけ", "Seen only"), x + 50, y + 54);
-      } else {
-        ctx.fillStyle = "#4a8f4a";
-        ctx.fillText(tr(this.game, "なかまにした！", "Caught!"), x + 50, y + 54);
-      }
+      const statusLabel = isCaught
+        ? tr(this.game, "なかまにした！", "Caught!")
+        : tr(this.game, "みつけただけ", "Seen only");
+      ctx.fillStyle = isCaught ? "#4a8f4a" : "#a8a8c0";
+      ctx.fillText(`${statusLabel}／${speciesTribeLabel(this.game, species)}`, x + 50, y + 54);
     });
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT;
     ctx.fillText(
-      tr(this.game, "↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ W: ヌシ図鑑に切替 ／ X: もどる", "Arrows: Choose/Page / Z: Details / W: Toggle Boss Dex / X: Back"),
+      tr(
+        this.game,
+        "↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ N: 種族フィルタ ／ W: ヌシ図鑑に切替 ／ X: もどる",
+        "Arrows: Choose/Page / Z: Details / N: Tribe Filter / W: Toggle Boss Dex / X: Back"
+      ),
       30, 462
     );
 
@@ -252,7 +272,8 @@ export class PokedexScene {
     ctx.fillText(speciesName(this.game, species), 300, 130);
     ctx.font = FONT;
     ctx.fillText(`${speciesGenus(this.game, species)}（${speciesTypeLabel(this.game, species.id)}）`, 300, 158);
-    ctx.fillText(caught ? tr(this.game, "なかまにした！", "Caught!") : tr(this.game, "みつけただけ", "Seen only"), 300, 182);
+    ctx.fillText(tr(this.game, `種族: ${speciesTribeLabel(this.game, species)}`, `Tribe: ${speciesTribeLabel(this.game, species)}`), 300, 182);
+    ctx.fillText(caught ? tr(this.game, "なかまにした！", "Caught!") : tr(this.game, "みつけただけ", "Seen only"), 300, 206);
 
     ctx.font = FONT;
     ctx.fillStyle = "#3a3a52";
