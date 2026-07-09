@@ -362,8 +362,8 @@ function paintHibachi(ctx) {
   glossOval(ctx, -13, 26, 7, 4.5, "#ff9868", "#d9633a", "#a83f20", 2.5);
   glossOval(ctx, 13, 26, 7, 4.5, "#ff9868", "#d9633a", "#a83f20", 2.5);
   shine(ctx, -11, -13, 11, 6);
-  eyeSharp(ctx, -10, -7);
-  eyeSharp(ctx, 10, -7);
+  eye(ctx, -10, -7);
+  eye(ctx, 10, -7);
   smile(ctx, 0, 4, 4.5);
   blush(ctx, -19, 2);
   blush(ctx, 19, 2);
@@ -383,8 +383,8 @@ function paintFuwarisu(ctx) {
   ctx.stroke();
   glossOval(ctx, 0, 11, 14, 13, "#ffffff", "#e8f7ff", "#4a86a8", 3);
   shine(ctx, -11, -13, 11, 6);
-  eyeGlare(ctx, -10, -6);
-  eyeGlare(ctx, 10, -6);
+  eye(ctx, -10, -6);
+  eye(ctx, 10, -6);
   tri(ctx, -5, 1, 5, 1, 0, 9, "#f5a13d", "#c97c22", 1.5);
   ctx.strokeStyle = "#f5a13d";
   ctx.lineWidth = 3.5;
@@ -479,8 +479,8 @@ function paintBakuhibachi(ctx) {
   starSpark(ctx, -31, -11, 4, "#ffe07a");
   starSpark(ctx, 31, -8, 4, "#ffe07a");
   shine(ctx, -12, -14, 12, 6);
-  eyeSharp(ctx, -11, -6, 8.5);
-  eyeSharp(ctx, 11, -6, 8.5);
+  eye(ctx, -11, -6, 8.5);
+  eye(ctx, 11, -6, 8.5);
   smile(ctx, 0, 5, 5);
   blush(ctx, -21, 3);
   blush(ctx, 21, 3);
@@ -507,8 +507,8 @@ function paintTenfuwarisu(ctx) {
   glossOval(ctx, 0, 12, 15, 14, "#ffffff", "#e8f7ff", "#3a6f8f", 3);
   starSpark(ctx, 24, -34, 6, "#fff4c2");
   shine(ctx, -12, -14, 12, 6);
-  eyeGlare(ctx, -11, -6, 9);
-  eyeGlare(ctx, 11, -6, 9);
+  eye(ctx, -11, -6, 9);
+  eye(ctx, 11, -6, 9);
   tri(ctx, -5, 1, 5, 1, 0, 10, "#f5a13d", "#c97c22", 1.5);
   ctx.strokeStyle = "#f5a13d";
   ctx.lineWidth = 4;
@@ -606,8 +606,8 @@ function paintOrihiko(ctx) {
   ctx.stroke();
 
   ctx.restore();
-  eyeGlare(ctx, -5, -5, 7.5);
-  eyeGlare(ctx, 10, -2, 7.5);
+  eye(ctx, -5, -5, 7.5);
+  eye(ctx, 10, -2, 7.5);
   smile(ctx, 2, 10, 4);
   blush(ctx, -18, 6);
   blush(ctx, 20, 8);
@@ -872,8 +872,8 @@ function paintHonbori(ctx) {
   shine(ctx, -12, -16, 11, 6);
 
   glossOval(ctx, 0, 12, 14, 10, "#fff2d6", "#ffe0a8", "#6b3f10", 2.5);
-  eyeGlare(ctx, -10, -4, 8);
-  eyeGlare(ctx, 10, -4, 8);
+  eye(ctx, -10, -4, 8);
+  eye(ctx, 10, -4, 8);
   tri(ctx, -4, 6, 4, 6, 0, 12, "#a8621f", null);
   blush(ctx, -20, 6);
   blush(ctx, 20, 6);
@@ -922,8 +922,8 @@ function paintSandango(ctx) {
   glossOval(ctx, 13, -18, 6, 9, "#8fce6a", "#5fa03e", "#345c22", 2.2);
   glossCircle(ctx, 0, -20, 14, "#a8dd82", "#7ac457", "#345c22", 3);
   shine(ctx, -6, -24, 6, 3.5);
-  eyeGlare(ctx, -6, -21, 6);
-  eyeGlare(ctx, 6, -21, 6);
+  eye(ctx, -6, -21, 6);
+  eye(ctx, 6, -21, 6);
   smile(ctx, 0, -16, 3.5);
   blush(ctx, -13, -17);
   blush(ctx, 13, -17);
@@ -1993,8 +1993,8 @@ function paintAkumakko(ctx) {
   tri(ctx, 12, -20, 6, -8, 18, -6, "#3a0f1e", "#1a0812", 1.6);
 
   glossOval(ctx, 0, 14, 13, 8, "#e8c9d8", "#d89ab8", "#1a0812", 2);
-  eyeGlare(ctx, -8, 0, 6.5);
-  eyeGlare(ctx, 8, 0, 6.5);
+  eye(ctx, -8, 0, 6.5);
+  eye(ctx, 8, 0, 6.5);
   ctx.strokeStyle = "#1a0812";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -3026,8 +3026,8 @@ function paintKazepeko(ctx) {
   ctx.moveTo(-18, 10);
   ctx.quadraticCurveTo(-31, 16, -42, 18);
   ctx.stroke();
-  eyeGlare(ctx, -6, -3, 6.5);
-  eyeGlare(ctx, 6, -3, 6.5);
+  eye(ctx, -6, -3, 6.5);
+  eye(ctx, 6, -3, 6.5);
   smile(ctx, 0, 7, 3.1);
 }
 
@@ -3396,8 +3396,8 @@ function paintHonborido(ctx) {
   glossOval(ctx, 0, -36, 12, 6, "#6b3f10", "#4a2b0a", "#2b2b33", 2);
 
   shine(ctx, -9, -14, 9, 5);
-  eyeGlare(ctx, -10, -8);
-  eyeGlare(ctx, 10, -8);
+  eye(ctx, -10, -8);
+  eye(ctx, 10, -8);
 
   ctx.save();
   ctx.translate(0, -42);
@@ -3558,8 +3558,8 @@ function paintBorudrill(ctx) {
   tri(ctx, 26, -4, 44, -14, 30, 10, "#8a6244", "#3f2f20", 3);
 
   shine(ctx, -12, -14, 11, 6);
-  eyeGlare(ctx, -11, -8);
-  eyeGlare(ctx, 11, -8);
+  eye(ctx, -11, -8);
+  eye(ctx, 11, -8);
   ctx.strokeStyle = "#3f2f20";
   ctx.lineWidth = 2.5;
   ctx.lineCap = "round";
@@ -3589,8 +3589,8 @@ function paintBakuphoenix(ctx) {
   flame(ctx, 11, -32, 0.7, "#ff9d2e", "#ffe07a");
 
   shine(ctx, -9, -8, 9, 5);
-  eyeSharp(ctx, -8, -4);
-  eyeSharp(ctx, 8, -4);
+  eye(ctx, -8, -4);
+  eye(ctx, 8, -4);
   smile(ctx, 0, 8, 3.5);
 
   ctx.save();
@@ -3620,8 +3620,8 @@ function paintTenstorm(ctx) {
   windSwirl(ctx, 30, 4, 10);
 
   shine(ctx, -9, -10, 9, 5);
-  eyeGlare(ctx, -9, -4);
-  eyeGlare(ctx, 9, -4);
+  eye(ctx, -9, -4);
+  eye(ctx, 9, -4);
 
   ctx.strokeStyle = "#f6d35c";
   ctx.lineWidth = 4;
