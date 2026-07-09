@@ -3346,12 +3346,72 @@ const paintKibouju = evolvedVariant(paintKiboko, -10, (ctx) => {
   tinyLeaf(ctx, -20, -30, -0.6, "#9fe56c");
   tinyLeaf(ctx, 20, -30, 0.6, "#9fe56c");
 });
-const paintHonborido = evolvedVariant(paintHonbori, 20, (ctx) => {
-  flame(ctx, 0, -40, 0.6, "#ffe07a", "#fff6cf");
-});
-const paintDosugame = evolvedVariant(paintTsubogame, -12, (ctx) => {
-  tri(ctx, -8, -38, 0, -50, 8, -38, "#c9e8da", "#3f6b58", 2);
-});
+function paintHonborido(ctx) {
+  // 満月のような大きな後光(丸い体だけだった前身から、夜を導くフクロウらしい姿へ)
+  ctx.save();
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = "#ffe9b3";
+  ctx.beginPath();
+  ctx.arc(0, -6, 42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  tri(ctx, -22, -10, -48, -20, -34, 18, "#c9873a", "#6b3f10", 3);
+  tri(ctx, 22, -10, 48, -20, 34, 18, "#c9873a", "#6b3f10", 3);
+
+  glossOval(ctx, 0, 4, 24, 32, "#ffc46a", "#c9873a", "#6b3f10", 6);
+  glossOval(ctx, 0, -6, 20, 18, "#fff0d6", "#ffd88a", "#6b3f10", 3);
+
+  glossOval(ctx, 0, -36, 12, 6, "#6b3f10", "#4a2b0a", "#2b2b33", 2);
+
+  shine(ctx, -9, -14, 9, 5);
+  eyeGlare(ctx, -10, -8);
+  eyeGlare(ctx, 10, -8);
+
+  ctx.save();
+  ctx.translate(0, -42);
+  ctx.fillStyle = "#fff6cf";
+  ctx.beginPath();
+  ctx.arc(0, 0, 7, Math.PI * 0.3, Math.PI * 1.7);
+  ctx.arc(3, 0, 6, Math.PI * 1.7, Math.PI * 0.3, true);
+  ctx.fill();
+  ctx.restore();
+
+  glossOval(ctx, 0, 34, 12, 8, "#fff0d6", "#ffd88a", "#6b3f10", 2);
+}
+
+function paintDosugame(ctx) {
+  glossOval(ctx, -20, 26, 9, 7, "#c9a878", "#7a5236", "#3f2f20", 3);
+  glossOval(ctx, 20, 26, 9, 7, "#c9a878", "#7a5236", "#3f2f20", 3);
+  glossOval(ctx, -25, 6, 8, 11, "#c9a878", "#7a5236", "#3f2f20", 3);
+  glossOval(ctx, 25, 6, 8, 11, "#c9a878", "#7a5236", "#3f2f20", 3);
+  tri(ctx, -8, 30, 8, 30, 0, 40, "#7a5236", "#3f2f20", 2.5);
+
+  glossCircle(ctx, 0, -24, 14, "#c9a878", "#7a5236", "#3f2f20", 3);
+  eyeDot(ctx, -6, -25, 6.5);
+  eyeDot(ctx, 6, -25, 6.5);
+
+  // 六角形の甲羅タイルを並べた、分厚い甲羅(丸いだけだった前身の甲羅から進化)
+  glossOval(ctx, 0, 6, 34, 30, "#5c8f76", "#3f6b58", "#1f3f30", 7);
+  ctx.strokeStyle = "rgba(31, 63, 48, 0.6)";
+  ctx.lineWidth = 2;
+  ctx.lineJoin = "round";
+  for (const [cx, cy] of [[0, -4], [-16, 10], [16, 10], [0, 20], [-14, -14], [14, -14]]) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (Math.PI / 3) * i - Math.PI / 6;
+      const px = cx + Math.cos(a) * 9;
+      const py = cy + Math.sin(a) * 8;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+  shine(ctx, -14, -8, 12, 7);
+  glossOval(ctx, 0, 10, 15, 11, "#dff2e8", "#bfe4d4", "#1f3f30", 3);
+  blush(ctx, -24, 8);
+  blush(ctx, 24, 8);
+}
 const paintKoganetsubo = evolvedVariant(paintTsuboco, -20, (ctx) => {
   shine(ctx, -8, -32, 10, 5);
 });
