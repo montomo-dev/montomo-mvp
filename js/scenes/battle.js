@@ -264,8 +264,10 @@ export class BattleScene {
     this.game.save();
   }
 
+  // 防具はそうび画面(パーティ)専用なので、バトル中のどうぐ一覧には出さない
   ownedItemIds() {
-    return Object.keys(this.game.items || {}).filter((id) => this.game.items[id] > 0);
+    return Object.keys(this.game.items || {})
+      .filter((id) => this.game.items[id] > 0 && ITEMS[id].kind !== "armor");
   }
 
   chooseCommand(index) {
@@ -319,6 +321,16 @@ export class BattleScene {
         messages.push(tr(this.game, `${allyName} の じょうたいいじょうが なおった！`, `${allyName}'s status ailment was cured!`));
         clearStatus(this.ally);
       }
+      this.enemyAct(messages);
+      this.finishTurn(messages);
+    } else if (item.kind === "mp_heal") {
+      const before = this.ally.mp || 0;
+      this.ally.mp = Math.min(this.ally.maxMp, before + item.value);
+      const healed = this.ally.mp - before;
+      const messages = [
+        tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
+        tr(this.game, `MPが ${healed} かいふくした！`, `Restored ${healed} MP!`),
+      ];
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "bait") {

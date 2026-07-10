@@ -92,6 +92,26 @@ export const ITEMS = {
     kind: "bait",
     value: 0.5,
   },
+  magicWater: {
+    id: "magicWater",
+    name: "マジックウォーター",
+    nameEn: "Magic Water",
+    description: "MPを 25 かいふくする",
+    descriptionEn: "Restores 25 MP",
+    price: 120,
+    kind: "mp_heal",
+    value: 25,
+  },
+  magicWaterEx: {
+    id: "magicWaterEx",
+    name: "ハイマジックウォーター",
+    nameEn: "Hi-Magic Water",
+    description: "MPを ぜんかいふくする",
+    descriptionEn: "Fully restores MP",
+    price: 450,
+    kind: "mp_heal",
+    value: Infinity,
+  },
   leatherArmor: {
     id: "leatherArmor",
     name: "レザーアーマー",
@@ -151,10 +171,10 @@ const SHOP_TOWN_ORDER = [
 
 const SHOP_NEW_ITEMS_BY_TOWN = {
   town1: ["potionS", "potionM", "bait", "atkSeed", "defSeed", "leatherArmor"],
-  sea_town1: ["potionL", "ironArmor"],
+  sea_town1: ["potionL", "ironArmor", "magicWater"],
   snow_town1: ["premiumBait", "mysticArmor"],
   desert_town1: ["potionLL"],
-  factory_town1: [],
+  factory_town1: ["magicWaterEx"],
   castle_town1: ["potionX", "dragonArmor"],
 };
 

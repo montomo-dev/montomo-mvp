@@ -1,4 +1,15 @@
+import { maxMpFor } from "./growth.js";
+
 export const SAVE_SLOT_COUNT = 3;
+
+// MP・装備の導入前に作られた旧セーブのなかまへ不足フィールドを補う。
+// mpが無いままだと「MPが たりない！」が常に出てスキルが永久に使えなくなる
+export function migrateMonster(monster) {
+  if (typeof monster.maxMp !== "number") monster.maxMp = maxMpFor(monster.level);
+  if (typeof monster.mp !== "number") monster.mp = monster.maxMp;
+  if (monster.equipped === undefined) monster.equipped = null;
+  return monster;
+}
 
 // スロット制になる前の旧セーブキー。スロット0にのみ、一度だけ自動移行する
 const LEGACY_SAVE_KEY = "montomo-save-v1";

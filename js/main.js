@@ -3,7 +3,7 @@ import { createMonster, SPECIES, ensureUidAbove } from "./data/monsters.js";
 import { START_STAGE_ID, STAGES } from "./data/stages.js";
 import { FieldScene } from "./scenes/field.js";
 import { TitleScene } from "./scenes/title.js";
-import { saveGame } from "./systems/save.js";
+import { saveGame, migrateMonster } from "./systems/save.js";
 import { markCaught } from "./systems/dex.js";
 import { toggleMute, isMuted } from "./audio.js";
 import { clearStatus } from "./systems/status.js";
@@ -26,15 +26,16 @@ function setupTouchControls(input) {
 }
 
 // 状態異常(やけど・まひ・こおり)は戦闘限定の仕組みで治療手段がないため、
-// 戦闘中にタブを閉じてセーブされた場合に備えて読み込み時に必ず解除する
-function withClearedStatus(monster) {
+// 戦闘中にタブを閉じてセーブされた場合に備えて読み込み時に必ず解除する。
+// あわせて旧セーブの不足フィールド(MP・装備)をmigrateMonsterで補う
+function restoreMonster(monster) {
   clearStatus(monster);
-  return monster;
+  return migrateMonster(monster);
 }
 
 function buildParty(save) {
   if (save && Array.isArray(save.party)) {
-    const restored = save.party.filter((m) => m && SPECIES[m.speciesId]).map(withClearedStatus);
+    const restored = save.party.filter((m) => m && SPECIES[m.speciesId]).map(restoreMonster);
     if (restored.length > 0) return restored;
   }
   return [createMonster("mofuri", 3)];
@@ -42,7 +43,7 @@ function buildParty(save) {
 
 function buildRanch(save) {
   if (save && Array.isArray(save.ranch)) {
-    return save.ranch.filter((m) => m && SPECIES[m.speciesId]).map(withClearedStatus);
+    return save.ranch.filter((m) => m && SPECIES[m.speciesId]).map(restoreMonster);
   }
   return [];
 }
@@ -93,6 +94,7 @@ const game = {
       bossDefeated: !!(save && save.flags && save.flags.bossDefeated),
       stageClearedFlags: (save && save.flags && save.flags.stageClearedFlags) || {},
       legendClaimed: !!(save && save.flags && save.flags.legendClaimed),
+      warpPointsKnown: (save && save.flags && save.flags.warpPointsKnown) || {},
     };
     this.party = buildParty(save);
     this.ranch = buildRanch(save);

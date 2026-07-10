@@ -235,6 +235,11 @@ export class PartyScene {
         msg += tr(this.game, ` じょうたいいじょうも なおった！`, ` Its status ailment was also cured!`);
       }
       this.message = msg;
+    } else if (item.kind === "mp_heal") {
+      const before = monster.mp || 0;
+      monster.mp = Math.min(monster.maxMp, before + item.value);
+      const healed = monster.mp - before;
+      this.message = tr(this.game, `${name}に ${iName}を つかった！MPが ${healed} かいふくした！`, `Used ${iName} on ${name}! Restored ${healed} MP!`);
     } else if (item.kind === "stat_boost") {
       monster[item.stat] += item.value;
       const label = tr(
