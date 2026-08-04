@@ -4,6 +4,8 @@ import { START_STAGE_ID, STAGES } from "./data/stages.js";
 import { FieldScene } from "./scenes/field.js";
 import { TitleScene } from "./scenes/title.js";
 import { saveGame, migrateMonster } from "./systems/save.js";
+import { claimPendingReward } from "./systems/routine.js";
+import { ITEMS } from "./data/items.js";
 import { markCaught } from "./systems/dex.js";
 import { toggleMute, isMuted } from "./audio.js";
 import { clearStatus } from "./systems/status.js";
@@ -121,7 +123,26 @@ const game = {
       if (typeof save.field.facing === "string") this.field.facing = save.field.facing;
     }
     this.changeScene(this.field);
+    this.applyRoutineReward();
     this.save();
+  },
+  // 朝のしたくで貯まったごほうびを、冒険を始めたときに受け取る。
+  // どのスロットで始めても、いちばん最初に始めた1回にだけ入る
+  applyRoutineReward() {
+    const reward = claimPendingReward();
+    if (!reward) return;
+    this.money += reward.money;
+    const gotNames = [];
+    for (const [id, n] of Object.entries(reward.items)) {
+      this.items[id] = (this.items[id] || 0) + n;
+      gotNames.push(this.lang === "en" ? ITEMS[id]?.nameEn || id : ITEMS[id]?.name || id);
+    }
+    const itemPart = gotNames.length > 0 ? (this.lang === "en" ? ` and ${gotNames.join(", ")}` : `と ${gotNames.join("、")}`) : "";
+    this.field.showToast(
+      this.lang === "en"
+        ? `Morning routine reward: ${reward.money} G${itemPart}!`
+        : `あさの したくの ごほうび！ ${reward.money} G${itemPart} を うけとった！`
+    );
   },
 };
 

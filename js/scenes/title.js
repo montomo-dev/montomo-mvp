@@ -1,4 +1,6 @@
 import { hasSave, loadSave, clearSave, SAVE_SLOT_COUNT } from "../systems/save.js";
+import { loadRoutineState, routineDayKey, isDoneToday, todayProgress } from "../systems/routine.js";
+import { RoutineScene } from "./routine.js";
 import { drawMonster } from "../sprites.js";
 import { panel, FONT, FONT_BOLD } from "../ui.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
@@ -27,7 +29,28 @@ export class TitleScene {
     this.menuSlot = null;
     this.menuCursor = 0;
     this.refreshSlots();
+    this.refreshRoutine();
     playBgm("title");
+  }
+
+  // スロットの下にもう1行「あさの したく」を置く。
+  // ゲームを開くたび必ず目に入る位置にしておくことで、思い出す手間をなくす
+  get routineIndex() {
+    return this.slots.length;
+  }
+
+  get entryCount() {
+    return this.slots.length + 1;
+  }
+
+  refreshRoutine() {
+    const state = loadRoutineState();
+    const today = routineDayKey();
+    this.routine = {
+      done: isDoneToday(state, today),
+      streak: state.streak,
+      progress: todayProgress(state, today),
+    };
   }
 
   refreshSlots() {
@@ -47,7 +70,7 @@ export class TitleScene {
         this.slots.push({ slot: i, empty: true });
       }
     }
-    if (this.cursor >= this.slots.length) this.cursor = 0;
+    if (this.cursor >= this.entryCount) this.cursor = 0;
   }
 
   setNotice(text) {
@@ -89,9 +112,13 @@ export class TitleScene {
     }
 
     if (this.phase === "slots") {
-      if (input.wasPressed("up")) { this.cursor = (this.cursor + this.slots.length - 1) % this.slots.length; sfxSelect(); }
-      if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % this.slots.length; sfxSelect(); }
-      if (input.wasPressed("ok")) this.chooseSlot();
+      const count = this.entryCount;
+      if (input.wasPressed("up")) { this.cursor = (this.cursor + count - 1) % count; sfxSelect(); }
+      if (input.wasPressed("down")) { this.cursor = (this.cursor + 1) % count; sfxSelect(); }
+      if (input.wasPressed("ok")) {
+        if (this.cursor === this.routineIndex) this.openRoutine();
+        else this.chooseSlot();
+      }
       return;
     }
 
@@ -102,6 +129,15 @@ export class TitleScene {
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "slots"; return; }
       if (input.wasPressed("ok")) this.chooseMenuOption(options[this.menuCursor]);
     }
+  }
+
+  openRoutine() {
+    sfxConfirm();
+    const backToTitle = () => {
+      this.refreshRoutine();
+      this.game.changeScene(this);
+    };
+    this.game.changeScene(new RoutineScene(this.game, backToTitle));
   }
 
   chooseSlot() {
@@ -179,25 +215,25 @@ export class TitleScene {
     ctx.textAlign = "center";
     ctx.fillStyle = "#3a3a52";
     ctx.font = 'bold 40px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText(tr(this.game, "モンとも", "Montomo"), 320, 186);
+    ctx.fillText(tr(this.game, "モンとも", "Montomo"), 320, 178);
     ctx.font = FONT;
-    ctx.fillText(tr(this.game, "〜 なかまと そだてる ぼうけん 〜", "~ An adventure of raising friends ~"), 320, 214);
+    ctx.fillText(tr(this.game, "〜 なかまと そだてる ぼうけん 〜", "~ An adventure of raising friends ~"), 320, 206);
     ctx.fillStyle = "#5c7d58";
     ctx.fillText(
       tr(this.game, "世界を守る「ヌシ」たちに、歪みの影が しのびよる…", "A distorted shadow creeps toward the world's guardians..."),
-      320, 234
+      320, 226
     );
 
     if (this.notice) {
       ctx.fillStyle = "#2e7d32";
       ctx.font = FONT_BOLD;
-      ctx.fillText(this.notice, 320, 254);
+      ctx.fillText(this.notice, 320, 246);
     }
 
     if (this.renamingSlot != null) {
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
-      ctx.fillText(tr(this.game, "ぼうけんしゃの なまえを にゅうりょくしてください", "Enter your adventurer's name"), 320, 214);
+      ctx.fillText(tr(this.game, "ぼうけんしゃの なまえを にゅうりょくしてください", "Enter your adventurer's name"), 320, 206);
       ctx.fillStyle = "#a33";
       ctx.font = FONT;
       ctx.fillText(
@@ -206,20 +242,23 @@ export class TitleScene {
           "※ ほんみょうなど、こじんが とくていできる なまえは つけないでください",
           "* Do not use your real name or other identifying info"
         ),
-        320, 260
+        320, 252
       );
     }
 
+    const rowY = (i) => 258 + i * 50;
+    const highlight = (y) => {
+      ctx.beginPath();
+      ctx.roundRect(90, y, 460, 44, 10);
+      ctx.strokeStyle = "#ffd75e";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    };
+
     this.slots.forEach((entry, i) => {
-      const y = 288 + i * 56;
-      panel(ctx, 90, y, 460, 46);
-      if (this.phase === "slots" && this.cursor === i) {
-        ctx.beginPath();
-        ctx.roundRect(90, y, 460, 46, 10);
-        ctx.strokeStyle = "#ffd75e";
-        ctx.lineWidth = 3;
-        ctx.stroke();
-      }
+      const y = rowY(i);
+      panel(ctx, 90, y, 460, 44);
+      if (this.phase === "slots" && this.cursor === i) highlight(y);
       ctx.textAlign = "left";
       ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
@@ -233,14 +272,44 @@ export class TitleScene {
         );
       }
     });
+
+    const routineY = rowY(this.routineIndex);
+    panel(ctx, 90, routineY, 460, 44);
+    if (this.phase === "slots" && this.cursor === this.routineIndex) highlight(routineY);
+    ctx.textAlign = "left";
+    ctx.font = FONT_BOLD;
+    if (this.routine.done) {
+      ctx.fillStyle = "#2e7d32";
+      ctx.fillText(
+        tr(
+          this.game,
+          `☀ あさの したく ✓ かんりょう(${this.routine.streak}日 れんぞく)`,
+          `☀ Morning Routine ✓ Done (${this.routine.streak}-day streak)`
+        ),
+        110, routineY + 28
+      );
+    } else if (this.routine.progress) {
+      ctx.fillStyle = "#e8842e";
+      ctx.fillText(
+        tr(
+          this.game,
+          `☀ あさの したく … とちゅう (${this.routine.progress.checked.length}こ すんだ)`,
+          `☀ Morning Routine ... in progress (${this.routine.progress.checked.length} done)`
+        ),
+        110, routineY + 28
+      );
+    } else {
+      ctx.fillStyle = "#3a3a52";
+      ctx.fillText(tr(this.game, "☀ あさの したく ・ きょうは まだ", "☀ Morning Routine - not yet today"), 110, routineY + 28);
+    }
     ctx.textAlign = "center";
 
     ctx.font = FONT;
     ctx.fillStyle = "#5a5a70";
     if (this.phase === "slots") {
-      ctx.fillText(tr(this.game, "↑↓: スロットを えらぶ ／ Z: けってい", "Up/Down: Choose slot / Z: Confirm"), 320, 462);
+      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: けってい", "Up/Down: Choose / Z: Confirm"), 320, 470);
     } else if (this.phase === "menu") {
-      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: けってい ／ X: もどる", "Up/Down: Choose / Z: Confirm / X: Back"), 320, 462);
+      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: けってい ／ X: もどる", "Up/Down: Choose / Z: Confirm / X: Back"), 320, 470);
     }
 
     if (this.phase === "menu") {

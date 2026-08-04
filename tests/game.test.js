@@ -17,6 +17,8 @@ import { gainExp, MAX_LEVEL, statsFor, expToNext } from "../js/systems/growth.js
 import { LEGEND_REQUIREMENT, LEGEND_REWARD_ID, legendProgress, hasLegendReward, canClaimLegend, grantLegendReward } from "../js/systems/legend.js";
 import { drawMonster } from "../js/sprites.js";
 import { TRIBE_LIST } from "../js/data/tribes.js";
+import { routineDayKey, previousDayKey, nextStreak, calcReward, STREAK_ITEMS } from "../js/systems/routine.js";
+import { COURSES, STEPS, BONUS_STEPS, stepsOf } from "../js/data/routine.js";
 
 test("レア枠は乱数5%未満でツキノネになる", () => {
   assert.equal(rollWildSpecies(undefined, () => 0.049), "tsukinone");
@@ -2466,4 +2468,76 @@ test("体は少し大きく描かれるが、目の絶対サイズは元のま�
   // 体(半径30)はBODY_SCALEぶん大きく描かれているはず
   const bodyRadius = arcRadii.find((r) => r > 30);
   assert.ok(bodyRadius, `体が拡大されていない: ${arcRadii.slice(0, 10).map((r) => r.toFixed(2))}`);
+});
+
+// ── 朝のしたく ──────────────────────────────────────────
+
+test("日付の変わり目は午前4時。深夜3時はまだ前の日として数える", () => {
+  assert.equal(routineDayKey(new Date(2026, 7, 4, 3, 59)), "2026-08-03");
+  assert.equal(routineDayKey(new Date(2026, 7, 4, 4, 0)), "2026-08-04");
+  assert.equal(routineDayKey(new Date(2026, 7, 4, 23, 30)), "2026-08-04");
+});
+
+test("previousDayKeyは月をまたいでも正しく1日戻る", () => {
+  assert.equal(previousDayKey("2026-08-01"), "2026-07-31");
+  assert.equal(previousDayKey("2026-01-01"), "2025-12-31");
+  assert.equal(previousDayKey("2024-03-01"), "2024-02-29");
+});
+
+test("前日にやっていれば連続日数が伸びる", () => {
+  assert.equal(nextStreak("2026-08-03", "2026-08-04", 5), 6);
+});
+
+test("間があいたら0ではなく1から数え直す(失敗の記録を残さないため)", () => {
+  assert.equal(nextStreak("2026-07-30", "2026-08-04", 12), 1);
+  assert.equal(nextStreak(null, "2026-08-04", 0), 1);
+});
+
+test("同じ日に呼んでも連続日数は増えない", () => {
+  assert.equal(nextStreak("2026-08-04", "2026-08-04", 3), 3);
+});
+
+test("ごほうびは コース+おまけ+連続ボーナスの合計になる", () => {
+  const reward = calcReward({ courseId: "full", bonusCount: 2, streak: 4 });
+  assert.equal(reward.base, 60);
+  assert.equal(reward.bonus, 20);
+  assert.equal(reward.streakBonus, 40);
+  assert.equal(reward.money, 120);
+});
+
+test("連続ボーナスは10日ぶんで頭打ちになる", () => {
+  assert.equal(calcReward({ courseId: "min", streak: 40 }).streakBonus, 100);
+});
+
+test("節目の連続日数では道具が届き、それ以外の日は届かない", () => {
+  assert.deepEqual(calcReward({ courseId: "min", streak: 3 }).items, { potionM: 1 });
+  assert.deepEqual(calcReward({ courseId: "min", streak: 4 }).items, {});
+});
+
+test("節目でもらえる道具はすべて実在するアイテムIDを指している", () => {
+  for (const itemId of Object.values(STREAK_ITEMS)) {
+    assert.ok(ITEMS[itemId], `${itemId} がアイテム定義にない`);
+  }
+});
+
+test("最小版は10項目、標準版は17項目で、どの項目も定義済み", () => {
+  assert.equal(COURSES.min.steps.length, 10);
+  assert.equal(COURSES.full.steps.length, 17);
+  for (const course of Object.values(COURSES)) {
+    for (const id of course.steps) {
+      assert.ok(STEPS[id], `${id} が項目定義にない`);
+      assert.ok(STEPS[id].ja && STEPS[id].en, `${id} に日本語/英語のどちらかがない`);
+    }
+  }
+});
+
+test("stepsOfは表示に必要なアイコンと文言をそろえて返す", () => {
+  const steps = stepsOf("min");
+  assert.equal(steps[0].id, "glasses");
+  assert.ok(steps.every((s) => s.icon && s.ja && s.en));
+});
+
+test("おまけ項目のIDは重複していない", () => {
+  const ids = BONUS_STEPS.map((s) => s.id);
+  assert.equal(new Set(ids).size, ids.length);
 });

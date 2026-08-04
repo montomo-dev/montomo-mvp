@@ -118,6 +118,32 @@ export function sfxBreed() {
   ]);
 }
 
+// 朝のしたくを1つ進めるたびに鳴る音。
+// 進むほど音が一段ずつ高くなり、最後の項目でいちばん高くなる。
+// 「あと少しで登りきる」が音だけで分かるので、画面を見なくても手が進む
+const ROUTINE_SCALE = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24]; // ペンタトニック2オクターブ
+export function sfxRoutineStep(index = 0, total = 1) {
+  const ratio = total > 1 ? Math.min(1, Math.max(0, index / (total - 1))) : 1;
+  const semitone = ROUTINE_SCALE[Math.round(ratio * (ROUTINE_SCALE.length - 1))];
+  const freq = 392 * Math.pow(2, semitone / 12);
+  tone({ freq, duration: 0.09, type: "square", gain: 0.16 });
+  tone({ freq: freq * 1.5, duration: 0.07, type: "triangle", gain: 0.07, delay: 0.04 });
+}
+
+export function sfxRoutineUndo() {
+  tone({ freq: 520, duration: 0.09, type: "triangle", gain: 0.12, slideTo: 392 });
+}
+
+export function sfxRoutineComplete() {
+  sequence([
+    { freq: 523, duration: 0.1, type: "square", gain: 0.16 },
+    { freq: 659, duration: 0.1, type: "square", gain: 0.16, delay: 0.1 },
+    { freq: 784, duration: 0.1, type: "square", gain: 0.17, delay: 0.2 },
+    { freq: 1046, duration: 0.28, type: "square", gain: 0.19, delay: 0.3 },
+    { freq: 1318, duration: 0.34, type: "triangle", gain: 0.14, delay: 0.34 },
+  ]);
+}
+
 const WAVEFORMS = ["square", "triangle", "sawtooth"];
 
 // 種族IDから決定論的に音の高さ・波形を作る「鳴き声」。同じ種族なら毎回同じ音になる
