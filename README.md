@@ -33,8 +33,18 @@
   図鑑用のフレーバーテキスト(生態・性格の説明文)です。
 - `js/data/items.js`
   道具の効果・種類を管理しています。
+- `js/data/tribes.js`
+  DQ風の「種族(tribe)」分類です。一覧は `TRIBES.md` にあります。
+- `js/data/story.js`
+  各ワールドのヌシ(ボス)の登場・撃破テキストと、全体の筋書きです。
 - `js/data/stages.js`
   全7ワールド・各ワールドの街・タイル種別・出現レベル・移動先を管理しています。
+- `js/i18n.js`
+  日本語/英語の切り替えヘルパー(`tr(game, ja, en)`)です。文言を足すときは両方の言語を渡します。
+- `js/ui.js`
+  パネル枠やフォントなど、Canvas描画の共通UI部品です。
+- `js/music.js`
+  BGMの再生を担当します。`assets/bgm/` に曲ファイルが無いキーは鳴らないだけでエラーにはなりません。
 - `js/sprites.js`
   モンスターとプレイヤーの見た目を Canvas で描いています。見た目を変えたいときの中心です。
 - `js/scenes/title.js`
@@ -51,6 +61,10 @@
   どうぐやでの売買を担当します。
 - `js/scenes/pokedex.js`
   見つけたモンスターの一覧と、Zキーで開ける詳細(フレーバーテキスト付き)を表示します。
+- `js/scenes/breedingChart.js`
+  配合の組み合わせ早見表の画面です。
+- `js/scenes/warp.js`
+  クリア済みの街へ移動するワープ画面です。
 - `js/scenes/choice.js`
   ワールドクリア後の分岐選択を担当します。
 - `js/scenes/ending.js`
@@ -67,6 +81,14 @@
   やけど・まひ・こおりの状態異常の付与と処理です。
 - `js/systems/dex.js`
   図鑑の seen / caught を更新します。
+- `js/systems/equipment.js`
+  防具の装備・取り外しと、防御力ボーナスの計算です。
+- `js/systems/skillCombo.js`
+  特技を2つ覚えると自動で上位の組み合わせ技を習得する定義です。
+- `js/systems/legend.js`
+  図鑑の指定6体をそろえると伝説の仲間が手に入る条件と報酬です。
+- `js/systems/shiny.js`
+  色違い(出現率1%)の判定です。
 - `js/systems/save.js`
   セーブデータを `localStorage` に保存します。
 
@@ -82,6 +104,10 @@
   `js/systems/growth.js`
 - 効果音を変えたい
   `js/audio.js`
+
+## テスト
+
+`node --test tests/` で自動テスト(149件)を実行できます。
 
 ## ローカル確認
 
