@@ -35,6 +35,16 @@
   道具の効果・種類を管理しています。
 - `js/data/stages.js`
   全7ワールド・各ワールドの街・タイル種別・出現レベル・移動先を管理しています。
+- `js/data/tribes.js`
+  DQ風の「種族」分類です。一覧は `TRIBES.md` にあります。
+- `js/data/story.js`
+  ヌシ(ボス)の登場セリフ・撃破後のセリフです。
+- `js/i18n.js`
+  日本語/英語の切り替え。`tr(game, ja, en)` で文言をその場で渡します。
+- `js/music.js`
+  BGM(`assets/bgm/` のmp3)の再生を担当します。
+- `js/ui.js`
+  パネル・HPバーなど、各シーンで共通に使う描画ヘルパーです。
 - `js/sprites.js`
   モンスターとプレイヤーの見た目を Canvas で描いています。見た目を変えたいときの中心です。
 - `js/scenes/title.js`
@@ -53,6 +63,10 @@
   見つけたモンスターの一覧と、Zキーで開ける詳細(フレーバーテキスト付き)を表示します。
 - `js/scenes/choice.js`
   ワールドクリア後の分岐選択を担当します。
+- `js/scenes/warp.js`
+  ワールド間の移動先選択を担当します。
+- `js/scenes/breedingChart.js`
+  配合の組み合わせ表を表示します。
 - `js/scenes/ending.js`
   ボス撃破後の締め画面です。
 - `js/systems/growth.js`
@@ -67,8 +81,16 @@
   やけど・まひ・こおりの状態異常の付与と処理です。
 - `js/systems/dex.js`
   図鑑の seen / caught を更新します。
+- `js/systems/equipment.js`
+  防具の装備・取り外しを担当します。
+- `js/systems/skillCombo.js`
+  スキルの組み合わせ(コンボ)による追加効果です。
+- `js/systems/legend.js`
+  伝説の報酬の条件判定と受け取りです。
+- `js/systems/shiny.js`
+  色違いの判定です。
 - `js/systems/save.js`
-  セーブデータを `localStorage` に保存します。
+  セーブデータを `localStorage` に保存します(3スロット。旧セーブはスロット0へ自動移行)。
 
 ## よく触る場所
 
@@ -85,7 +107,21 @@
 
 ## ローカル確認
 
-`serve.py` を使ってローカルサーバーを立て、ブラウザで開いて確認します。
+次のどれかでローカルサーバーを立て、ブラウザで開いて確認します(既定ポートは 3461)。
+
+```bash
+npm start            # serve.mjs(Node)
+python3 serve.py     # Pythonの場合
+```
+
+## テスト
+
+```bash
+npm test
+```
+
+データ定義(モンスター・スキル・ステージ・配合・セーブ移行など)を Node の標準テストランナーで検証します。
+GitHub Actions でも push / PR のたびに実行され、通らないとデプロイされません。
 
 ## itch.io配布用ビルド
 

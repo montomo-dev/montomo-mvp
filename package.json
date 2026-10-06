@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --test tests/game.test.js",
+    "start": "node serve.mjs",
     "build:itch": "sh scripts/build-itch.sh"
   }
 }
