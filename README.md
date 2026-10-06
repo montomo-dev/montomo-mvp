@@ -43,6 +43,9 @@
   日本語/英語の切り替え。`tr(game, ja, en)` で文言をその場で渡します。
 - `js/music.js`
   BGM(`assets/bgm/` のmp3)の再生を担当します。
+  曲は `TRACKS` に12枠ありますが、いま実際にあるのは `title.mp3` と `battle.mp3` の2曲だけです。
+  ファイルが無い枠は無音で続行し(ボスは `battle`、各ワールドのフィールドは `field_forest` に代替する設定あり)、
+  曲を足すときは同名のmp3を `assets/bgm/` に置くだけで鳴ります。
 - `js/ui.js`
   パネル・HPバーなど、各シーンで共通に使う描画ヘルパーです。
 - `js/sprites.js`
