@@ -16,7 +16,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run tests
+        run: npm test
+
   deploy:
+    # PRではテストだけ実行し、公開(Pagesへのデプロイ)はmainへのpushのときだけ行う
+    needs: test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
