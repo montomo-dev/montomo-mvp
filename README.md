@@ -87,6 +87,10 @@
 
 `serve.py` を使ってローカルサーバーを立て、ブラウザで開いて確認します。
 
+## テスト
+
+`npm test` で `tests/` のテストを実行します(Node 18以上、追加インストール不要)。
+
 ## itch.io配布用ビルド
 
 `npm run build:itch` を実行すると、`dist/montomo-itch.zip` に配布用ファイル(index.html/css/js のみ)がまとまります。
