@@ -2467,3 +2467,36 @@ test("体は少し大きく描かれるが、目の絶対サイズは元のま�
   const bodyRadius = arcRadii.find((r) => r > 30);
   assert.ok(bodyRadius, `体が拡大されていない: ${arcRadii.slice(0, 10).map((r) => r.toFixed(2))}`);
 });
+
+test("セーブ位置の復元は、壁・範囲外・不正値ならスポーン地点のまま動かさない（詰み防止）", async () => {
+  globalThis.document ??= {
+    getElementById: () => ({
+      style: {},
+      classList: { add() {}, remove() {} },
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  };
+  const { FieldScene } = await import("../js/scenes/field.js");
+  const game = {
+    party: [createMonster("mofuri", 3)],
+    items: {},
+    money: 0,
+    flags: {},
+    dex: { seen: [], caught: [] },
+    input: { wasPressed: () => false, isHeld: () => false },
+    save() { return true; },
+    changeScene(s) { this.scene = s; },
+  };
+  const field = new FieldScene(game, "stage1");
+  const spawn = { ...field.player };
+
+  assert.equal(field.restorePosition(1, 3), true, "通れるマスには復元できる");
+  assert.deepEqual(field.player, { x: 1, y: 3 });
+
+  field.player = { ...spawn };
+  for (const [x, y] of [[0, 0], [2, 3], [99, 99], [-1, 5], [1.5, 3], ["1", 3], [undefined, 3]]) {
+    assert.equal(field.restorePosition(x, y), false, `(${x},${y}) は復元されない`);
+    assert.deepEqual(field.player, spawn, `(${x},${y}) でスポーン地点から動いていない`);
+  }
+});

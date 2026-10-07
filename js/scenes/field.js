@@ -140,6 +140,16 @@ export class FieldScene {
     this.showToast(message);
   }
 
+  // セーブ位置を復元する。マップ改修などで壁・家・NPC・範囲外になっていた場合は
+  // 詰んでしまうので、スポーン地点のまま動かさない
+  restorePosition(x, y) {
+    if (!Number.isInteger(x) || !Number.isInteger(y)) return false;
+    const tile = this.tileAt(x, y);
+    if (tile === T_TREE || tile === T_HOUSE || tile === T_NPC) return false;
+    this.player = { x, y };
+    return true;
+  }
+
   tileAt(x, y) {
     return this.map[y] && this.map[y][x] !== undefined ? this.map[y][x] : T_TREE;
   }

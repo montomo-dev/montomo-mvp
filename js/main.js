@@ -115,9 +115,7 @@ const game = {
         : START_STAGE_ID;
     this.field = new FieldScene(this, stageId);
     if (save && save.field) {
-      if (Number.isInteger(save.field.x) && Number.isInteger(save.field.y)) {
-        this.field.player = { x: save.field.x, y: save.field.y };
-      }
+      this.field.restorePosition(save.field.x, save.field.y);
       if (typeof save.field.facing === "string") this.field.facing = save.field.facing;
     }
     this.changeScene(this.field);
