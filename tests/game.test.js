@@ -2500,3 +2500,30 @@ test("セーブ位置の復元は、壁・範囲外・不正値ならスポー�
     assert.deepEqual(field.player, spawn, `(${x},${y}) でスポーン地点から動いていない`);
   }
 });
+
+test("全種を最大レベルまで育てても、全ペアで配合しても、数値は有限で技は実在し重複しない（総当たり）", () => {
+  const ids = Object.keys(SPECIES);
+  const check = (m, ctx) => {
+    assert.ok(SPECIES[m.speciesId], `${ctx}: 存在しない種族 ${m.speciesId}`);
+    for (const key of ["hp", "maxHp", "atk", "def", "spd", "mp", "maxMp", "level"]) {
+      assert.ok(Number.isFinite(m[key]) && m[key] >= 0, `${ctx}: ${key}=${m[key]}`);
+    }
+    assert.ok(m.hp <= m.maxHp && m.mp <= m.maxMp, `${ctx}: hp/mpが最大値を超えている`);
+    assert.equal(new Set(m.skills).size, m.skills.length, `${ctx}: 技が重複している`);
+    for (const skillId of m.skills) assert.ok(SKILLS[skillId], `${ctx}: 存在しない技 ${skillId}`);
+  };
+
+  for (const id of ids) {
+    const m = createMonster(id, 1);
+    check(m, `create ${id}`);
+    for (let guard = 0; m.level < MAX_LEVEL && guard < 2000; guard++) gainExp(m, SPECIES, 1e9);
+    check(m, `最大Lv ${id}→${m.speciesId}`);
+  }
+
+  for (let i = 0; i < ids.length; i++) {
+    for (let j = i; j < ids.length; j++) {
+      const { child } = breedMonsters(createMonster(ids[i], 12), createMonster(ids[j], 12));
+      check(child, `配合 ${ids[i]}+${ids[j]}`);
+    }
+  }
+});
