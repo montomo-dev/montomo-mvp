@@ -17,6 +17,7 @@ import { SHINY_HUE } from "../systems/shiny.js";
 import { bossIntroText, bossVictoryLines } from "../data/story.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
+import { BattleFeedback } from "../systems/battleFeedback.js";
 
 function effectivenessMessage(game, eff) {
   if (eff === 0) return tr(game, "こうかが ないようだ…", "It doesn't seem to be effective...");
@@ -83,6 +84,7 @@ export class BattleScene {
     this.skillCursor = 0;
     this.switchCursor = 0;
     this.shownHp = { ally: this.ally.hp, enemy: enemy.hp };
+    this.feedback = new BattleFeedback();
     this.phase = "message";
     this.after = "command";
     this.recruitedMonster = null;
@@ -98,6 +100,7 @@ export class BattleScene {
 
   say(messages, after) {
     this.queue = messages;
+    this.feedback.begin(messages);
     this.after = after;
     this.phase = "message";
   }
@@ -181,6 +184,7 @@ export class BattleScene {
 
   update(dt) {
     this.time += dt;
+    this.feedback.update(dt);
     const follow = Math.min(1, dt * 8);
     this.shownHp.ally += (this.ally.hp - this.shownHp.ally) * follow;
     this.shownHp.enemy += (this.enemy.hp - this.shownHp.enemy) * follow;
@@ -189,6 +193,7 @@ export class BattleScene {
     if (this.phase === "message") {
       if (input.wasPressed("ok")) {
         this.queue.shift();
+        this.feedback.advance();
         if (this.queue.length === 0) this.enterNext();
       }
     } else if (this.phase === "command") {
@@ -317,6 +322,7 @@ export class BattleScene {
         tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
         tr(this.game, `HPが ${healed} かいふくした！`, `Restored ${healed} HP!`),
       ];
+      this.feedback.record(messages, { monster: this.ally, amount: healed, heal: true });
       if (item.cureStatus && this.ally.status) {
         messages.push(tr(this.game, `${allyName} の じょうたいいじょうが なおった！`, `${allyName}'s status ailment was cured!`));
         clearStatus(this.ally);
@@ -389,6 +395,7 @@ export class BattleScene {
       if (this.bossState.charging) this.bossState.chargeDamage += damage;
     }
     messages.push(tr(this.game, `${targetName} に ${damage} の ダメージ！`, `${damage} damage to ${targetName}!`));
+    this.feedback.record(messages, { monster: target, amount: damage, strong: eff > 1 || damage >= target.maxHp * 0.3 });
     const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (target.hp <= 0) sfxFaint();
@@ -466,6 +473,7 @@ export class BattleScene {
     }
     this.ally.hp = Math.max(0, this.ally.hp - damage);
     messages.push(tr(this.game, `${allyName} に ${damage} の ダメージ！`, `${damage} damage to ${allyName}!`));
+    this.feedback.record(messages, { monster: this.ally, amount: damage, strong: true });
     const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (this.ally.hp <= 0) sfxFaint();
@@ -714,22 +722,41 @@ export class BattleScene {
 
   draw(ctx) {
     const bg = ctx.createLinearGradient(0, 0, 0, 480);
-    bg.addColorStop(0, "#cdeefc");
-    bg.addColorStop(1, "#e9f8d8");
+    bg.addColorStop(0, this.isBoss ? "#d3d8ec" : "#d7eee9");
+    bg.addColorStop(0.65, "#f2f3d9");
+    bg.addColorStop(1, "#c4d4a3");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 640, 480);
-    ctx.fillStyle = "#d4eeb0";
+    ctx.fillStyle = "rgba(90, 134, 107, 0.13)";
+    ctx.beginPath();
+    ctx.ellipse(370, 310, 430, 160, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#aebf8f";
     ctx.beginPath();
     ctx.ellipse(470, 208, 115, 26, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.fillStyle = "#d4dfb1";
     ctx.beginPath();
-    ctx.ellipse(170, 348, 100, 24, 0, 0, Math.PI * 2);
+    ctx.ellipse(470, 202, 115, 22, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#aebf8f";
+    ctx.beginPath();
+    ctx.ellipse(170, 348, 112, 24, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#d4dfb1";
+    ctx.beginPath();
+    ctx.ellipse(170, 342, 112, 20, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    if (this.enemy.hp > 0 || this.shownHp.enemy > 0.5) {
-      drawMonster(ctx, this.enemy.speciesId, 470, 150, 1.6, this.time, this.enemy.shiny ? SHINY_HUE : 0);
+    const enemyHit = this.feedback.visualFor(this.enemy, this.game.reduceMotion);
+    const allyHit = this.feedback.visualFor(this.ally, this.game.reduceMotion);
+
+    if (this.enemy.hp > 0 || this.shownHp.enemy > 0.5 || enemyHit || this.feedback.hasPending(this.enemy)) {
+      drawMonster(ctx, this.enemy.speciesId, 470 + (enemyHit?.offsetX || 0), 150, 1.6, this.time, this.enemy.shiny ? SHINY_HUE : 0);
     }
-    drawMonster(ctx, this.ally.speciesId, 170, 305, 1.3, this.time + 1.7, this.ally.shiny ? SHINY_HUE : (this.ally.tintHue || 0));
+    drawMonster(ctx, this.ally.speciesId, 170 + (allyHit?.offsetX || 0), 305, 1.3, this.time + 1.7, this.ally.shiny ? SHINY_HUE : (this.ally.tintHue || 0));
+    this.drawHitFeedback(ctx, enemyHit, 470, 150);
+    this.drawHitFeedback(ctx, allyHit, 170, 305);
     if (this.phase === "message" && ((this.queue[0] || "").includes("しんかした") || (this.queue[0] || "").includes("evolved into"))) {
       this.drawEvolveSparkle(ctx, 170, 305);
     }
@@ -737,7 +764,7 @@ export class BattleScene {
       this.drawLegendSparkle(ctx, 470, 150);
     }
 
-    panel(ctx, 16, 14, 250, 64);
+    panel(ctx, 16, 14, 284, 100);
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
@@ -747,23 +774,31 @@ export class BattleScene {
     const enemyStatus = this.enemy.status ? `  [${statusLabel(this.game, this.enemy.status)}]` : "";
     const ownedLabel = (this.game.dex?.caught || []).includes(this.enemy.speciesId) ? tr(this.game, "  ✓なかまずみ", "  ✓Caught") : "";
     const shinyLabel = this.enemy.shiny ? "✨" : "";
-    ctx.fillText(`${shinyLabel}${monsterName(this.enemy, this.game.lang)}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 40);
-    hpBar(ctx, 30, 52, 220, 12, this.shownHp.enemy / this.enemy.maxHp);
+    ctx.fillText(`${shinyLabel}${monsterName(this.enemy, this.game.lang)}  Lv.${this.enemy.level}`, 30, 39, 254);
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#58674d";
+    ctx.fillText(`[${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 60, 254);
+    hpBar(ctx, 30, 72, 254, 11, this.shownHp.enemy / this.enemy.maxHp);
+    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.enemy))} / ${this.enemy.maxHp}`, 30, 101);
 
-    panel(ctx, 372, 234, 252, 108);
+    panel(ctx, 354, 210, 270, 126);
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
     const allyStatus = this.ally.status ? `  [${statusLabel(this.game, this.ally.status)}]` : "";
     const allyType = tr(this.game, typeOf(this.ally.speciesId), typeNameEn(typeOf(this.ally.speciesId)));
-    ctx.fillText(`${monsterName(this.ally, this.game.lang)}  Lv.${this.ally.level}  ${allyType}${allyStatus}`, 388, 262);
-    hpBar(ctx, 388, 274, 220, 14, this.shownHp.ally / this.ally.maxHp);
-    ctx.font = FONT;
-    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))}/${this.ally.maxHp}  MP ${this.ally.mp || 0}/${this.ally.maxMp || 0}`, 388, 310);
+    ctx.fillText(`${monsterName(this.ally, this.game.lang)}  Lv.${this.ally.level}`, 370, 236, 238);
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#58674d";
+    ctx.fillText(`${allyType}${allyStatus}`, 370, 255, 238);
+    hpBar(ctx, 370, 266, 238, 12, this.shownHp.ally / this.ally.maxHp);
+    ctx.font = '14px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#3a3a52";
+    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))}/${this.ally.maxHp}    MP ${this.ally.mp || 0}/${this.ally.maxMp || 0}`, 370, 298, 238);
     ctx.fillText(
       this.ally.level >= MAX_LEVEL
         ? tr(this.game, "レベル MAX", "Level MAX")
         : tr(this.game, `つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`, `${expToNext(this.ally.level) - this.ally.exp} EXP to next level`),
-      388, 332
+      370, 321, 238
     );
 
     panel(ctx, 12, 344, 616, 128);
@@ -781,6 +816,13 @@ export class BattleScene {
       ctx.font = FONT_BOLD;
       const commands = tr(this.game, COMMANDS_JA, COMMANDS_EN);
       commands.forEach((command, i) => {
+        if (this.cursor === i) {
+          ctx.fillStyle = "#e4edcf";
+          ctx.beginPath();
+          ctx.roundRect(COMMAND_POS[i][0] - 28, COMMAND_POS[i][1] - 16, 232, 20, 5);
+          ctx.fill();
+        }
+        ctx.fillStyle = this.cursor === i ? "#295541" : "#3a3a52";
         ctx.fillText(command, COMMAND_POS[i][0], COMMAND_POS[i][1]);
         if (this.cursor === i) ctx.fillText("▶", COMMAND_POS[i][0] - 26, COMMAND_POS[i][1]);
       });
@@ -830,6 +872,27 @@ export class BattleScene {
         if (this.switchCursor === i) ctx.fillText("▶", 44, y);
       });
     }
+  }
+
+  drawHitFeedback(ctx, hit, x, y) {
+    if (!hit) return;
+    ctx.save();
+    if (hit.glow > 0) {
+      ctx.fillStyle = hit.heal ? `rgba(172, 241, 177, ${hit.glow})` : `rgba(255, 232, 175, ${hit.glow})`;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 56, 48, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = hit.alpha;
+    ctx.textAlign = "center";
+    ctx.font = `bold ${hit.strong ? 30 : 25}px "Yu Gothic", sans-serif`;
+    const label = `${hit.heal ? "+" : "−"}${hit.amount}`;
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#fffdf5";
+    ctx.strokeText(label, x, y - 46 - hit.rise);
+    ctx.fillStyle = hit.heal ? "#277943" : hit.strong ? "#b6532d" : "#51403c";
+    ctx.fillText(label, x, y - 46 - hit.rise);
+    ctx.restore();
   }
 
   drawWrapped(ctx, text, x, y, maxChars) {

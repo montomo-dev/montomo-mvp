@@ -16,12 +16,54 @@ const ctx = canvas.getContext("2d");
 function setupTouchControls(input) {
   document.querySelectorAll("#touch-controls [data-action]").forEach((btn) => {
     const action = btn.dataset.action;
-    const start = (e) => { e.preventDefault(); input.press(action); };
-    const end = (e) => { e.preventDefault(); input.release(action); };
+    const start = (e) => {
+      e.preventDefault();
+      btn.setPointerCapture(e.pointerId);
+      btn.classList.add("is-held");
+      input.press(action, `pointer-${e.pointerId}`);
+    };
+    const end = (e) => {
+      e.preventDefault();
+      btn.classList.remove("is-held");
+      input.release(action, `pointer-${e.pointerId}`);
+    };
     btn.addEventListener("pointerdown", start);
     btn.addEventListener("pointerup", end);
     btn.addEventListener("pointercancel", end);
-    btn.addEventListener("pointerleave", end);
+    btn.addEventListener("lostpointercapture", end);
+  });
+  document.querySelectorAll("#quick-actions [data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      input.press(btn.dataset.action);
+      input.release(btn.dataset.action);
+    });
+  });
+}
+
+const sceneLabel = document.getElementById("scene-label");
+const saveStatus = document.getElementById("save-status");
+const motionButton = document.getElementById("motion-button");
+const soundButton = document.getElementById("sound-button");
+const fullscreenButton = document.getElementById("fullscreen-button");
+const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+let storedMotion = null;
+try { storedMotion = localStorage.getItem("montomo-reduce-motion"); } catch {}
+
+function updateSoundButton() {
+  soundButton.textContent = isMuted() ? "♪ おと OFF" : "♪ おと ON";
+  soundButton.setAttribute("aria-pressed", String(isMuted()));
+}
+
+function updateSceneChrome(scene) {
+  const field = scene === game.field;
+  sceneLabel.textContent = scene instanceof TitleScene ? "ぼうけんの はじまり" : field ? "なかまと ぼうけん中" : "ぼうけんの 手帳";
+  document.querySelectorAll("#quick-actions [data-action]").forEach((btn) => {
+    if (btn.dataset.action === "rename") {
+      btn.hidden = !["PartyScene", "PokedexScene", "ShopScene"].includes(scene.constructor.name);
+      btn.disabled = btn.hidden;
+      return;
+    }
+    btn.disabled = btn.dataset.action !== "lang" && !field;
   });
 }
 
@@ -76,16 +118,22 @@ const game = {
   money: 0,
   scene: null,
   field: null,
+  reduceMotion: storedMotion === null ? motionPreference.matches : storedMotion === "true",
   lang: getStoredLang(),
   toggleLang() {
     this.lang = setStoredLang(this.lang === "en" ? "ja" : "en");
+    document.documentElement.lang = this.lang;
   },
   changeScene(scene) {
+    this.input.reset();
     this.scene = scene;
+    updateSceneChrome(scene);
   },
   save() {
     if (!this.field) return false;
-    return saveGame(this, this.currentSlot);
+    const ok = saveGame(this, this.currentSlot);
+    saveStatus.textContent = ok ? "✓ ぼうけんを 記録しました" : "記録できませんでした。Sでもう一度";
+    return ok;
   },
   startAdventure(save, slot = 0, playerName = "") {
     this.currentSlot = slot;
@@ -128,30 +176,54 @@ const game = {
 game.changeScene(new TitleScene(game));
 window.__game = game;
 setupTouchControls(game.input);
+motionButton.setAttribute("aria-pressed", String(game.reduceMotion));
+motionButton.addEventListener("click", () => {
+  game.reduceMotion = !game.reduceMotion;
+  storedMotion = String(game.reduceMotion);
+  motionButton.setAttribute("aria-pressed", String(game.reduceMotion));
+  try { localStorage.setItem("montomo-reduce-motion", String(game.reduceMotion)); } catch {}
+});
+motionPreference.addEventListener("change", (event) => {
+  if (storedMotion !== null) return;
+  game.reduceMotion = event.matches;
+  motionButton.setAttribute("aria-pressed", String(game.reduceMotion));
+});
+soundButton.addEventListener("click", () => {
+  setBgmMuted(toggleMute());
+  updateSoundButton();
+});
+updateSoundButton();
+fullscreenButton.hidden = !document.querySelector(".play-column").requestFullscreen;
+fullscreenButton.addEventListener("click", async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.querySelector(".play-column").requestFullscreen();
+  } catch {
+    saveStatus.textContent = "このブラウザでは全画面表示を使えません";
+  }
+});
+canvas.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  game.scene.handlePointer?.((event.clientX - rect.left) * canvas.width / rect.width, (event.clientY - rect.top) * canvas.height / rect.height);
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && game.scene === game.field) game.save();
+});
 
 // フィールドに出ている間だけ、ページを閉じる直前に保存
-window.addEventListener("beforeunload", () => game.save());
+window.addEventListener("beforeunload", () => {
+  if (game.scene === game.field) game.save();
+});
 
 let last = 0;
 function loop(t) {
   const dt = Math.min((t - last) / 1000, 0.05);
   last = t;
-  if (game.input.wasPressed("mute")) setBgmMuted(toggleMute());
+  if (game.input.wasPressed("mute")) { setBgmMuted(toggleMute()); updateSoundButton(); }
   if (game.input.wasPressed("lang")) game.toggleLang();
   game.scene.update(dt);
   game.scene.draw(ctx);
-  if (isMuted()) {
-    ctx.fillStyle = "#f0ead8";
-    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.textAlign = "right";
-    ctx.fillText(game.lang === "en" ? "♪ Muted (M)" : "♪ ミュート中 (M)", 630, 20);
-    ctx.textAlign = "left";
-  }
-  ctx.fillStyle = "#f0ead8";
-  ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-  ctx.textAlign = "right";
-  ctx.fillText(game.lang === "en" ? "EN (L)" : "日本語 (L)", 630, 476);
-  ctx.textAlign = "left";
   game.input.endFrame();
   requestAnimationFrame(loop);
 }

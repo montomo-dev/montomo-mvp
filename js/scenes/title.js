@@ -1,12 +1,44 @@
 import { hasSave, loadSave, clearSave, SAVE_SLOT_COUNT } from "../systems/save.js";
 import { drawMonster } from "../sprites.js";
-import { panel, FONT, FONT_BOLD } from "../ui.js";
+import { FONT, FONT_BOLD } from "../ui.js";
+import { STAGES } from "../data/stages.js";
 import { sfxSelect, sfxConfirm, sfxCancel } from "../audio.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
 
 const nameInput = document.getElementById("name-input");
 const MENU_OPTIONS = ["continue", "new", "delete"];
+const PAPER = "#fff9e9";
+const INK = "#244b3b";
+const MUTED = "#687564";
+const SLOT_X = 62;
+const SLOT_Y = 264;
+const SLOT_W = 516;
+const SLOT_H = 50;
+const SLOT_GAP = 58;
+
+function card(ctx, x, y, width, height, fill = PAPER, stroke = "#d8d7bd", radius = 12) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, radius);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function contains(x, y, left, top, width, height) {
+  return x >= left && x <= left + width && y >= top && y <= top + height;
+}
+
+function fitText(ctx, text, x, y, maxWidth) {
+  let label = String(text);
+  if (ctx.measureText(label).width > maxWidth) {
+    while (label.length > 0 && ctx.measureText(`${label}…`).width > maxWidth) label = label.slice(0, -1);
+    label += "…";
+  }
+  ctx.fillText(label, x, y);
+}
 function menuOptionLabel(game, key) {
   return tr(
     game,
@@ -26,6 +58,8 @@ export class TitleScene {
     this.phase = "slots"; // slots | menu | confirm
     this.menuSlot = null;
     this.menuCursor = 0;
+    this.renamingSlot = null;
+    this.finishName = null;
     this.refreshSlots();
     playBgm("title");
   }
@@ -42,6 +76,8 @@ export class TitleScene {
           playerName: save?.playerName || "",
           leaderName: leader?.name || "?",
           leaderLevel: leader?.level || 1,
+          stage: STAGES[save?.field?.stageId],
+          savedAt: save?.savedAt,
         });
       } else {
         this.slots.push({ slot: i, empty: true });
@@ -58,7 +94,11 @@ export class TitleScene {
   update(dt) {
     this.time += dt;
     if (this.noticeTimer > 0 && (this.noticeTimer -= dt) <= 0) this.notice = null;
-    if (this.renamingSlot) return;
+    if (this.renamingSlot != null) {
+      if (this.game.input.wasPressed("ok")) this.finishName?.(true);
+      else if (this.game.input.wasPressed("cancel")) this.finishName?.(false);
+      return;
+    }
     const input = this.game.input;
 
     if (this.confirm) {
@@ -71,19 +111,7 @@ export class TitleScene {
         return;
       }
       if (input.wasPressed("ok")) {
-        sfxConfirm();
-        const { action, yes, slot } = this.confirm;
-        this.confirm = null;
-        if (!yes) return;
-        if (action === "new") {
-          clearSave(slot);
-          this.promptNameAndStart(slot);
-        } else if (action === "delete") {
-          clearSave(slot);
-          this.phase = "slots";
-          this.refreshSlots();
-          this.setNotice(tr(this.game, "セーブデータを けしたよ", "Save data deleted."));
-        }
+        this.confirmChoice();
       }
       return;
     }
@@ -133,23 +161,84 @@ export class TitleScene {
     }
   }
 
+  confirmChoice() {
+    if (!this.confirm) return;
+    sfxConfirm();
+    const { action, yes, slot } = this.confirm;
+    this.confirm = null;
+    if (!yes) return;
+    if (action === "new") {
+      // The old save remains intact until the new adventure is actually started.
+      this.promptNameAndStart(slot);
+    } else if (action === "delete") {
+      const deleted = clearSave(slot);
+      this.phase = "slots";
+      this.refreshSlots();
+      this.setNotice(deleted
+        ? tr(this.game, "セーブデータを けしたよ", "Save data deleted.")
+        : tr(this.game, "セーブを けせなかったよ", "Could not delete this save."));
+    }
+  }
+
+  handlePointer(x, y) {
+    if (this.game.scene !== this) return;
+    if (this.renamingSlot != null) {
+      if (contains(x, y, 332, 292, 178, 44)) this.finishName?.(true);
+      else if (contains(x, y, 130, 292, 178, 44)) this.finishName?.(false);
+      return;
+    }
+    if (this.confirm) {
+      if (contains(x, y, 150, 260, 156, 44)) {
+        this.confirm.yes = true;
+        this.confirmChoice();
+      } else if (contains(x, y, 334, 260, 156, 44)) {
+        this.confirm.yes = false;
+        this.confirmChoice();
+      }
+      return;
+    }
+    if (this.phase === "menu") {
+      for (let i = 0; i < MENU_OPTIONS.length; i++) {
+        if (contains(x, y, 190, 184 + i * 48, 260, 42)) {
+          this.menuCursor = i;
+          this.chooseMenuOption(MENU_OPTIONS[i]);
+          return;
+        }
+      }
+      if (contains(x, y, 190, 338, 260, 32)) {
+        sfxCancel();
+        this.phase = "slots";
+      }
+      return;
+    }
+    for (let i = 0; i < this.slots.length; i++) {
+      if (contains(x, y, SLOT_X, SLOT_Y + i * SLOT_GAP, SLOT_W, SLOT_H)) {
+        this.cursor = i;
+        this.chooseSlot();
+        return;
+      }
+    }
+  }
+
   promptNameAndStart(slot) {
     this.renamingSlot = slot;
-    const canvas = this.game.canvas;
-    const scale = canvas.getBoundingClientRect().width / canvas.width;
-    nameInput.style.left = `${220 * scale}px`;
-    nameInput.style.top = `${(230) * scale}px`;
-    nameInput.style.width = `${200 * scale}px`;
+    nameInput.style.left = `${170 / 640 * 100}%`;
+    nameInput.style.top = `${230 / 480 * 100}%`;
+    nameInput.style.width = `${300 / 640 * 100}%`;
     nameInput.value = "";
+    nameInput.setAttribute?.("aria-label", tr(this.game, "ぼうけんしゃの なまえ", "Adventurer name"));
+    nameInput.setAttribute?.("placeholder", tr(this.game, "なまえ（8もじまで）", "Name (up to 8 characters)"));
     nameInput.classList.add("visible");
-    nameInput.focus?.();
 
+    let finished = false;
     const finish = (commit) => {
+      if (finished) return;
+      finished = true;
       nameInput.removeEventListener("keydown", onKeyDown);
-      nameInput.removeEventListener("blur", onBlur);
       nameInput.classList.remove("visible");
       const trimmed = nameInput.value.trim();
       this.renamingSlot = null;
+      this.finishName = null;
       if (commit) {
         this.game.startAdventure(null, slot, trimmed.length > 0 ? trimmed : tr(this.game, "ぼうけんしゃ", "Adventurer"));
       } else {
@@ -157,124 +246,153 @@ export class TitleScene {
       }
     };
     const onKeyDown = (e) => {
+      // IME conversion Enter confirms the character, not the adventure.
+      if (e.isComposing) return;
       if (e.code === "Enter") { e.preventDefault(); finish(true); }
       else if (e.code === "Escape") { e.preventDefault(); finish(false); }
     };
-    const onBlur = () => finish(true);
+    this.finishName = finish;
     nameInput.addEventListener("keydown", onKeyDown);
-    nameInput.addEventListener("blur", onBlur);
+    nameInput.focus?.();
   }
 
   draw(ctx) {
-    const bg = ctx.createLinearGradient(0, 0, 0, 480);
-    bg.addColorStop(0, "#bfe8ff");
-    bg.addColorStop(1, "#e9f8d8");
-    ctx.fillStyle = bg;
+    ctx.save();
+    ctx.fillStyle = "#173c30";
     ctx.fillRect(0, 0, 640, 480);
+    card(ctx, 16, 12, 608, 452, "#f8f3df", "#a5bda0", 22);
 
-    drawMonster(ctx, "mofuri", 214, 106, 1.2, this.time);
-    drawMonster(ctx, "hibachi", 320, 96, 1.35, this.time + 1.3);
-    drawMonster(ctx, "fuwarisu", 430, 108, 1.15, this.time + 2.2);
-
+    // A paper journal surrounds the original monster artwork.
+    ctx.strokeStyle = "rgba(116,132,91,0.08)";
+    ctx.lineWidth = 1;
+    for (let y = 26; y < 456; y += 7) {
+      ctx.beginPath(); ctx.moveTo(28, y); ctx.lineTo(612, y); ctx.stroke();
+    }
     ctx.textAlign = "center";
-    ctx.fillStyle = "#3a3a52";
-    ctx.font = 'bold 40px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText(tr(this.game, "モンとも", "Montomo"), 320, 186);
-    ctx.font = FONT;
-    ctx.fillText(tr(this.game, "〜 なかまと そだてる ぼうけん 〜", "~ An adventure of raising friends ~"), 320, 214);
-    ctx.fillStyle = "#5c7d58";
-    ctx.fillText(
-      tr(this.game, "世界を守る「ヌシ」たちに、歪みの影が しのびよる…", "A distorted shadow creeps toward the world's guardians..."),
-      320, 234
-    );
+    ctx.fillStyle = MUTED;
+    ctx.font = 'bold 11px "Yu Gothic", sans-serif';
+    ctx.fillText("M O N T O M O  /  A D V E N T U R E  J O U R N A L", 320, 39);
+    ctx.fillStyle = INK;
+    ctx.font = 'bold 46px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(tr(this.game, "モンとも", "Montomo"), 320, 89);
+    ctx.fillStyle = MUTED;
+    ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(tr(this.game, "出会って、育てて。きみだけの なかまと。", "Meet. Raise. Explore. Together with your friends."), 320, 116);
 
-    if (this.notice) {
-      ctx.fillStyle = "#2e7d32";
-      ctx.font = FONT_BOLD;
-      ctx.fillText(this.notice, 320, 254);
-    }
+    const artTime = this.game.reduceMotion ? 0 : this.time;
+    ctx.fillStyle = "#e2e8c5";
+    ctx.beginPath(); ctx.ellipse(320, 205, 200, 26, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#d1dbb1";
+    ctx.beginPath(); ctx.ellipse(320, 212, 168, 13, 0, 0, Math.PI * 2); ctx.fill();
+    drawMonster(ctx, "mofuri", 210, 176, 1.02, artTime);
+    // Leave room above the flame even at the highest point of the idle bob.
+    drawMonster(ctx, "hibachi", 320, 184, 1.0, artTime + 1.3);
+    drawMonster(ctx, "fuwarisu", 430, 176, 0.98, artTime + 2.2);
 
-    if (this.renamingSlot != null) {
-      ctx.fillStyle = "#3a3a52";
-      ctx.font = FONT_BOLD;
-      ctx.fillText(tr(this.game, "ぼうけんしゃの なまえを にゅうりょくしてください", "Enter your adventurer's name"), 320, 214);
-      ctx.fillStyle = "#a33";
-      ctx.font = FONT;
-      ctx.fillText(
-        tr(
-          this.game,
-          "※ ほんみょうなど、こじんが とくていできる なまえは つけないでください",
-          "* Do not use your real name or other identifying info"
-        ),
-        320, 260
-      );
-    }
+    ctx.fillStyle = MUTED;
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(tr(this.game, "7つの世界で、まだ見ぬ ともだちが 待っている。", "Across seven worlds, new friends are waiting."), 320, 244);
 
     this.slots.forEach((entry, i) => {
-      const y = 288 + i * 56;
-      panel(ctx, 90, y, 460, 46);
-      if (this.phase === "slots" && this.cursor === i) {
-        ctx.beginPath();
-        ctx.roundRect(90, y, 460, 46, 10);
-        ctx.strokeStyle = "#ffd75e";
-        ctx.lineWidth = 3;
-        ctx.stroke();
+      const y = SLOT_Y + i * SLOT_GAP;
+      const selected = this.phase === "slots" && this.cursor === i;
+      card(ctx, SLOT_X, y, SLOT_W, SLOT_H, selected ? "#eef0d7" : "#fffaf0", selected ? "#35634b" : "#d8d7bd");
+      if (selected) {
+        ctx.fillStyle = "#35634b";
+        ctx.beginPath(); ctx.roundRect(SLOT_X, y + 10, 4, SLOT_H - 20, 2); ctx.fill();
       }
+      ctx.textAlign = "center";
+      ctx.fillStyle = selected ? INK : "#a0aa8d";
+      ctx.font = 'bold 20px "Yu Gothic", sans-serif';
+      ctx.fillText(`0${i + 1}`, 91, y + 33);
       ctx.textAlign = "left";
-      ctx.fillStyle = "#3a3a52";
+      ctx.fillStyle = INK;
       ctx.font = FONT_BOLD;
+      fitText(ctx, entry.empty
+        ? tr(this.game, "あたらしい ぼうけん", "A new adventure")
+        : entry.playerName || tr(this.game, "ぼうけんしゃ", "Adventurer"), 122, y + 22, 390);
+      ctx.fillStyle = MUTED;
+      ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
       if (entry.empty) {
-        ctx.fillText(tr(this.game, `スロット${entry.slot + 1}: からっぽ`, `Slot ${entry.slot + 1}: Empty`), 110, y + 28);
+        ctx.fillText(tr(this.game, "ここから、ものがたりを はじめよう。", "Your story starts here."), 122, y + 40);
       } else {
-        const playerLabel = entry.playerName || tr(this.game, "ぼうけんしゃ", "Adventurer");
-        ctx.fillText(
-          `${tr(this.game, `スロット${entry.slot + 1}`, `Slot ${entry.slot + 1}`)}: ${playerLabel}(${entry.leaderName} Lv.${entry.leaderLevel})`,
-          110, y + 28
-        );
+        const stage = entry.stage ? tr(this.game, entry.stage.name, entry.stage.nameEn) : "";
+        const saved = new Date(entry.savedAt);
+        const date = Number.isFinite(saved.getTime()) ? `  ·  ${saved.getMonth() + 1}/${saved.getDate()}` : "";
+        fitText(ctx, `${entry.leaderName}  Lv.${entry.leaderLevel}${stage ? `  ·  ${stage}` : ""}${date}`, 122, y + 40, 396);
       }
+      ctx.textAlign = "center";
+      ctx.fillStyle = selected ? "#c38b38" : "#b7bba1";
+      ctx.font = 'bold 23px "Yu Gothic", sans-serif';
+      ctx.fillText("›", 551, y + 33);
     });
     ctx.textAlign = "center";
+    ctx.fillStyle = this.notice ? INK : MUTED;
+    ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(this.notice || tr(this.game, "タップ / ↑↓ で えらぶ　　Z・Enter で けってい", "Tap or ↑↓ to choose  ·  Z / Enter to confirm"), 320, 450);
 
-    ctx.font = FONT;
-    ctx.fillStyle = "#5a5a70";
-    if (this.phase === "slots") {
-      ctx.fillText(tr(this.game, "↑↓: スロットを えらぶ ／ Z: けってい", "Up/Down: Choose slot / Z: Confirm"), 320, 462);
-    } else if (this.phase === "menu") {
-      ctx.fillText(tr(this.game, "↑↓: えらぶ ／ Z: けってい ／ X: もどる", "Up/Down: Choose / Z: Confirm / X: Back"), 320, 462);
-    }
-
-    if (this.phase === "menu") {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+    if (this.phase === "menu" || this.confirm || this.renamingSlot != null) {
+      ctx.fillStyle = "rgba(19,44,33,0.68)";
       ctx.fillRect(0, 0, 640, 480);
-      const options = MENU_OPTIONS;
-      panel(ctx, 190, 170, 260, 40 + options.length * 38);
-      ctx.fillStyle = "#3a3a52";
-      ctx.font = FONT_BOLD;
-      ctx.fillText(tr(this.game, `スロット${this.menuSlot + 1}`, `Slot ${this.menuSlot + 1}`), 320, 196);
-      options.forEach((opt, i) => {
-        const y = 230 + i * 38;
-        ctx.fillStyle = this.menuCursor === i ? "#e8842e" : "#3a3a52";
-        ctx.fillText(menuOptionLabel(this.game, opt), 320, y);
-      });
     }
+    if (this.renamingSlot != null) this.drawNamePrompt(ctx);
+    else if (this.confirm) this.drawConfirmation(ctx);
+    else if (this.phase === "menu") this.drawMenu(ctx);
+    ctx.restore();
+  }
 
-    if (this.confirm) {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-      ctx.fillRect(0, 0, 640, 480);
-      panel(ctx, 80, 176, 480, 138);
-      ctx.fillStyle = "#3a3a52";
+  drawMenu(ctx) {
+    card(ctx, 164, 128, 312, 254, PAPER, "#a5bda0", 18);
+    ctx.textAlign = "center";
+    ctx.fillStyle = INK;
+    ctx.font = FONT_BOLD;
+    ctx.fillText(tr(this.game, `ぼうけんの記録 0${this.menuSlot + 1}`, `Adventure journal 0${this.menuSlot + 1}`), 320, 163);
+    MENU_OPTIONS.forEach((opt, i) => {
+      const y = 184 + i * 48;
+      const selected = this.menuCursor === i;
+      card(ctx, 190, y, 260, 42, selected ? "#35634b" : "#f6f1df", selected ? "#35634b" : "#dfdeca", 9);
+      ctx.fillStyle = selected ? PAPER : opt === "delete" ? "#9a5144" : INK;
       ctx.font = FONT_BOLD;
-      ctx.fillText(this.confirm.text, 320, 222);
-      const y = 272;
-      ctx.fillStyle = this.confirm.yes ? "#e8842e" : "#3a3a52";
-      ctx.fillText(tr(this.game, "はい", "Yes"), 250, y);
-      ctx.fillStyle = !this.confirm.yes ? "#e8842e" : "#3a3a52";
-      ctx.fillText(tr(this.game, "いいえ", "No"), 396, y);
-      ctx.font = FONT;
-      ctx.fillStyle = "#5a5a70";
-      ctx.fillText(tr(this.game, "←→: えらぶ ／ Z: けってい ／ X: やめる", "Left/Right: Choose / Z: Confirm / X: Cancel"), 320, 300);
-    }
+      ctx.fillText(menuOptionLabel(this.game, opt), 320, y + 27);
+    });
+    ctx.fillStyle = MUTED;
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(tr(this.game, "もどる / X・Esc", "Back / X · Esc"), 320, 359);
+  }
 
-    ctx.textAlign = "left";
+  drawConfirmation(ctx) {
+    card(ctx, 102, 158, 436, 182, PAPER, "#a5bda0", 18);
+    ctx.textAlign = "center";
+    ctx.fillStyle = INK;
+    ctx.font = FONT_BOLD;
+    ctx.fillText(tr(this.game, "記録を 変更します", "Change this journal?"), 320, 194);
+    ctx.font = '14px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(this.confirm.text, 320, 228, 404);
+    this.drawButton(ctx, 150, 260, 156, tr(this.game, "はい", "Yes"), this.confirm.yes, true);
+    this.drawButton(ctx, 334, 260, 156, tr(this.game, "いいえ", "No"), !this.confirm.yes);
+    ctx.fillStyle = MUTED;
+    ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(tr(this.game, "←→ で えらぶ / Z で けってい / X で もどる", "←→ to choose / Z to confirm / X to go back"), 320, 325);
+  }
+
+  drawNamePrompt(ctx) {
+    card(ctx, 100, 140, 440, 218, PAPER, "#a5bda0", 18);
+    ctx.textAlign = "center";
+    ctx.fillStyle = INK;
+    ctx.font = FONT_BOLD;
+    ctx.fillText(tr(this.game, "きみの なまえを おしえて。", "What shall we call you?"), 320, 181);
+    ctx.fillStyle = MUTED;
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(tr(this.game, "ニックネームで、ぼうけんを はじめよう。", "Choose a nickname for your adventure."), 320, 207);
+    this.drawButton(ctx, 130, 292, 178, tr(this.game, "もどる", "Back"), false);
+    this.drawButton(ctx, 332, 292, 178, tr(this.game, "ぼうけんへ！", "Let's explore!"), true);
+  }
+
+  drawButton(ctx, x, y, width, label, selected, danger = false) {
+    card(ctx, x, y, width, 44, selected ? danger ? "#9a5144" : "#35634b" : "#f6f1df", selected ? "#35634b" : "#d8d7bd", 9);
+    ctx.fillStyle = selected ? PAPER : INK;
+    ctx.font = FONT_BOLD;
+    ctx.textAlign = "center";
+    ctx.fillText(label, x + width / 2, y + 28);
   }
 }
