@@ -15,11 +15,33 @@ import { ITEMS } from "../data/items.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
 import { rollShiny } from "../systems/shiny.js";
+import { journeyGoal } from "../systems/journey.js";
 
 const TAKARABOX_RATE = 1 / 3;
 
 function stageLabel(game, stage) {
-  return tr(game, stage.shortName, stage.nameEn);
+  return tr(game, stage.name || stage.shortName, stage.nameEn);
+}
+
+function fitText(ctx, text, width) {
+  if (ctx.measureText(text).width <= width) return text;
+  let result = text;
+  while (result.length && ctx.measureText(`${result}…`).width > width) result = result.slice(0, -1);
+  return `${result}…`;
+}
+
+function wrapText(ctx, text, width) {
+  const lines = [];
+  let line = "";
+  for (const char of text) {
+    if (line && ctx.measureText(line + char).width > width) {
+      lines.push(line);
+      line = "";
+    }
+    line += char;
+  }
+  if (line) lines.push(line);
+  return lines;
 }
 
 const TILE = 40;
@@ -100,6 +122,8 @@ export class FieldScene {
     this.map = this.stage.layout.map((row) => [...row].map(parseTileChar));
     const spawn = this.stage.spawns[spawnKey] || this.stage.spawns.start;
     this.player = { ...spawn };
+    this.stepVisual = null;
+    this.moveCooldown = 0;
     if (!keepFacing) this.facing = "down";
     this.world = worldOf(this.stageId);
     this.initParticles();
@@ -145,8 +169,16 @@ export class FieldScene {
   }
 
   update(dt) {
-    this.time += dt;
-    this.updateParticles(dt);
+    if (!this.game.reduceMotion) {
+      this.time += dt;
+      this.updateParticles(dt);
+    }
+    if (this.stepVisual) {
+      this.stepVisual.elapsed += dt;
+      if (this.stepVisual.elapsed >= 0.12 || this.stepVisual.to.x !== this.player.x || this.stepVisual.to.y !== this.player.y) {
+        this.stepVisual = null;
+      }
+    }
     if (canClaimLegend(this.game)) {
       const gained = grantLegendReward(this.game, createMonster);
       if (gained) {
@@ -191,10 +223,10 @@ export class FieldScene {
     if (this.moveCooldown > 0) return;
     let dx = 0;
     let dy = 0;
-    if (input.isHeld("up")) { dy = -1; this.facing = "up"; }
-    else if (input.isHeld("down")) { dy = 1; this.facing = "down"; }
-    else if (input.isHeld("left")) { dx = -1; this.facing = "left"; }
-    else if (input.isHeld("right")) { dx = 1; this.facing = "right"; }
+    if (input.isHeld("up") || input.wasPressed("up")) { dy = -1; this.facing = "up"; }
+    else if (input.isHeld("down") || input.wasPressed("down")) { dy = 1; this.facing = "down"; }
+    else if (input.isHeld("left") || input.wasPressed("left")) { dx = -1; this.facing = "left"; }
+    else if (input.isHeld("right") || input.wasPressed("right")) { dx = 1; this.facing = "right"; }
     if (dx === 0 && dy === 0) return;
 
     const nx = this.player.x + dx;
@@ -206,10 +238,21 @@ export class FieldScene {
       this.talkToNpc(nx, ny);
       return;
     }
+    this.stepVisual = { from: { ...this.player }, to: { x: nx, y: ny }, elapsed: 0 };
     this.player.x = nx;
     this.player.y = ny;
     this.moveCooldown = 0.14;
     this.onStep(targetTile);
+    if (this.game.scene && this.game.scene !== this) this.stepVisual = null;
+  }
+
+  // Only the sprite interpolates. Encounters, collisions and saved positions stay on tiles.
+  visualPlayerPosition() {
+    const step = this.stepVisual;
+    if (!step || this.game.reduceMotion || step.to.x !== this.player.x || step.to.y !== this.player.y) return this.player;
+    const t = Math.min(1, step.elapsed / 0.12);
+    const eased = t * t * (3 - 2 * t);
+    return { x: step.from.x + (step.to.x - step.from.x) * eased, y: step.from.y + (step.to.y - step.from.y) * eased };
   }
 
   onStep(tile) {
@@ -368,11 +411,11 @@ export class FieldScene {
       return tr(this.game, `${stageLabel(this.game, getStage(this.stage.prevStage))}: ひとつ もどる`, `${stageLabel(this.game, getStage(this.stage.prevStage))}: Go back`);
     }
     if (tile === T_BOSS) {
-      return this.game.flags && this.game.flags.bossDefeated
-        ? tr(this.game, "おくのもり: しずかな きはい", "Deep forest: a quiet presence")
-        : tr(this.game, "おくのもり: ヌシが いる", "Deep forest: a Nushi is here");
+      return this.game.flags?.stageClearedFlags?.[this.stageId]
+        ? tr(this.game, "この場所のヌシは、おだやかになった", "This guardian is at peace")
+        : tr(this.game, "赤い門: この場所のヌシがいる", "Red gate: this area's guardian");
     }
-    return tr(this.game, `${this.stage.name}: なかまを そだてよう`, `${stageLabel(this.game, this.stage)}: Raise your friends`);
+    return tr(this.game, "なかまと歩こう。寄り道も、ぼうけん。", "Explore with your friends, at your own pace.");
   }
 
   draw(ctx) {
@@ -515,7 +558,7 @@ export class FieldScene {
           ctx.lineWidth = 2;
           ctx.strokeRect(px + 8, py + 16, 24, 20);
         } else if (tile === T_BOSS) {
-          const defeated = this.game.flags && this.game.flags.bossDefeated;
+          const defeated = this.game.flags?.stageClearedFlags?.[this.stageId];
           ctx.fillStyle = defeated ? "#9a9a9a" : "#d64545";
           ctx.fillRect(px + 8, py + 8, 5, 28);
           ctx.fillRect(px + 27, py + 8, 5, 28);
@@ -527,59 +570,80 @@ export class FieldScene {
 
     this.drawTreasures(ctx);
     this.drawGroundItems(ctx);
-    this.drawParticles(ctx);
+    if (!this.game.reduceMotion) this.drawParticles(ctx);
 
-    const playerPx = this.player.x * TILE + 20;
-    const playerPy = this.player.y * TILE + 20;
+    const visualPlayer = this.visualPlayerPosition();
+    const playerPx = visualPlayer.x * TILE + 20;
+    const playerPy = visualPlayer.y * TILE + 20;
     drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, this.time);
     drawPlayer(ctx, playerPx, playerPy, this.facing, this.time);
 
+    ctx.save();
+    // At the north edge, move the status cards below the map's action instead of hiding it.
+    ctx.translate(0, this.player.y <= 1 ? 392 : 0);
     const leader = this.game.party[0];
     if (leader) {
-      panel(ctx, 12, 12, 224, 74);
-      ctx.fillStyle = "#3a3a52";
+      panel(ctx, 12, 12, 294, 54);
+      ctx.fillStyle = "#284e43";
       ctx.font = FONT_BOLD;
       ctx.textAlign = "left";
-      ctx.fillText(`${stageLabel(this.game, this.stage)}  ${monsterName(leader, this.game.lang)} Lv.${leader.level}`, 26, 38);
-      hpBar(ctx, 26, 48, 136, 12, leader.hp / leader.maxHp);
-      ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.fillText(`HP ${leader.hp}/${leader.maxHp}`, 26, 74);
-      ctx.fillText(tr(this.game, `なかま ${this.game.party.length}たい`, `Party ${this.game.party.length}`), 174, 56);
+      ctx.fillText(fitText(ctx, `${monsterName(leader, this.game.lang)}  Lv.${leader.level}`, 270), 25, 34);
+      hpBar(ctx, 25, 44, 130, 9, leader.hp / leader.maxHp);
+      ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.fillText(`HP ${leader.hp}/${leader.maxHp}  MP ${leader.mp || 0}`, 168, 52);
     }
 
-    panel(ctx, 396, 12, 232, 74);
-    ctx.fillStyle = "#3a3a52";
+    panel(ctx, 318, 12, 310, 54);
+    ctx.fillStyle = "#284e43";
     ctx.font = FONT_BOLD;
     ctx.textAlign = "left";
-    ctx.fillText(stageLabel(this.game, this.stage), 412, 38);
+    ctx.fillText(fitText(ctx, stageLabel(this.game, this.stage), 284), 331, 34);
+    ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#5a685b";
+    ctx.fillText(fitText(ctx, tr(this.game,
+      `なかま ${this.game.party.length} / 図鑑 ${this.game.dex.caught.length}種`,
+      `Party ${this.game.party.length} / Dex ${this.game.dex.caught.length}`), 192), 331, 53);
     ctx.textAlign = "right";
-    ctx.fillText(tr(this.game, `${this.game.money || 0}円`, `${this.game.money || 0}g`), 612, 38);
+    ctx.fillText(tr(this.game, `${this.game.money || 0}円`, `${this.game.money || 0}g`), 614, 53);
     ctx.textAlign = "left";
-    ctx.font = '15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText(
-      tr(this.game, `みつけた ${this.game.dex.seen.length} / なかま ${this.game.dex.caught.length}`, `Seen ${this.game.dex.seen.length} / Caught ${this.game.dex.caught.length}`),
-      412, 58
-    );
-    ctx.fillText(this.currentTileMessage(), 412, 78);
+    ctx.restore();
+
+    const objective = journeyGoal(this.game, this.stage);
+    // Keep the guide away from the player along the bottom edge (including the first spawn).
+    const guideY = this.player.y <= 1 ? 340 : this.player.y >= 9 ? 78 : 416;
+    panel(ctx, 12, guideY, 616, 52);
+    ctx.fillStyle = "#a97328";
+    ctx.font = 'bold 10px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(tr(this.game, "ぼうけんのしおり", "JOURNEY NOTES"), 25, guideY + 15);
+    ctx.fillStyle = "#284e43";
+    ctx.font = 'bold 15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(fitText(ctx, objective.title, 465), 152, guideY + 18);
+    ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#5a685b";
+    const specialTile = this.tileAt(this.player.x, this.player.y) !== TILE_TYPES.PLAIN;
+    ctx.fillText(fitText(ctx, specialTile ? this.currentTileMessage() : objective.detail, 590), 25, guideY + 39);
 
     if (this.toast) {
       ctx.save();
       ctx.globalAlpha = Math.min(1, this.toast.timer);
-      panel(ctx, 90, 96, 460, 44);
-      ctx.fillStyle = "#3a3a52";
       ctx.font = FONT_BOLD;
+      const lines = wrapText(ctx, this.toast.text, 546);
+      const toastY = guideY === 78 ? 142 : 78;
+      panel(ctx, 32, toastY, 576, lines.length * 24 + 20);
+      ctx.fillStyle = "#3a3a52";
       ctx.textAlign = "center";
-      ctx.fillText(this.toast.text, 320, 124);
+      lines.forEach((line, i) => ctx.fillText(line, 320, toastY + 27 + i * 24));
       ctx.restore();
       ctx.textAlign = "left";
     }
 
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${Math.sin((this.flash / 0.45) * Math.PI)})`;
+      const opacity = this.game.reduceMotion ? 0.2 : 0.55 * Math.sin(Math.min(1, this.flash / 0.6) * Math.PI);
+      ctx.fillStyle = `rgba(255, 253, 240, ${opacity})`;
       ctx.fillRect(0, 0, 640, 480);
     }
 
-    if (this.legendFlash > 0) this.drawLegendFlash(ctx);
+    if (this.legendFlash > 0 && !this.game.reduceMotion) this.drawLegendFlash(ctx);
   }
 
   // レジェンド解放の瞬間、画面に金色のオーラをかがやかせる

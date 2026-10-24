@@ -4,10 +4,10 @@ export const FONT_BOLD = 'bold 17px "Hiragino Maru Gothic ProN", "Yu Gothic", sa
 export function panel(ctx, x, y, w, h) {
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, 10);
-  ctx.fillStyle = "rgba(255, 253, 245, 0.95)";
+  ctx.fillStyle = "rgba(255, 251, 236, 0.97)";
   ctx.fill();
-  ctx.strokeStyle = "#3a3a52";
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = "#819375";
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 }
 
@@ -28,4 +28,5 @@ export function hpBar(ctx, x, y, w, h, ratio) {
   ctx.strokeStyle = "#3a3a52";
   ctx.lineWidth = 2;
   ctx.stroke();
+  ctx.fillStyle = "#3a3a52";
 }
