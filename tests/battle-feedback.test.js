@@ -85,3 +85,74 @@ test("combat HP resolves synchronously while visual impact waits for its message
   battle.update(0.016);
   assert.equal(battle.feedback.visualFor(battle.enemy), null, "waiting on a message never restarts the effect");
 });
+
+function battleGame() {
+  globalThis.document ??= { getElementById: () => ({ style: {}, classList: { add() {}, remove() {} } }) };
+  const game = {
+    party: [createMonster("mofuri", 5)], ranch: [], items: {}, dex: { seen: [], caught: [] },
+    flags: {}, lang: "ja", save: () => true, input: { wasPressed: () => false },
+    field: { resumed: false, resumeBgm() { this.resumed = true; } },
+    changeScene(scene) { this.scene = scene; },
+  };
+  return game;
+}
+
+test("HP bar and number keep the pre-damage HP until the damage message is shown", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const game = battleGame();
+  const battle = new BattleScene(game, createMonster("dogura", 5));
+  const before = battle.enemy.hp;
+  const messages = [];
+  battle.performAction(battle.ally, battle.enemy, { type: "attack" }, messages);
+  const after = battle.enemy.hp;
+  assert.ok(after < before, "the simulation result is unchanged and already final");
+  battle.say(messages, "command");
+  battle.update(1);
+  assert.equal(battle.shownHp.enemy, before, "the attack announcement must not move the HP bar");
+  game.input.wasPressed = (key) => key === "ok";
+  battle.update(0.016);
+  assert.ok(battle.queue[0].includes("ダメージ"));
+  game.input.wasPressed = () => false;
+  battle.update(1);
+  assert.equal(battle.shownHp.enemy, after, "the HP bar follows once its damage message is shown");
+});
+
+test("victory BGM starts on the defeat message, and the field BGM resumes without a victory file", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const game = battleGame();
+  const battle = new BattleScene(game, createMonster("dogura", 3));
+  game.scene = battle;
+  battle.enemy.hp = 0;
+  battle.victory(["とどめの いちげき！"]);
+  assert.equal(battle.victoryBgmAt, 1, "the cue waits for the defeat message");
+  game.input.wasPressed = (key) => key === "ok";
+  battle.update(0.016);
+  assert.ok(battle.queue[0].includes("たおした"));
+  assert.equal(battle.victoryBgmAt, null);
+  for (let i = 0; i < 50 && game.scene === battle; i++) battle.update(0.016);
+  assert.equal(game.scene, game.field, "the battle returns to the field even with no victory.mp3");
+  assert.equal(game.field.resumed, true);
+});
+
+test("battle commands and skill rows can be chosen by tap", async () => {
+  const { BattleScene } = await import("../js/scenes/battle.js");
+  const { SKILLS } = await import("../js/data/skills.js");
+  const game = battleGame();
+  const battle = new BattleScene(game, createMonster("dogura", 3));
+  game.scene = battle;
+  battle.phase = "command";
+  battle.handlePointer(600, 380);
+  assert.equal(battle.phase, "command", "taps outside the menu are ignored");
+  battle.handlePointer(100, 452);
+  assert.equal(battle.cursor, 6);
+  assert.ok(battle.queue[0].includes("みを まもっている"), "tapping Guard runs the guard turn");
+
+  battle.ally.hp = battle.ally.maxHp;
+  battle.ally.skills = [Object.keys(SKILLS).find((id) => SKILLS[id].mpCost > 0)];
+  battle.ally.mp = 0;
+  battle.phase = "command";
+  battle.handlePointer(360, 395);
+  assert.equal(battle.phase, "skill", "tapping Skill opens the skill list");
+  battle.handlePointer(100, 395);
+  assert.equal(battle.queue[0], "MPが たりない！", "tapping a skill row chooses that skill");
+});

@@ -22,15 +22,23 @@ export class EndingScene {
     this.time += dt;
     if (this.time > 1.2) this.canReturn = true;
     const input = this.game.input;
-    if (this.canReturn && (input.wasPressed("ok") || input.wasPressed("cancel"))) {
-      if (this.nextStageId) {
-        const field = new FieldScene(this.game, this.nextStageId);
-        this.game.field = field;
-        this.game.save();
-        this.game.changeScene(field);
-      } else {
-        this.game.changeScene(new TitleScene(this.game));
-      }
+    if (this.canReturn && (input.wasPressed("ok") || input.wasPressed("cancel"))) this.proceed();
+  }
+
+  // タップでも Z と同じく先へ進める(1.2秒の待ちは同じ)
+  handlePointer() {
+    if (this.game.scene !== this || !this.canReturn) return;
+    this.proceed();
+  }
+
+  proceed() {
+    if (this.nextStageId) {
+      const field = new FieldScene(this.game, this.nextStageId);
+      this.game.field = field;
+      this.game.save();
+      this.game.changeScene(field);
+    } else {
+      this.game.changeScene(new TitleScene(this.game));
     }
   }
 

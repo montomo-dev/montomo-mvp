@@ -44,8 +44,37 @@ function tryPlay(key, loop, resolvedKey = key) {
     const fallbackKey = FALLBACK[resolvedKey];
     if (fallbackKey && fallbackKey !== resolvedKey) tryPlay(key, loop, fallbackKey);
   });
-  audio.play().catch(() => {});
-  current = { key, audio };
+  current = { key, audio, blocked: false };
+  // ページを開いた直後(タイトル)はブラウザの自動再生制限で止められるため、最初の操作でやり直す
+  audio.play().catch(() => {
+    if (current && current.audio === audio) {
+      current.blocked = true;
+      waitForGesture();
+    }
+  });
+}
+
+let waiting = false;
+function waitForGesture() {
+  if (waiting || typeof window === "undefined") return;
+  waiting = true;
+  const retry = () => {
+    window.removeEventListener("pointerdown", retry, true);
+    window.removeEventListener("keydown", retry, true);
+    waiting = false;
+    if (current && current.blocked) {
+      current.blocked = false;
+      const audio = current.audio;
+      audio.play().catch(() => {
+        if (current && current.audio === audio) {
+          current.blocked = true;
+          waitForGesture();
+        }
+      });
+    }
+  };
+  window.addEventListener("pointerdown", retry, true);
+  window.addEventListener("keydown", retry, true);
 }
 
 // keyが既に再生中なら何もしない(進化演出などの毎フレームdraw()から呼んでも再スタートしない)

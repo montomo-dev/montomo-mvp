@@ -43,6 +43,16 @@ export class BattleFeedback {
     return this.timeline.slice(this.index).some((cue) => cue?.monster === monster);
   }
 
+  // HP bars and numbers wait for their message: until a later cue is presented,
+  // show the HP that monster had just before that change.
+  displayHp(monster) {
+    for (let i = this.index + 1; i < this.timeline.length; i++) {
+      const cue = this.timeline[i];
+      if (cue?.monster === monster && cue.hpBefore != null) return cue.hpBefore;
+    }
+    return monster.hp;
+  }
+
   visualFor(monster, reduceMotion = false) {
     const hit = this.active;
     if (!hit || hit.monster !== monster) return null;

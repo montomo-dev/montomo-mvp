@@ -18,6 +18,8 @@ import { rollShiny } from "../systems/shiny.js";
 import { journeyGoal } from "../systems/journey.js";
 
 const TAKARABOX_RATE = 1 / 3;
+// ステージごとの encounterRate(0.12〜0.18) に掛ける倍率。草むらでの実測が15〜28歩に1回と薄かったため2倍にする
+const ENCOUNTER_RATE_SCALE = 2;
 
 function stageLabel(game, stage) {
   return tr(game, stage.name || stage.shortName, stage.nameEn);
@@ -127,6 +129,11 @@ export class FieldScene {
     if (!keepFacing) this.facing = "down";
     this.world = worldOf(this.stageId);
     this.initParticles();
+    this.resumeBgm();
+  }
+
+  // バトルから戻ったときも、いまいるワールドのBGMに戻す(再生中なら何もしない)
+  resumeBgm() {
     playBgm(`field_${this.world}`);
   }
 
@@ -326,7 +333,7 @@ export class FieldScene {
       return;
     }
     if (tile === T_BUSH && this.game.party.length > 0) {
-      if (Math.random() < this.stage.encounterRate) {
+      if (Math.random() < this.stage.encounterRate * ENCOUNTER_RATE_SCALE) {
         const speciesId = rollWildSpecies(this.stage.wildSpecies);
         const [minLevel, maxLevel] = this.stage.wildLevels;
         const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));

@@ -45,8 +45,19 @@ const COMMAND_POS = [
   [70, 438], [330, 438],
   [70, 458],
 ];
+const SCROLL_VISIBLE_ROWS = 3;
 const GUARD_DAMAGE_RATIO = 0.4;
 const REFERENCE_RECRUIT_EASE = 0.15;
+
+function contains(x, y, left, top, width, height) {
+  return x >= left && x <= left + width && y >= top && y <= top + height;
+}
+
+// スクロールリストの先頭に表示する行番号(カーソルが常に見えるように追従する)
+function scrollOffset(length, cursor) {
+  const maxScroll = Math.max(0, length - SCROLL_VISIBLE_ROWS);
+  return Math.min(maxScroll, Math.max(0, cursor - (SCROLL_VISIBLE_ROWS - 1)));
+}
 
 // 全滅時に失う「重要でない」回復アイテム。安価なポーションから優先して失う
 const UNIMPORTANT_HEAL_ITEMS = ["potionS", "potionM"];
@@ -89,6 +100,7 @@ export class BattleScene {
     this.after = "command";
     this.recruitedMonster = null;
     this.rosterChoice = null;
+    this.victoryBgmAt = null;
     const enemyName = monsterName(enemy, game.lang);
     this.queue = [
       this.isBoss
@@ -103,6 +115,14 @@ export class BattleScene {
     this.feedback.begin(messages);
     this.after = after;
     this.phase = "message";
+    this.playMessageBgm();
+  }
+
+  // 「たおした！」のメッセージが表示された瞬間に勝利BGMへ切り替える
+  playMessageBgm() {
+    if (this.victoryBgmAt !== this.feedback.index) return;
+    this.victoryBgmAt = null;
+    playBgm("victory", { loop: false });
   }
 
   enterNext() {
@@ -179,23 +199,21 @@ export class BattleScene {
     }
     for (const m of this.game.party) clearStatus(m);
     this.game.save();
+    this.game.field.resumeBgm?.();
     this.game.changeScene(this.game.field);
   }
 
   update(dt) {
     this.time += dt;
     this.feedback.update(dt);
+    // HPバー・数値は、そのダメージのメッセージが表示されてから動かす
     const follow = Math.min(1, dt * 8);
-    this.shownHp.ally += (this.ally.hp - this.shownHp.ally) * follow;
-    this.shownHp.enemy += (this.enemy.hp - this.shownHp.enemy) * follow;
+    this.shownHp.ally += (this.feedback.displayHp(this.ally) - this.shownHp.ally) * follow;
+    this.shownHp.enemy += (this.feedback.displayHp(this.enemy) - this.shownHp.enemy) * follow;
 
     const input = this.game.input;
     if (this.phase === "message") {
-      if (input.wasPressed("ok")) {
-        this.queue.shift();
-        this.feedback.advance();
-        if (this.queue.length === 0) this.enterNext();
-      }
+      if (input.wasPressed("ok")) this.advanceMessage();
     } else if (this.phase === "command") {
       const col = COMMAND_COLS[0].includes(this.cursor) ? 0 : 1;
       const colList = COMMAND_COLS[col];
@@ -212,15 +230,7 @@ export class BattleScene {
       if (input.wasPressed("up")) this.skillCursor = (this.skillCursor + skills.length - 1) % skills.length;
       if (input.wasPressed("down")) this.skillCursor = (this.skillCursor + 1) % skills.length;
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; }
-      else if (input.wasPressed("ok")) {
-        const skillId = skills[this.skillCursor];
-        if ((this.ally.mp || 0) < SKILLS[skillId].mpCost) {
-          sfxCancel();
-          this.say([tr(this.game, "MPが たりない！", "Not enough MP!")], "command");
-        } else {
-          this.resolveTurn({ type: "skill", skillId });
-        }
-      }
+      else if (input.wasPressed("ok")) this.chooseSkill(this.skillCursor);
     } else if (this.phase === "item") {
       const owned = this.ownedItemIds();
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; return; }
@@ -243,6 +253,60 @@ export class BattleScene {
       if (input.wasPressed("up")) this.switchCursor = (this.switchCursor + entries.length - 1) % entries.length;
       if (input.wasPressed("down")) this.switchCursor = (this.switchCursor + 1) % entries.length;
       if (input.wasPressed("ok")) this.resolveTurn({ type: "switch", index: entries[this.switchCursor].i });
+    }
+  }
+
+  advanceMessage() {
+    this.queue.shift();
+    this.feedback.advance();
+    this.playMessageBgm();
+    if (this.queue.length === 0) this.enterNext();
+  }
+
+  chooseSkill(index) {
+    const skillId = this.ally.skills[index];
+    if ((this.ally.mp || 0) < SKILLS[skillId].mpCost) {
+      sfxCancel();
+      this.say([tr(this.game, "MPが たりない！", "Not enough MP!")], "command");
+    } else {
+      this.resolveTurn({ type: "skill", skillId });
+    }
+  }
+
+  // タップ/クリックでコマンド・スキル・どうぐ・こうかん・いれさきを選んで決定する
+  // (当たり判定は draw() の各行の位置に合わせる)
+  handlePointer(x, y) {
+    if (this.game.scene !== this) return;
+    // メッセージ中は画面のどこをタップしても Z と同じく次へ進む(スマホで決定ボタンまで指を運ばなくてよい)
+    if (this.phase === "message") {
+      this.advanceMessage();
+    } else if (this.phase === "command") {
+      const index = COMMAND_POS.findIndex(([cx, cy]) => contains(x, y, cx - 28, cy - 16, 232, 20));
+      if (index === -1) return;
+      this.cursor = index;
+      this.chooseCommand(index);
+    } else if (this.phase === "skill") {
+      const index = this.scrollListIndexAt(this.ally.skills.length, this.skillCursor, x, y);
+      if (index === -1) return;
+      this.skillCursor = index;
+      this.chooseSkill(index);
+    } else if (this.phase === "item") {
+      const owned = this.ownedItemIds();
+      const index = this.scrollListIndexAt(owned.length, this.itemCursor, x, y);
+      if (index === -1) return;
+      this.itemCursor = index;
+      this.useItem(owned[index]);
+    } else if (this.phase === "switch") {
+      const entries = this.switchableEntries();
+      const index = entries.findIndex((_, i) => contains(x, y, 40, 400 + i * 24 - 18, 560, 24));
+      if (index === -1) return;
+      this.switchCursor = index;
+      this.resolveTurn({ type: "switch", index: entries[index].i });
+    } else if (this.phase === "chooseRoster") {
+      if (contains(x, y, 40, 384, 560, 26)) this.rosterChoice = "party";
+      else if (contains(x, y, 40, 410, 560, 26)) this.rosterChoice = "ranch";
+      else return;
+      this.confirmRosterChoice();
     }
   }
 
@@ -322,7 +386,7 @@ export class BattleScene {
         tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
         tr(this.game, `HPが ${healed} かいふくした！`, `Restored ${healed} HP!`),
       ];
-      this.feedback.record(messages, { monster: this.ally, amount: healed, heal: true });
+      this.feedback.record(messages, { monster: this.ally, amount: healed, hpBefore: before, heal: true });
       if (item.cureStatus && this.ally.status) {
         messages.push(tr(this.game, `${allyName} の じょうたいいじょうが なおった！`, `${allyName}'s status ailment was cured!`));
         clearStatus(this.ally);
@@ -389,13 +453,14 @@ export class BattleScene {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
       messages.push(tr(this.game, `${targetName} は ぼうぎょで こうげきを うけながした！`, `${targetName} guarded and softened the blow!`));
     }
+    const hpBefore = target.hp;
     target.hp = Math.max(0, target.hp - damage);
     if (target === this.enemy) {
       this.totalDamageDealt += damage;
       if (this.bossState.charging) this.bossState.chargeDamage += damage;
     }
     messages.push(tr(this.game, `${targetName} に ${damage} の ダメージ！`, `${damage} damage to ${targetName}!`));
-    this.feedback.record(messages, { monster: target, amount: damage, strong: eff > 1 || damage >= target.maxHp * 0.3 });
+    this.feedback.record(messages, { monster: target, amount: damage, hpBefore, strong: eff > 1 || damage >= target.maxHp * 0.3 });
     const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (target.hp <= 0) sfxFaint();
@@ -471,9 +536,10 @@ export class BattleScene {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
       messages.push(tr(this.game, `${allyName} は ぼうぎょで なんとか こらえた！`, `${allyName} managed to endure it by guarding!`));
     }
+    const hpBefore = this.ally.hp;
     this.ally.hp = Math.max(0, this.ally.hp - damage);
     messages.push(tr(this.game, `${allyName} に ${damage} の ダメージ！`, `${damage} damage to ${allyName}!`));
-    this.feedback.record(messages, { monster: this.ally, amount: damage, strong: true });
+    this.feedback.record(messages, { monster: this.ally, amount: damage, hpBefore, strong: true });
     const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (this.ally.hp <= 0) sfxFaint();
@@ -520,8 +586,12 @@ export class BattleScene {
       }
     }
     this.allyGuarding = false;
-    if (this.ally.hp > 0) applyEndOfTurnStatus(this.ally, messages, this.game);
-    if (this.enemy.hp > 0) applyEndOfTurnStatus(this.enemy, messages, this.game);
+    for (const monster of [this.ally, this.enemy]) {
+      if (monster.hp <= 0) continue;
+      const hpBefore = monster.hp;
+      applyEndOfTurnStatus(monster, messages, this.game);
+      this.feedback.record(messages, { monster, amount: hpBefore - monster.hp, hpBefore });
+    }
     this.finishTurn(messages);
   }
 
@@ -550,7 +620,8 @@ export class BattleScene {
   }
 
   victory(messages) {
-    playBgm("victory", { loop: false });
+    // 勝利BGMは「たおした！」の表示に合わせて playMessageBgm で鳴らす
+    this.victoryBgmAt = messages.length;
     const enemySpecies = SPECIES[this.enemy.speciesId];
     const exp = enemySpecies.exp * this.enemy.level;
     const money = Math.max(3, Math.round(enemySpecies.exp * this.enemy.level * 0.4));
@@ -903,9 +974,8 @@ export class BattleScene {
 
   // コマンド欄(y:402〜472)に収まる件数だけ表示し、カーソルに追従してスクロールする
   drawScrollList(ctx, list, cursor, drawRow) {
-    const visibleRows = 3;
-    const maxScroll = Math.max(0, list.length - visibleRows);
-    const scroll = Math.min(maxScroll, Math.max(0, cursor - (visibleRows - 1)));
+    const visibleRows = SCROLL_VISIBLE_ROWS;
+    const scroll = scrollOffset(list.length, cursor);
     list.slice(scroll, scroll + visibleRows).forEach((entry, i) => {
       const y = 402 + i * 26;
       drawRow(entry, 70, y);
@@ -913,6 +983,15 @@ export class BattleScene {
     });
     if (scroll > 0) ctx.fillText("▲", 340, 400);
     if (scroll + visibleRows < list.length) ctx.fillText("▼", 340, 460);
+  }
+
+  // drawScrollList で表示中の行のうち、(x, y) にある行の list 上の番号を返す(なければ -1)
+  scrollListIndexAt(length, cursor, x, y) {
+    const scroll = scrollOffset(length, cursor);
+    for (let i = 0; i < Math.min(SCROLL_VISIBLE_ROWS, length - scroll); i++) {
+      if (contains(x, y, 40, 402 + i * 26 - 19, 560, 26)) return scroll + i;
+    }
+    return -1;
   }
 
   // ヌシがなかまになった瞬間、金色のオーラで演出する
