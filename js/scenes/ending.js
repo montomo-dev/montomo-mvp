@@ -1,10 +1,10 @@
 import { drawMonster } from "../sprites.js";
-import { FONT, FONT_BOLD } from "../ui.js";
+import { wrapText, FONT, FONT_BOLD } from "../ui.js";
 import { TitleScene } from "./title.js";
-import { FieldScene } from "./field.js";
 import { monsterName } from "../data/monsters.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
+import { WorldArrivalScene } from "./cinematic.js";
 
 export class EndingScene {
   constructor(game, opts = {}) {
@@ -22,23 +22,12 @@ export class EndingScene {
     this.time += dt;
     if (this.time > 1.2) this.canReturn = true;
     const input = this.game.input;
-    if (this.canReturn && (input.wasPressed("ok") || input.wasPressed("cancel"))) this.proceed();
-  }
-
-  // タップでも Z と同じく先へ進める(1.2秒の待ちは同じ)
-  handlePointer() {
-    if (this.game.scene !== this || !this.canReturn) return;
-    this.proceed();
-  }
-
-  proceed() {
-    if (this.nextStageId) {
-      const field = new FieldScene(this.game, this.nextStageId);
-      this.game.field = field;
-      this.game.save();
-      this.game.changeScene(field);
-    } else {
-      this.game.changeScene(new TitleScene(this.game));
+    if (this.canReturn && (input.wasPressed("ok") || input.wasPressed("cancel"))) {
+      if (this.nextStageId) {
+        this.game.changeScene(new WorldArrivalScene(this.game, this.nextStageId));
+      } else {
+        this.game.changeScene(new TitleScene(this.game));
+      }
     }
   }
 
@@ -48,6 +37,13 @@ export class EndingScene {
     bg.addColorStop(1, "#4a3a6a");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 640, 480);
+
+    const reveal = Math.min(1, this.time / 1.2);
+    const flash = Math.max(0, 1 - this.time * 1.5);
+    if (flash > 0) {
+      ctx.fillStyle = `rgba(255, 245, 190, ${flash * 0.35})`;
+      ctx.fillRect(0, 0, 640, 480);
+    }
 
     for (let i = 0; i < 40; i++) {
       const x = (i * 97 + Math.sin(this.time + i) * 12 + 640) % 640;
@@ -64,18 +60,33 @@ export class EndingScene {
 
     ctx.fillStyle = "#f0ead8";
     ctx.font = FONT_BOLD;
-    ctx.fillText(tr(this.game, this.subtitle, this.subtitleEn || this.subtitle), 320, 124);
+    // 英語だと1行に収まらないボスがいるので折り返す
+    wrapText(ctx, tr(this.game, this.subtitle, this.subtitleEn || this.subtitle), 560)
+      .forEach((line, i) => ctx.fillText(line, 320, 124 + i * 24));
 
     const party = this.game.party.slice(0, 4);
     const startX = 320 - (party.length - 1) * 55;
     party.forEach((m, i) => {
       const x = startX + i * 110;
-      drawMonster(ctx, m.speciesId, x, 250, 1.0, this.time + i, m.tintHue || 0);
+      drawMonster(ctx, m.speciesId, x, 250, 0.72 + reveal * 0.28, this.time + i, m.tintHue || 0);
       ctx.fillStyle = "#f0ead8";
       ctx.font = FONT;
       ctx.fillText(monsterName(m, this.game.lang), x, 322);
       ctx.fillText(`Lv.${m.level}`, x, 344);
     });
+
+    ctx.save();
+    ctx.globalAlpha = 0.2 + reveal * 0.2;
+    ctx.strokeStyle = "#ffe89a";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 8; i++) {
+      const angle = this.time * 0.5 + i * Math.PI / 4;
+      ctx.beginPath();
+      ctx.moveTo(320 + Math.cos(angle) * 110, 250 + Math.sin(angle) * 50);
+      ctx.lineTo(320 + Math.cos(angle) * (145 + reveal * 25), 250 + Math.sin(angle) * (70 + reveal * 15));
+      ctx.stroke();
+    }
+    ctx.restore();
 
     ctx.fillStyle = "#ffd75e";
     ctx.font = FONT_BOLD;

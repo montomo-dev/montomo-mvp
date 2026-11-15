@@ -1,0 +1,7 @@
+{
+  "gameId": "monster-rpg",
+  "title": "モンとも 〜なかまと そだてる ぼうけん〜",
+  "playUrl": "https://montomo-dev.pages.dev/",
+  "apiUrl": "https://game-records-dev.goligolira2525.workers.dev/",
+  "localOnly": false
+}

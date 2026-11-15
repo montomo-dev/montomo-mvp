@@ -1,3 +1,5 @@
+import {drawMapHud} from '../map-hud.js';
+import { MapView, MAP_CELL, worldTilePosition, mapCamera } from "../map-view.js";
 import { BattleScene } from "./battle.js";
 import { PartyScene } from "./party.js";
 import { RanchScene } from "./ranch.js";
@@ -7,43 +9,28 @@ import { ChoiceScene } from "./choice.js";
 import { WarpScene } from "./warp.js";
 import { createMonster, rollWildSpecies, monsterName } from "../data/monsters.js";
 import { getStage, START_STAGE_ID, TILE_TYPES, WORLD_TRANSITIONS, parseTileChar } from "../data/stages.js";
-import { drawCompanion, drawPlayer } from "../sprites.js";
-import { panel, hpBar, FONT_BOLD } from "../ui.js";
+import { drawCompanion, drawPlayer, drawMonster } from "../sprites.js";
+import { motionTime } from "../presentation.js";
+import { panel, hpBar, fitText, wrapText, FONT_BOLD } from "../ui.js";
 import { sfxSave, sfxItemGet } from "../audio.js";
 import { canClaimLegend, grantLegendReward } from "../systems/legend.js";
 import { ITEMS } from "../data/items.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
 import { rollShiny } from "../systems/shiny.js";
-import { journeyGoal } from "../systems/journey.js";
+import { ensureDaily, addQuestProgress, questClearMessages } from "../systems/daily.js";
+import { checkAchievements, achievementMessages } from "../systems/achievements.js";
+import { DailyScene } from "./daily.js";
+import { BossIntroScene } from "./cinematic.js";
 
 const TAKARABOX_RATE = 1 / 3;
-// ステージごとの encounterRate(0.12〜0.18) に掛ける倍率。草むらでの実測が15〜28歩に1回と薄かったため2倍にする
-const ENCOUNTER_RATE_SCALE = 2;
+
+const TOAST_SECONDS = 2.4;
+const TOAST_TEXT_WIDTH = 420; // トーストのパネル幅460 - 左右の余白
+const TOAST_MAX_LINES = 3;
 
 function stageLabel(game, stage) {
-  return tr(game, stage.name || stage.shortName, stage.nameEn);
-}
-
-function fitText(ctx, text, width) {
-  if (ctx.measureText(text).width <= width) return text;
-  let result = text;
-  while (result.length && ctx.measureText(`${result}…`).width > width) result = result.slice(0, -1);
-  return `${result}…`;
-}
-
-function wrapText(ctx, text, width) {
-  const lines = [];
-  let line = "";
-  for (const char of text) {
-    if (line && ctx.measureText(line + char).width > width) {
-      lines.push(line);
-      line = "";
-    }
-    line += char;
-  }
-  if (line) lines.push(line);
-  return lines;
+  return tr(game, stage.shortName, stage.nameEn);
 }
 
 const TILE = 40;
@@ -106,6 +93,7 @@ export class FieldScene {
     this.flash = 0;
     this.pendingEnemy = null;
     this.pendingBoss = false;
+    this.mapView = new MapView();
     this.setStage(stageId, "start", false);
   }
 
@@ -114,8 +102,24 @@ export class FieldScene {
     this.facing = "down";
   }
 
+  // 実績やクエスト報酬は一度に何件も解除される。連結すると1行が数千pxになり
+  // 画面には真ん中の断片しか映らないので、1件ずつ順に出す。
   showToast(text) {
-    this.toast = { text, timer: 2.4 };
+    const list = (Array.isArray(text) ? text : [text]).filter(Boolean);
+    if (list.length === 0) return;
+    if (!this.toastQueue) this.toastQueue = [];
+    if (this.toast) this.toastQueue.push(...list);
+    else {
+      this.toast = { text: list[0], timer: TOAST_SECONDS };
+      this.toastQueue.push(...list.slice(1));
+    }
+  }
+
+  advanceToast(dt) {
+    if (!this.toast) return;
+    if ((this.toast.timer -= dt) > 0) return;
+    const next = this.toastQueue && this.toastQueue.length ? this.toastQueue.shift() : null;
+    this.toast = next ? { text: next, timer: TOAST_SECONDS } : null;
   }
 
   setStage(stageId, spawnKey = "start", keepFacing = true) {
@@ -124,15 +128,14 @@ export class FieldScene {
     this.map = this.stage.layout.map((row) => [...row].map(parseTileChar));
     const spawn = this.stage.spawns[spawnKey] || this.stage.spawns.start;
     this.player = { ...spawn };
-    this.stepVisual = null;
-    this.moveCooldown = 0;
     if (!keepFacing) this.facing = "down";
     this.world = worldOf(this.stageId);
+    this.stageEnteredAt = this.time || 0;
+    this.firstBushSeen = false;
     this.initParticles();
-    this.resumeBgm();
+    playBgm(`field_${this.world}`);
   }
 
-  // バトルから戻ったときも、いまいるワールドのBGMに戻す(再生中なら何もしない)
   resumeBgm() {
     playBgm(`field_${this.world}`);
   }
@@ -175,17 +178,32 @@ export class FieldScene {
     return this.map[y] && this.map[y][x] !== undefined ? this.map[y][x] : T_TREE;
   }
 
-  update(dt) {
-    if (!this.game.reduceMotion) {
-      this.time += dt;
-      this.updateParticles(dt);
-    }
-    if (this.stepVisual) {
-      this.stepVisual.elapsed += dt;
-      if (this.stepVisual.elapsed >= 0.12 || this.stepVisual.to.x !== this.player.x || this.stepVisual.to.y !== this.player.y) {
-        this.stepVisual = null;
+  nearestBushTile() {
+    let best = null;
+    let distance = Infinity;
+    for (let y = 0; y < this.map.length; y++) {
+      for (let x = 0; x < this.map[y].length; x++) {
+        if (this.map[y][x] !== T_BUSH) continue;
+        const d = Math.abs(x - this.player.x) + Math.abs(y - this.player.y);
+        if (d < distance) {
+          distance = d;
+          best = { x, y, distance: d };
+        }
       }
     }
+    return best;
+  }
+
+  objectiveMessage() {
+    if (this.stageId === START_STAGE_ID && !this.firstBushSeen) {
+      return tr(this.game, "揺れる草の気配を見てみよう", "Follow the rustling grass");
+    }
+    return this.currentTileMessage();
+  }
+
+  update(dt) {
+    this.time += dt;
+    this.updateParticles(dt);
     if (canClaimLegend(this.game)) {
       const gained = grantLegendReward(this.game, createMonster);
       if (gained) {
@@ -194,7 +212,8 @@ export class FieldScene {
         this.legendFlash = 1.6;
       }
     }
-    if (this.toast && (this.toast.timer -= dt) <= 0) this.toast = null;
+    ensureDaily(this.game);
+    this.advanceToast(dt);
     if (this.legendFlash > 0) this.legendFlash -= dt;
     if (this.flash > 0) {
       this.flash -= dt;
@@ -225,15 +244,19 @@ export class FieldScene {
       this.game.changeScene(new WarpScene(this.game, this));
       return;
     }
+    if (input.wasPressed("quest")) {
+      this.game.changeScene(new DailyScene(this.game, this));
+      return;
+    }
 
     this.moveCooldown -= dt;
     if (this.moveCooldown > 0) return;
     let dx = 0;
     let dy = 0;
-    if (input.isHeld("up") || input.wasPressed("up")) { dy = -1; this.facing = "up"; }
-    else if (input.isHeld("down") || input.wasPressed("down")) { dy = 1; this.facing = "down"; }
-    else if (input.isHeld("left") || input.wasPressed("left")) { dx = -1; this.facing = "left"; }
-    else if (input.isHeld("right") || input.wasPressed("right")) { dx = 1; this.facing = "right"; }
+    if (input.isHeld("up")) { dy = -1; this.facing = "up"; }
+    else if (input.isHeld("down")) { dy = 1; this.facing = "down"; }
+    else if (input.isHeld("left")) { dx = -1; this.facing = "left"; }
+    else if (input.isHeld("right")) { dx = 1; this.facing = "right"; }
     if (dx === 0 && dy === 0) return;
 
     const nx = this.player.x + dx;
@@ -245,21 +268,20 @@ export class FieldScene {
       this.talkToNpc(nx, ny);
       return;
     }
-    this.stepVisual = { from: { ...this.player }, to: { x: nx, y: ny }, elapsed: 0 };
     this.player.x = nx;
     this.player.y = ny;
     this.moveCooldown = 0.14;
+    if (this.game.stats) this.game.stats.steps = (this.game.stats.steps || 0) + 1;
+    const rewardMessages = [
+      ...questClearMessages(this.game, addQuestProgress(this.game, "walk")),
+      ...achievementMessages(this.game, checkAchievements(this.game)),
+    ];
+    if (rewardMessages.length > 0) {
+      this.showToast(rewardMessages);
+      sfxItemGet();
+      this.game.save();
+    }
     this.onStep(targetTile);
-    if (this.game.scene && this.game.scene !== this) this.stepVisual = null;
-  }
-
-  // Only the sprite interpolates. Encounters, collisions and saved positions stay on tiles.
-  visualPlayerPosition() {
-    const step = this.stepVisual;
-    if (!step || this.game.reduceMotion || step.to.x !== this.player.x || step.to.y !== this.player.y) return this.player;
-    const t = Math.min(1, step.elapsed / 0.12);
-    const eased = t * t * (3 - 2 * t);
-    return { x: step.from.x + (step.to.x - step.from.x) * eased, y: step.from.y + (step.to.y - step.from.y) * eased };
   }
 
   onStep(tile) {
@@ -286,7 +308,7 @@ export class FieldScene {
       }
       this.pendingEnemy = createMonster(bossId, bossLevel);
       this.pendingBoss = true;
-      this.flash = 0.6;
+      this.game.changeScene(new BossIntroScene(this.game, this, this.pendingEnemy, this.stageId));
       return;
     }
     if (tile === T_RANCH) {
@@ -333,7 +355,8 @@ export class FieldScene {
       return;
     }
     if (tile === T_BUSH && this.game.party.length > 0) {
-      if (Math.random() < this.stage.encounterRate * ENCOUNTER_RATE_SCALE) {
+      this.firstBushSeen = true;
+      if (Math.random() < this.stage.encounterRate) {
         const speciesId = rollWildSpecies(this.stage.wildSpecies);
         const [minLevel, maxLevel] = this.stage.wildLevels;
         const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
@@ -418,239 +441,282 @@ export class FieldScene {
       return tr(this.game, `${stageLabel(this.game, getStage(this.stage.prevStage))}: ひとつ もどる`, `${stageLabel(this.game, getStage(this.stage.prevStage))}: Go back`);
     }
     if (tile === T_BOSS) {
-      return this.game.flags?.stageClearedFlags?.[this.stageId]
-        ? tr(this.game, "この場所のヌシは、おだやかになった", "This guardian is at peace")
-        : tr(this.game, "赤い門: この場所のヌシがいる", "Red gate: this area's guardian");
+      return this.game.flags && this.game.flags.bossDefeated
+        ? tr(this.game, "おくのもり: しずかな きはい", "Deep forest: a quiet presence")
+        : tr(this.game, "おくのもり: ヌシが いる", "Deep forest: a Nushi is here");
     }
-    return tr(this.game, "なかまと歩こう。寄り道も、ぼうけん。", "Explore with your friends, at your own pace.");
+    return tr(this.game, `${this.stage.name}: なかまを そだてよう`, `${stageLabel(this.game, this.stage)}: Raise your friends`);
   }
 
-  draw(ctx) {
-    const palette = this.stage.palette;
+  mapAppearance() {
+    if (this._mapAppearanceStage === this.stage) return this._mapAppearance;
+    this._mapAppearanceStage = this.stage;
+    const palette = { ...this.stage.palette };
+    if (this.world === "forest" && this.stageId !== "cave" && !this.stage.townExitStage) {
+      const forestPalettes = {
+        stage1: ["#86b575", "#73a261", "#568747", "#3e6c3b", "#365f40", "#669051"],
+        stage2: ["#78a86a", "#679558", "#487b3d", "#355f35", "#2e563b", "#587f49"],
+        stage3: ["#6e9b61", "#5d8753", "#427138", "#31572f", "#294e37", "#4c7340"],
+      };
+      const colors = forestPalettes[this.stageId] || forestPalettes.stage2;
+      [palette.ground, palette.accent, palette.bushFill, palette.bushStroke, palette.treeLeaf, palette.treeFruit] = colors;
+    }
+    this._mapAppearance = { palette, paths: this.mapGuidePaths() };
+    return this._mapAppearance;
+  }
+
+  mapGuidePaths() {
+    const start = this.stage.spawns.start;
+    const key = (x, y) => `${x},${y}`;
+    const parents = new Map([[key(start.x, start.y), null]]);
+    const queue = [{ ...start }];
+    for (let i = 0; i < queue.length; i++) {
+      const cell = queue[i];
+      for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) {
+        const x = cell.x + dx, y = cell.y + dy;
+        const tile = this.map[y]?.[x];
+        if (tile === undefined || tile === T_TREE || tile === T_HOUSE || tile === T_NPC || parents.has(key(x, y))) continue;
+        parents.set(key(x, y), cell);
+        queue.push({ x, y });
+      }
+    }
+    const destinations = new Set([T_SPRING, T_RANCH, T_NEXT, T_PREV, T_SHOP, T_INN, T_TOWN_ENTER, T_TOWN_EXIT, T_BOSS]);
+    const paths = new Set();
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
-        const px = x * TILE;
-        const py = y * TILE;
-        ctx.fillStyle = palette.ground;
-        ctx.fillRect(px, py, TILE, TILE);
-        this.drawGroundTexture(ctx, px, py, palette, x, y);
-        const tile = this.map[y][x];
-        if (tile === T_BUSH) {
-          this.drawBush(ctx, px, py, palette, x, y);
-        } else if (tile === T_TREE) {
-          this.drawTree(ctx, px, py, palette, x, y);
-        } else if (tile === T_SPRING) {
-          ctx.fillStyle = "#6db8e8";
-          ctx.beginPath();
-          ctx.roundRect(px + 4, py + 4, TILE - 8, TILE - 8, 14);
-          ctx.fill();
-          ctx.strokeStyle = "#4a92c4";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-          const sparkle = 2 + Math.sin(this.time * 4 + x) * 1.5;
-          ctx.fillStyle = "#e8f7ff";
-          ctx.beginPath();
-          ctx.arc(px + 20, py + 18, sparkle, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (tile === T_RANCH) {
-          ctx.fillStyle = "#c9a35a";
-          ctx.beginPath();
-          ctx.roundRect(px + 4, py + 16, TILE - 8, TILE - 20, 4);
-          ctx.fill();
-          ctx.strokeStyle = "#6b4e2e";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(px + 5, py + 22); ctx.lineTo(px + TILE - 5, py + 22);
-          ctx.moveTo(px + 5, py + 30); ctx.lineTo(px + TILE - 5, py + 30);
-          ctx.stroke();
-          ctx.fillStyle = "#6b4e2e";
-          ctx.fillRect(px + 6, py + 14, 4, 22);
-          ctx.fillRect(px + TILE - 10, py + 14, 4, 22);
-        } else if (tile === T_NEXT || tile === T_PREV || tile === T_TOWN_ENTER || tile === T_TOWN_EXIT) {
-          const forward = tile === T_NEXT || tile === T_TOWN_ENTER;
-          const gateColor = forward ? "#5d8ce3" : "#c9814d";
-          const clothColor = forward ? "#dce9ff" : "#ffe0c4";
-          ctx.fillStyle = "#86603b";
-          ctx.fillRect(px + 8, py + 10, 5, 24);
-          ctx.fillRect(px + 27, py + 10, 5, 24);
-          ctx.fillStyle = gateColor;
-          ctx.fillRect(px + 8, py + 8, 24, 5);
-          ctx.fillStyle = clothColor;
-          ctx.beginPath();
-          if (forward) {
-            ctx.moveTo(px + 15, py + 17);
-            ctx.lineTo(px + 27, py + 20);
-            ctx.lineTo(px + 15, py + 23);
-          } else {
-            ctx.moveTo(px + 25, py + 17);
-            ctx.lineTo(px + 13, py + 20);
-            ctx.lineTo(px + 25, py + 23);
-          }
-          ctx.closePath();
-          ctx.fill();
-        } else if (tile === T_HOUSE) {
-          ctx.fillStyle = "#d97a4a";
-          ctx.beginPath();
-          ctx.moveTo(px + 3, py + 18);
-          ctx.lineTo(px + 20, py + 4);
-          ctx.lineTo(px + 37, py + 18);
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = "#f0cf9a";
-          ctx.fillRect(px + 7, py + 18, 26, 18);
-          ctx.fillStyle = "#8a5a35";
-          ctx.fillRect(px + 17, py + 24, 6, 12);
-          ctx.fillStyle = "#bfe0f0";
-          ctx.fillRect(px + 9, py + 22, 5, 5);
-          ctx.fillRect(px + 26, py + 22, 5, 5);
-          ctx.strokeStyle = "#8a5a35";
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(px + 7, py + 18, 26, 18);
-        } else if (tile === T_NPC) {
-          const bob = Math.sin(this.time * 3 + px) * 1.5;
-          ctx.fillStyle = "#5d8ce3";
-          ctx.beginPath();
-          ctx.roundRect(px + 12, py + 16 + bob, 16, 18, 6);
-          ctx.fill();
-          ctx.fillStyle = "#f4c89a";
-          ctx.beginPath();
-          ctx.arc(px + 20, py + 12 + bob, 8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = "#3a3a52";
-          ctx.beginPath(); ctx.arc(px + 17, py + 11 + bob, 1.3, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.arc(px + 23, py + 11 + bob, 1.3, 0, Math.PI * 2); ctx.fill();
-        } else if (tile === T_INN) {
-          ctx.fillStyle = "#8a5a2a";
-          ctx.beginPath();
-          ctx.moveTo(px + 4, py + 16);
-          ctx.lineTo(px + 20, py + 5);
-          ctx.lineTo(px + 36, py + 16);
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = "#f7e2b8";
-          ctx.fillRect(px + 8, py + 16, 24, 20);
-          ctx.strokeStyle = "#8a5a2a";
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(px + 8, py + 16, 24, 20);
-          const glow = 0.5 + 0.5 * Math.sin(this.time * 3);
-          ctx.fillStyle = `rgba(255, 200, 90, ${0.6 + glow * 0.4})`;
-          ctx.beginPath();
-          ctx.moveTo(px + 20, py + 20);
-          ctx.lineTo(px + 24, py + 27);
-          ctx.lineTo(px + 20, py + 32);
-          ctx.lineTo(px + 16, py + 27);
-          ctx.closePath();
-          ctx.fill();
-        } else if (tile === T_SHOP) {
-          ctx.fillStyle = "#e8563f";
-          ctx.beginPath();
-          ctx.moveTo(px + 4, py + 16);
-          ctx.lineTo(px + 20, py + 6);
-          ctx.lineTo(px + 36, py + 16);
-          ctx.closePath();
-          ctx.fill();
-          ctx.strokeStyle = "#fff6d9";
-          ctx.lineWidth = 2;
-          for (const sx of [px + 9, px + 20, px + 31]) {
-            ctx.beginPath();
-            ctx.moveTo(sx - 3, py + 12);
-            ctx.lineTo(sx + 3, py + 12);
-            ctx.stroke();
-          }
-          ctx.fillStyle = "#c9a35a";
-          ctx.fillRect(px + 8, py + 16, 24, 20);
-          ctx.fillStyle = "#6b4e2e";
-          ctx.fillRect(px + 16, py + 22, 8, 14);
-          ctx.strokeStyle = "#6b4e2e";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(px + 8, py + 16, 24, 20);
-        } else if (tile === T_BOSS) {
-          const defeated = this.game.flags?.stageClearedFlags?.[this.stageId];
-          ctx.fillStyle = defeated ? "#9a9a9a" : "#d64545";
-          ctx.fillRect(px + 8, py + 8, 5, 28);
-          ctx.fillRect(px + 27, py + 8, 5, 28);
-          ctx.fillRect(px + 4, py + 6, 32, 6);
-          ctx.fillRect(px + 7, py + 15, 26, 4);
+        if (!destinations.has(this.map[y][x]) || !parents.has(key(x, y))) continue;
+        let cell = { x, y };
+        while (cell) {
+          if (this.map[cell.y][cell.x] === TILE_TYPES.PLAIN) paths.add(key(cell.x, cell.y));
+          cell = parents.get(key(cell.x, cell.y));
         }
       }
     }
+    return paths;
+  }
 
-    this.drawTreasures(ctx);
-    this.drawGroundItems(ctx);
-    if (!this.game.reduceMotion) this.drawParticles(ctx);
-
-    const visualPlayer = this.visualPlayerPosition();
-    const playerPx = visualPlayer.x * TILE + 20;
-    const playerPy = visualPlayer.y * TILE + 20;
-    drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, this.time);
-    drawPlayer(ctx, playerPx, playerPy, this.facing, this.time);
-
-    ctx.save();
-    // At the north edge, move the status cards below the map's action instead of hiding it.
-    ctx.translate(0, this.player.y <= 1 ? 392 : 0);
-    const leader = this.game.party[0];
-    if (leader) {
-      panel(ctx, 12, 12, 294, 54);
-      ctx.fillStyle = "#284e43";
-      ctx.font = FONT_BOLD;
-      ctx.textAlign = "left";
-      ctx.fillText(fitText(ctx, `${monsterName(leader, this.game.lang)}  Lv.${leader.level}`, 270), 25, 34);
-      hpBar(ctx, 25, 44, 130, 9, leader.hp / leader.maxHp);
-      ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.fillText(`HP ${leader.hp}/${leader.maxHp}  MP ${leader.mp || 0}`, 168, 52);
+  drawMapObject(ctx, tile, px, py, x, y) {
+    if (tile === T_SPRING) {
+      ctx.fillStyle = "#6db8e8";
+      ctx.beginPath();
+      ctx.roundRect(px + 4, py + 4, TILE - 8, TILE - 8, 14);
+      ctx.fill();
+      ctx.strokeStyle = "#4a92c4";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      const sparkle = 2 + Math.sin(this.time * 4 + x) * 1.5;
+      ctx.fillStyle = "#e8f7ff";
+      ctx.beginPath();
+      ctx.arc(px + 20, py + 18, sparkle, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (tile === T_RANCH) {
+      ctx.fillStyle = "#c9a35a";
+      ctx.beginPath();
+      ctx.roundRect(px + 4, py + 16, TILE - 8, TILE - 20, 4);
+      ctx.fill();
+      ctx.strokeStyle = "#6b4e2e";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px + 5, py + 22); ctx.lineTo(px + TILE - 5, py + 22);
+      ctx.moveTo(px + 5, py + 30); ctx.lineTo(px + TILE - 5, py + 30);
+      ctx.stroke();
+      ctx.fillStyle = "#6b4e2e";
+      ctx.fillRect(px + 6, py + 14, 4, 22);
+      ctx.fillRect(px + TILE - 10, py + 14, 4, 22);
+    } else if (tile === T_NEXT || tile === T_PREV || tile === T_TOWN_ENTER || tile === T_TOWN_EXIT) {
+      const forward = tile === T_NEXT || tile === T_TOWN_ENTER;
+      const gateColor = forward ? "#5d8ce3" : "#c9814d";
+      const clothColor = forward ? "#dce9ff" : "#ffe0c4";
+      ctx.fillStyle = "#86603b";
+      ctx.fillRect(px + 8, py + 10, 5, 24);
+      ctx.fillRect(px + 27, py + 10, 5, 24);
+      ctx.fillStyle = gateColor;
+      ctx.fillRect(px + 8, py + 8, 24, 5);
+      ctx.fillStyle = clothColor;
+      ctx.beginPath();
+      if (forward) {
+        ctx.moveTo(px + 15, py + 17);
+        ctx.lineTo(px + 27, py + 20);
+        ctx.lineTo(px + 15, py + 23);
+      } else {
+        ctx.moveTo(px + 25, py + 17);
+        ctx.lineTo(px + 13, py + 20);
+        ctx.lineTo(px + 25, py + 23);
+      }
+      ctx.closePath();
+      ctx.fill();
+    } else if (tile === T_HOUSE) {
+      ctx.fillStyle = "#d97a4a";
+      ctx.beginPath();
+      ctx.moveTo(px + 3, py + 18);
+      ctx.lineTo(px + 20, py + 4);
+      ctx.lineTo(px + 37, py + 18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#f0cf9a";
+      ctx.fillRect(px + 7, py + 18, 26, 18);
+      ctx.fillStyle = "#8a5a35";
+      ctx.fillRect(px + 17, py + 24, 6, 12);
+      ctx.fillStyle = "#bfe0f0";
+      ctx.fillRect(px + 9, py + 22, 5, 5);
+      ctx.fillRect(px + 26, py + 22, 5, 5);
+      ctx.strokeStyle = "#8a5a35";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(px + 7, py + 18, 26, 18);
+    } else if (tile === T_NPC) {
+      const bob = Math.sin(this.time * 3 + px) * 1.5;
+      ctx.fillStyle = "#5d8ce3";
+      ctx.beginPath();
+      ctx.roundRect(px + 12, py + 16 + bob, 16, 18, 6);
+      ctx.fill();
+      ctx.fillStyle = "#f4c89a";
+      ctx.beginPath();
+      ctx.arc(px + 20, py + 12 + bob, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#3a3a52";
+      ctx.beginPath(); ctx.arc(px + 17, py + 11 + bob, 1.3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px + 23, py + 11 + bob, 1.3, 0, Math.PI * 2); ctx.fill();
+    } else if (tile === T_INN) {
+      ctx.fillStyle = "#8a5a2a";
+      ctx.beginPath();
+      ctx.moveTo(px + 4, py + 16);
+      ctx.lineTo(px + 20, py + 5);
+      ctx.lineTo(px + 36, py + 16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#f7e2b8";
+      ctx.fillRect(px + 8, py + 16, 24, 20);
+      ctx.strokeStyle = "#8a5a2a";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(px + 8, py + 16, 24, 20);
+      const glow = 0.5 + 0.5 * Math.sin(this.time * 3);
+      ctx.fillStyle = `rgba(255, 200, 90, ${0.6 + glow * 0.4})`;
+      ctx.beginPath();
+      ctx.moveTo(px + 20, py + 20);
+      ctx.lineTo(px + 24, py + 27);
+      ctx.lineTo(px + 20, py + 32);
+      ctx.lineTo(px + 16, py + 27);
+      ctx.closePath();
+      ctx.fill();
+    } else if (tile === T_SHOP) {
+      ctx.fillStyle = "#e8563f";
+      ctx.beginPath();
+      ctx.moveTo(px + 4, py + 16);
+      ctx.lineTo(px + 20, py + 6);
+      ctx.lineTo(px + 36, py + 16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "#fff6d9";
+      ctx.lineWidth = 2;
+      for (const sx of [px + 9, px + 20, px + 31]) {
+        ctx.beginPath();
+        ctx.moveTo(sx - 3, py + 12);
+        ctx.lineTo(sx + 3, py + 12);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#c9a35a";
+      ctx.fillRect(px + 8, py + 16, 24, 20);
+      ctx.fillStyle = "#6b4e2e";
+      ctx.fillRect(px + 16, py + 22, 8, 14);
+      ctx.strokeStyle = "#6b4e2e";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px + 8, py + 16, 24, 20);
+    } else if (tile === T_BOSS) {
+      const defeated = this.game.flags && this.game.flags.bossDefeated;
+      ctx.fillStyle = defeated ? "#9a9a9a" : "#d64545";
+      ctx.fillRect(px + 8, py + 8, 5, 28);
+      ctx.fillRect(px + 27, py + 8, 5, 28);
+      ctx.fillRect(px + 4, py + 6, 32, 6);
+      ctx.fillRect(px + 7, py + 15, 26, 4);
     }
+  }
 
-    panel(ctx, 318, 12, 310, 54);
-    ctx.fillStyle = "#284e43";
-    ctx.font = FONT_BOLD;
-    ctx.textAlign = "left";
-    ctx.fillText(fitText(ctx, stageLabel(this.game, this.stage), 284), 331, 34);
-    ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillStyle = "#5a685b";
-    ctx.fillText(fitText(ctx, tr(this.game,
-      `なかま ${this.game.party.length} / 図鑑 ${this.game.dex.caught.length}種`,
-      `Party ${this.game.party.length} / Dex ${this.game.dex.caught.length}`), 192), 331, 53);
-    ctx.textAlign = "right";
-    ctx.fillText(tr(this.game, `${this.game.money || 0}円`, `${this.game.money || 0}g`), 614, 53);
-    ctx.textAlign = "left";
+  drawMap(ctx, actors = []) {
+    this.mapView.draw(ctx, this, actors);
+  }
+
+
+  draw(ctx) {
+    ctx.fillStyle = "#163b31";
+    ctx.fillRect(0, 0, 640, 480);
+    const camera = mapCamera(this);
+    const playerPx = (this.player.x + 0.5) * MAP_CELL;
+    const playerPy = (this.player.y + 0.5) * MAP_CELL;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, camera.top, camera.width, camera.height);
+    ctx.clip();
+    ctx.translate(-camera.x, camera.top - camera.y);
+    this.drawMap(ctx, [{ y: playerPy + 16, draw: () => {
+      drawCompanion(ctx, this.game.party[0], playerPx, playerPy, this.facing, motionTime(this.game, this.time));
+      drawPlayer(ctx, playerPx, playerPy, this.facing, motionTime(this.game, this.time));
+    } }]);
+    this.drawDiscoveryCue(ctx);
     ctx.restore();
+    this.mapView.atmosphere(ctx, this);
+    if (!this.game.reducedMotion) this.drawParticles(ctx);
+    this.mapView.miniMap(ctx, this);
 
-    const objective = journeyGoal(this.game, this.stage);
-    // Keep the guide away from the player along the bottom edge (including the first spawn).
-    const guideY = this.player.y <= 1 ? 340 : this.player.y >= 9 ? 78 : 416;
-    panel(ctx, 12, guideY, 616, 52);
-    ctx.fillStyle = "#a97328";
-    ctx.font = 'bold 10px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText(tr(this.game, "ぼうけんのしおり", "JOURNEY NOTES"), 25, guideY + 15);
-    ctx.fillStyle = "#284e43";
-    ctx.font = 'bold 15px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillText(fitText(ctx, objective.title, 465), 152, guideY + 18);
-    ctx.font = '12px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillStyle = "#5a685b";
-    const specialTile = this.tileAt(this.player.x, this.player.y) !== TILE_TYPES.PLAIN;
-    ctx.fillText(fitText(ctx, specialTile ? this.currentTileMessage() : objective.detail, 590), 25, guideY + 39);
+    drawMapHud(ctx, this);
 
     if (this.toast) {
       ctx.save();
       ctx.globalAlpha = Math.min(1, this.toast.timer);
       ctx.font = FONT_BOLD;
-      const lines = wrapText(ctx, this.toast.text, 546);
-      const toastY = guideY === 78 ? 142 : 78;
-      panel(ctx, 32, toastY, 576, lines.length * 24 + 20);
+      const lines = wrapText(ctx, this.toast.text, TOAST_TEXT_WIDTH).slice(0, TOAST_MAX_LINES);
+      const height = 22 + lines.length * 24;
+      panel(ctx, 90, 96, 460, height);
       ctx.fillStyle = "#3a3a52";
       ctx.textAlign = "center";
-      lines.forEach((line, i) => ctx.fillText(line, 320, toastY + 27 + i * 24));
+      lines.forEach((line, i) => ctx.fillText(line, 320, 124 + i * 24));
+      if (this.toastQueue && this.toastQueue.length > 0) {
+        ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+        ctx.fillStyle = "#7a7a92";
+        ctx.textAlign = "right";
+        ctx.fillText(`+${this.toastQueue.length}`, 534, 96 + height - 10);
+      }
       ctx.restore();
       ctx.textAlign = "left";
     }
 
     if (this.flash > 0) {
-      const opacity = this.game.reduceMotion ? 0.2 : 0.55 * Math.sin(Math.min(1, this.flash / 0.6) * Math.PI);
-      ctx.fillStyle = `rgba(255, 253, 240, ${opacity})`;
+      ctx.fillStyle = this.game.reducedMotion
+        ? "rgba(22, 57, 47, 0.18)"
+        : `rgba(22, 57, 47, ${Math.sin((this.flash / 0.45) * Math.PI) * 0.75})`;
       ctx.fillRect(0, 0, 640, 480);
     }
 
-    if (this.legendFlash > 0 && !this.game.reduceMotion) this.drawLegendFlash(ctx);
+    if (this.legendFlash > 0) this.drawLegendFlash(ctx);
+  }
+
+  drawDiscoveryCue(ctx) {
+    const elapsed = this.time - (this.stageEnteredAt || 0);
+    if (this.stageId !== START_STAGE_ID || this.firstBushSeen || elapsed > 14) return;
+    const bush = this.nearestBushTile();
+    if (!bush) return;
+    const tx = (bush.x + 0.5) * MAP_CELL;
+    const ty = (bush.y + 0.5) * MAP_CELL;
+    const px = (this.player.x + 0.5) * MAP_CELL;
+    const py = (this.player.y + 0.5) * MAP_CELL;
+    const pulse = this.game.reducedMotion ? 0.5 : 0.5 + 0.5 * Math.sin(this.time * 5.2);
+
+    ctx.save();
+    ctx.globalAlpha = 0.35 + pulse * 0.45;
+    ctx.strokeStyle = "#fff5b8";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(tx, ty, 19 + pulse * 6, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 1; i <= 3; i++) {
+      const t = i / 5;
+      const x = px + (tx - px) * t;
+      const y = py + (ty - py) * t;
+      ctx.fillStyle = "#fff9d5";
+      ctx.beginPath();
+      ctx.ellipse(x, y, 4.2, 2.6, Math.atan2(ty - py, tx - px), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   // レジェンド解放の瞬間、画面に金色のオーラをかがやかせる
@@ -681,8 +747,7 @@ export class FieldScene {
       const treasureKey = `${this.stageId}:${treasure.id}`;
       if (this.game.treasureState[treasureKey]) continue;
 
-      const px = treasure.x * TILE;
-      const py = treasure.y * TILE;
+      const { x: px, y: py } = worldTilePosition(treasure.x, treasure.y);
       const bob = Math.sin(this.time * 2 + treasure.x) * 1;
       const y = py + bob;
 
@@ -720,8 +785,7 @@ export class FieldScene {
       const itemKey = `${this.stageId}:${item.id}`;
       if (this.game.groundItemState[itemKey]) continue;
 
-      const px = item.x * TILE;
-      const py = item.y * TILE;
+      const { x: px, y: py } = worldTilePosition(item.x, item.y);
       const bob = Math.sin(this.time * 3 + item.x * 0.5) * 1.5;
       const y = py + bob;
 

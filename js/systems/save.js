@@ -55,6 +55,9 @@ export function saveGame(game, slot = 0) {
       flags: game.flags || {},
       treasureState: game.treasureState || {},
       groundItemState: game.groundItemState || {},
+      daily: game.daily || null,
+      stats: game.stats || {},
+      achievements: game.achievements || {},
     };
     localStorage.setItem(saveKey(slot), JSON.stringify(data));
     return true;

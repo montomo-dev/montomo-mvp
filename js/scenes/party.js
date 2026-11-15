@@ -13,6 +13,8 @@ import { ITEMS } from "../data/items.js";
 import { clearStatus } from "../systems/status.js";
 import { equipItem, unequipItem } from "../systems/equipment.js";
 import { tr } from "../i18n.js";
+import { addQuestProgress, questClearMessages } from "../systems/daily.js";
+import { checkAchievements, achievementMessages } from "../systems/achievements.js";
 
 function skillName(game, id) {
   return tr(game, SKILLS[id].name, SKILLS[id].nameEn);
@@ -222,9 +224,20 @@ export class PartyScene {
 
   useItemOn(monster, itemId) {
     const item = ITEMS[itemId];
-    this.game.items[itemId]--;
     const name = monsterName(monster, this.game.lang);
     const iName = itemName(this.game, item);
+
+    // 満タンの相手に使うと道具だけ減っていたので、使う前に止める。
+    if (item.kind === "heal" && monster.hp >= monster.maxHp && !(item.cureStatus && monster.status)) {
+      this.message = tr(this.game, `${name}の HPは まんたんだ！`, `${name}'s HP is already full!`);
+      return;
+    }
+    if (item.kind === "mp_heal" && (monster.mp || 0) >= (monster.maxMp || 0)) {
+      this.message = tr(this.game, `${name}の MPは まんたんだ！`, `${name}'s MP is already full!`);
+      return;
+    }
+
+    this.game.items[itemId]--;
     if (item.kind === "heal") {
       const before = monster.hp;
       monster.hp = Math.min(monster.maxHp, monster.hp + item.value);
@@ -345,6 +358,12 @@ export class PartyScene {
       `おやは ${childName}を のこして きえていった…${colorMessage}${tribeMessage}${skillMessage}${comboMessage}`,
       `The parents vanished, leaving behind ${childName}...${colorMessage}${tribeMessage}${skillMessage}${comboMessage}`
     );
+    if (this.game.stats) this.game.stats.breeds = (this.game.stats.breeds || 0) + 1;
+    const rewardMessages = [
+      ...questClearMessages(this.game, addQuestProgress(this.game, "breed")),
+      ...achievementMessages(this.game, checkAchievements(this.game)),
+    ];
+    if (rewardMessages.length > 0) this.message += ` ${rewardMessages.join(" ")}`;
     this.mode = "list";
     this.firstParent = null;
     this.cursor = this.game.party.length - 1;
@@ -431,17 +450,17 @@ export class PartyScene {
     });
 
     ctx.fillStyle = "#f0ead8";
-    ctx.font = FONT;
-    const hint = this.mode === "breed"
+    ctx.font = '14px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    // 1行に並べると721pxになりキャンバス(640px)からはみ出すため2行に割る
+    const hintLines = this.mode === "breed"
       ? this.firstParent
-        ? tr(this.game, "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる", "Up/Down: Choose 2nd parent / Z: Confirm / X: Cancel")
-        : tr(this.game, "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる", "Up/Down: Choose 1st parent / Z: Confirm / X: Cancel")
-      : tr(
-          this.game,
-          "↑↓: えらぶ ／ Z: メニュー ／ →: 配合 ／ ←: にがす ／ N: なまえ ／ D: 配合表 ／ X: もどる",
-          "Up/Down: Choose / Z: Menu / →: Breed / ←: Release / N: Rename / D: Breeding Chart / X: Back"
-        );
-    ctx.fillText(hint, 30, 462);
+        ? [tr(this.game, "↑↓: もう1体のおやをえらぶ ／ Z: けってい ／ X: やめる", "Up/Down: Choose 2nd parent / Z: Confirm / X: Cancel")]
+        : [tr(this.game, "↑↓: 1体目のおやをえらぶ ／ Z: けってい ／ X: やめる", "Up/Down: Choose 1st parent / Z: Confirm / X: Cancel")]
+      : [
+          tr(this.game, "↑↓: えらぶ ／ Z: メニュー ／ →: 配合 ／ ←: にがす", "Up/Down: Choose / Z: Menu / →: Breed / ←: Release"),
+          tr(this.game, "N: なまえ ／ D: 配合表 ／ X: もどる", "N: Rename / D: Breeding Chart / X: Back"),
+        ];
+    hintLines.forEach((line, i) => ctx.fillText(line, 30, 448 + i * 20));
 
     if (this.message) {
       panel(ctx, 70, 184, 500, 100);

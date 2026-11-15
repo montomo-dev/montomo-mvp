@@ -1,0 +1,14 @@
+:host{position:fixed;right:0;top:38%;z-index:2147480000;font:14px/1.5 system-ui,sans-serif;color:#222}
+    *{box-sizing:border-box}button,a,input,select{font:inherit}button,a,select{touch-action:manipulation}
+    button,a{min-height:44px}button{cursor:pointer;border:1px solid #b8c4d4;background:#fff;color:#172d49;border-radius:8px;padding:9px 12px}
+    button:hover,a:hover{filter:brightness(.96)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #447ddd;outline-offset:2px}
+    button:disabled{opacity:.55;cursor:default}.handle{width:46px;min-height:52px;border-radius:10px 0 0 10px;border-right:0;padding:6px;font-size:12px;box-shadow:0 2px 12px #0003}
+    .backdrop{position:fixed;inset:0;background:#1118;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));height:100dvh}
+    [hidden]{display:none!important}.panel{width:min(420px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:16px;padding:18px;box-shadow:0 12px 80px #0005;text-align:left;overscroll-behavior:contain}
+    header{display:flex;align-items:flex-start;gap:10px}h2{margin:0;font-size:18px;flex:1}p{margin:8px 0 14px}.close{padding:6px 10px;min-width:44px;font-size:20px}
+    .share{display:block;background:#111;color:#fff;padding:12px;border-radius:8px;text-align:center;text-decoration:none;margin:14px 0 18px}
+    h3{font-size:16px;margin:18px 0 8px}.muted{font-size:12px;color:#586574}label{display:block;margin:10px 0 5px}input,select{display:block;width:100%;min-height:44px;border:1px solid #adb9c9;border-radius:7px;padding:9px;background:#fff;color:#172d49}
+    .submit{width:100%;background:#174e95;color:#fff;border-color:#174e95;margin-top:10px}.result{padding:10px 12px;border-left:3px solid #174e95;background:#eef4fb;margin-top:12px}
+    table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:8px 5px;border-bottom:1px solid #e3e8ee;text-align:left}th:last-child,td:last-child{text-align:right;font-variant-numeric:tabular-nums}th{font-weight:500;font-size:12px;color:#586574}
+    .status{min-height:21px;font-size:13px}.empty{padding:14px 0;color:#586574}.rank-section{border-top:1px solid #d9e1ec;padding-top:4px}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}

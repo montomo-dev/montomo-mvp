@@ -1,7 +1,7 @@
 import { EndingScene } from "./ending.js";
-import { FieldScene } from "./field.js";
 import { FONT, FONT_BOLD } from "../ui.js";
 import { tr } from "../i18n.js";
+import { WorldArrivalScene } from "./cinematic.js";
 
 export class ChoiceScene {
   constructor(game) {
@@ -26,10 +26,7 @@ export class ChoiceScene {
       if (this.cursor === 0) {
         this.game.changeScene(new EndingScene(this.game, { nextStageId: "reverse_stage1" }));
       } else {
-        const field = new FieldScene(this.game, "reverse_stage1");
-        this.game.field = field;
-        this.game.save();
-        this.game.changeScene(field);
+        this.game.changeScene(new WorldArrivalScene(this.game, "reverse_stage1"));
       }
     }
   }

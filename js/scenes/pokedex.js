@@ -1,6 +1,6 @@
 import { SPECIES } from "../data/monsters.js";
 import { drawMonster } from "../sprites.js";
-import { panel, FONT, FONT_BOLD } from "../ui.js";
+import { panel, clampText, FONT, FONT_BOLD } from "../ui.js";
 import { getRank, RANK_COLOR } from "../systems/rank.js";
 import { typeOf, typeNameEn } from "../data/types.js";
 import { flavorTextOf } from "../data/flavor.js";
@@ -129,17 +129,25 @@ export class PokedexScene {
     const seen = this.game.dex?.seen || [];
     const caught = this.game.dex?.caught || [];
     ctx.font = FONT;
-    ctx.fillText(
+    // ページ表示を先に測って、その手前で件数表示を打ち切る。
+    // 3桁になると両方が同じ帯に入って重なるため。
+    const pageText = this.totalPages > 1
+      ? tr(this.game, `${this.page + 1} / ${this.totalPages} ページ`, `Page ${this.page + 1} / ${this.totalPages}`)
+      : "";
+    const pageWidth = pageText ? ctx.measureText(pageText).width : 0;
+    clampText(
+      ctx,
       tr(
         this.game,
         `みつけた ${seen.length}/${this.entries.length}　なかまにした ${caught.length}/${this.entries.length}`,
         `Seen ${seen.length}/${this.entries.length}   Caught ${caught.length}/${this.entries.length}`
       ),
-      210, 44
+      210, 44,
+      610 - pageWidth - 16 - 210
     );
-    if (this.totalPages > 1) {
+    if (pageText) {
       ctx.textAlign = "right";
-      ctx.fillText(tr(this.game, `${this.page + 1} / ${this.totalPages} ページ`, `Page ${this.page + 1} / ${this.totalPages}`), 610, 44);
+      ctx.fillText(pageText, 610, 44);
       ctx.textAlign = "left";
     }
 
@@ -218,27 +226,33 @@ export class PokedexScene {
       ctx.fillText(rank, x + CELL_W - 13, y + 16);
       ctx.textAlign = "left";
 
+      // カードの右端(x + CELL_W)を越えないよう、文字は必ず枠内に収める。
+      // 溢れた分は「…」で落とし、全文はZキーの詳細で読ませる。
+      const textX = x + 50;
+      const textW = CELL_W - 50 - 6;
       ctx.fillStyle = "#3a3a52";
       ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.fillText(speciesName(this.game, species), x + 50, y + 20);
+      clampText(ctx, speciesName(this.game, species), textX, y + 20, textW);
       ctx.font = '11px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-      ctx.fillText(`${speciesGenus(this.game, species)}（${speciesTypeLabel(this.game, species.id)}）`, x + 50, y + 36);
+      clampText(ctx, `${speciesGenus(this.game, species)}（${speciesTypeLabel(this.game, species.id)}）`, textX, y + 36, textW);
+      // 種族名まで入れると枠(80px)に収まらないので、この行だけカード全幅を使う。
+      // 「なかまにした！」等の長い言い回しは詳細(Z)側に残す。
       const statusLabel = isCaught
-        ? tr(this.game, "なかまにした！", "Caught!")
-        : tr(this.game, "みつけただけ", "Seen only");
+        ? tr(this.game, "なかま", "Caught")
+        : tr(this.game, "みつけた", "Seen");
       ctx.fillStyle = isCaught ? "#4a8f4a" : "#a8a8c0";
-      ctx.fillText(`${statusLabel}／${speciesTribeLabel(this.game, species)}`, x + 50, y + 54);
+      clampText(ctx, `${statusLabel}・${speciesTribeLabel(this.game, species)}`, x + 8, y + 68, CELL_W - 16);
     });
 
     ctx.fillStyle = "#f0ead8";
-    ctx.font = FONT;
+    ctx.font = '14px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.fillText(
-      tr(
-        this.game,
-        "↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る ／ N: 種族フィルタ ／ W: ヌシ図鑑に切替 ／ X: もどる",
-        "Arrows: Choose/Page / Z: Details / N: Tribe Filter / W: Toggle Boss Dex / X: Back"
-      ),
-      30, 462
+      tr(this.game, "↑↓←→: えらぶ・ページ送り ／ Z: くわしく見る", "Arrows: Choose/Page / Z: Details"),
+      30, 448
+    );
+    ctx.fillText(
+      tr(this.game, "N: 種族フィルタ ／ W: ヌシ図鑑に切替 ／ X: もどる", "N: Tribe Filter / W: Toggle Boss Dex / X: Back"),
+      30, 468
     );
 
     if (this.detail) this.drawDetail(ctx);

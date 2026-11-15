@@ -2,67 +2,86 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#193b32">
-<meta name="description" content="小さな出会いが、大きな冒険になる。なかまと育つモンスター育成RPG、モンとも。">
-<title>モンとも｜なかまと育つ、ちいさな大冒険</title>
-<link rel="stylesheet" href="css/style.css?v=20261110">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="7つの世界でなかまに出会い、育てて配合するブラウザRPG。">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="expires" content="0">
+<title>モンとも 〜 なかまと そだてる ぼうけん 〜</title>
+<link rel="stylesheet" href="css/style.css?v=20261002">
 </head>
 <body>
-<main class="adventure">
-<header class="masthead">
-  <a class="wordmark" href="./" aria-label="モンとも ホーム"><span class="brand-mark" aria-hidden="true">m.</span><span>モンとも<small>MONTOMO · ADVENTURE JOURNAL</small></span></a>
-  <div class="toolbar" aria-label="ゲームの設定">
-    <button id="motion-button" type="button" aria-pressed="false">演出ひかえめ</button>
-    <button id="sound-button" type="button" aria-pressed="false">♪ おと ON</button>
-    <button id="fullscreen-button" type="button" aria-label="ゲームを全画面で表示">全画面 ↗</button>
-  </div>
-</header>
-<section class="game-layout" aria-label="モンとも ゲーム">
-<div class="play-column">
-  <div class="frame-top"><span><i aria-hidden="true"></i> なかまと育つ、ちいさな大冒険</span><span>7 WORLDS TO EXPLORE</span></div>
+<main class="app-shell">
+  <header class="site-header">
+    <div>
+      <h1>モンとも</h1>
+      <p class="tagline">なかまと見つける、まだ知らない世界。</p>
+    </div>
+    <div class="status-stack" aria-label="ゲームの状態">
+      <button id="pause-game" class="pause-button" aria-pressed="false">一時停止</button>
+      <span class="status-chip" id="runtime-status" aria-live="polite">日本語・音あり</span>
+    </div>
+  </header>
+
   <div id="game-wrap">
-    <canvas id="game" width="640" height="480" tabindex="0" aria-label="モンとも。矢印キーで移動、ZかEnterで決定、XかEscapeでもどる。下の操作ガイドも参照してください。"></canvas>
-    <input id="name-input" maxlength="8" autocomplete="off" aria-label="ぼうけんしゃの なまえ" />
+    <canvas id="game" width="640" height="480" aria-label="モンとものゲーム画面"></canvas>
+    <input id="name-input" maxlength="8" autocomplete="off" aria-label="ぼうけんしゃのなまえ" />
   </div>
-  <div class="frame-bottom"><span id="scene-label" role="status">ぼうけんの はじまり</span><span id="save-status" role="status">このブラウザに記録します</span></div>
-  <div id="touch-controls" aria-label="タッチ操作">
-    <div id="dpad">
-      <button class="dpad-btn dpad-up" data-action="up" aria-label="うえ">▲</button>
-      <button class="dpad-btn dpad-left" data-action="left" aria-label="ひだり">◀</button>
-      <button class="dpad-btn dpad-right" data-action="right" aria-label="みぎ">▶</button>
-      <button class="dpad-btn dpad-down" data-action="down" aria-label="した">▼</button>
-    </div>
-    <div class="touch-note">いっしょなら、<br>どこまでも。</div>
-    <div id="ok-cancel">
-      <button class="round-btn cancel-btn" data-action="cancel" aria-label="もどる">X<small>もどる</small></button>
-      <button class="round-btn ok-btn" data-action="ok" aria-label="けってい">Z<small>けってい</small></button>
-    </div>
-  </div>
-  <nav id="quick-actions" aria-label="ぼうけんメニュー">
-    <button data-action="cancel"><kbd>X</kbd> なかま</button>
-    <button data-action="dex"><kbd>D</kbd> 図鑑</button>
-    <button data-action="warp"><kbd>W</kbd> ワープ</button>
-    <button data-action="save"><kbd>S</kbd> セーブ</button>
-    <button data-action="rename" hidden><kbd>N</kbd> なまえ / 表示</button>
-    <button data-action="lang"><kbd>L</kbd> EN / 日本語</button>
+
+  <section class="play-meta">
+    <p class="save-note">3つのスロットへ自動保存。最初の画面で直接タップして選べます。</p>
+    <details class="guide kbd-only">
+      <summary>操作ガイド</summary>
+      <div class="guide-grid">
+        <span><kbd>↑↓←→</kbd> 移動・選択</span>
+        <span><kbd>Z / Enter</kbd> 決定</span>
+        <span><kbd>X / Esc</kbd> 戻る・パーティ</span>
+        <span><kbd>D</kbd> 図鑑</span>
+        <span><kbd>Q</kbd> 今日の目標</span>
+        <span><kbd>W</kbd> ワープ</span>
+        <span><kbd>M</kbd> 音</span>
+        <span><kbd>L</kbd> 言語</span>
+      </div>
+    </details>
+  </section>
+
+  <nav id="dev-tools" hidden aria-label="検証ツール">
+    <button data-dev-action="startFresh">検証用に開始</button>
+    <button data-dev-action="placeNearBush">草の近くへ</button>
+    <button data-dev-action="startBattle">戦闘へ</button>
+    <button data-dev-action="command">コマンドへ</button>
+    <button data-dev-action="weakenEnemy">敵を弱らせる</button>
+    <button data-dev-action="returnField">フィールドへ</button>
+    <button data-dev-action="title">タイトルへ</button>
+    <output id="dev-state"></output>
   </nav>
-</div>
-<aside class="journal">
-  <div class="journal-heading"><span>FIELD NOTES</span><span>01 — 07</span></div>
-  <h1>小さな出会いが、<br>大きな冒険になる。</h1>
-  <p class="intro">森のむこうに、まだ知らない世界。<br>きみだけのなかまと、出かけよう。</p>
-  <ol class="journey-notes">
-    <li><span>01</span><div><h2>出会って、なかまに。</h2><p>草むらを歩くとモンスターに出会うよ。HPを減らして、なかまに誘ってみよう。</p></div></li>
-    <li><span>02</span><div><h2>育てて、新しいすがたへ。</h2><p>バトルで成長。進化や配合で、新しいなかまの可能性がひらく。</p></div></li>
-    <li><span>03</span><div><h2>ひと休みして、その先へ。</h2><p>泉や街で回復したら、世界を守るヌシのもとへ。7つの世界が待っている。</p></div></li>
-  </ol>
-  <details class="controls-guide"><summary>あそびかた・操作ガイド <span>＋</span></summary><dl><dt>いどう / えらぶ</dt><dd>矢印キー / 十字ボタン</dd><dt>けってい</dt><dd>Z / Enter</dd><dt>もどる / なかま</dt><dd>X / Escape</dd><dt>図鑑 / なまえ / ワープ</dt><dd>D / N / W</dd><dt>セーブ / おと / 言語</dt><dd>S / M / L</dd></dl><p>タイトルはタップでも操作できます。記録はこのブラウザに保存されます。</p></details>
-  <div class="journal-footer"><span aria-hidden="true">✳</span> きみのペースで、ぼうけんしよう。</div>
-</aside>
-</section>
-<footer class="page-footer"><span>MONTOMO</span><span>出会う。育つ。ともに行く。</span><span>A LITTLE ADVENTURE, TOGETHER.</span></footer>
-</main>
-<script type="module" src="js/main.js?v=20261110"></script>
+
+  <div id="touch-controls">
+    <div id="pad-row">
+      <div id="dpad" aria-label="方向キー">
+        <button class="dpad-btn dpad-up" data-action="up" aria-label="うえ">▲</button>
+        <button class="dpad-btn dpad-left" data-action="left" aria-label="ひだり">◀</button>
+        <button class="dpad-btn dpad-right" data-action="right" aria-label="みぎ">▶</button>
+        <button class="dpad-btn dpad-down" data-action="down" aria-label="した">▼</button>
+      </div>
+      <div id="ok-cancel">
+        <button class="round-btn cancel-btn" data-action="cancel" aria-label="もどる"><span>もどる</span><small>X</small></button>
+        <button class="round-btn ok-btn" data-action="ok" aria-label="けってい"><span>決定</span><small>Z</small></button>
+      </div>
+    </div>
+    <div id="misc-buttons">
+      <button class="misc-btn" data-action="save" aria-label="セーブ">セーブ</button>
+      <button class="misc-btn" data-action="dex" aria-label="図鑑">図鑑</button>
+      <button class="misc-btn" data-action="quest" aria-label="きょうのもくひょう">目標</button>
+      <button class="misc-btn" data-action="rename" aria-label="なまえ">名前</button>
+      <button class="misc-btn" data-action="warp" aria-label="ワープ">ワープ</button>
+      <button class="misc-btn" data-action="mute" aria-label="ミュート">音</button>
+      <button class="misc-btn" data-action="lang" aria-label="言語切り替え">EN</button>
+    </div>
+  </div>
+ </main>
+
+<script type="module" src="js/main.js?v=20261002"></script>
+<script type="module" src="./game-social/client.mjs" data-game-social-config="./game-social/config.json" data-game-social="game-social-runtime-v1"></script>
 </body>
 </html>

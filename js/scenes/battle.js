@@ -7,8 +7,10 @@ import { markSeen, markCaught } from "../systems/dex.js";
 import { drawMonster } from "../sprites.js";
 import { EndingScene } from "./ending.js";
 import { ChoiceScene } from "./choice.js";
-import { panel, hpBar, FONT, FONT_BOLD } from "../ui.js";
-import { getRank } from "../systems/rank.js";
+import { panel, hpBar, fitText, wrapText, FONT, FONT_BOLD } from "../ui.js";
+import { getRank, RANK_COLOR } from "../systems/rank.js";
+import { addQuestProgress, questClearMessages } from "../systems/daily.js";
+import { checkAchievements, achievementMessages } from "../systems/achievements.js";
 import { sfxHit, sfxFaint, sfxLevelUp, sfxEvolve, sfxCatchSuccess, sfxCatchFail, sfxConfirm, sfxCancel, sfxCry } from "../audio.js";
 import { typeOf, typeEffectiveness, typeNameEn } from "../data/types.js";
 import { STATUS_LABEL, STATUS_LABEL_EN, maybeInflictStatus, canAct, applyEndOfTurnStatus, clearStatus } from "../systems/status.js";
@@ -17,7 +19,8 @@ import { SHINY_HUE } from "../systems/shiny.js";
 import { bossIntroText, bossVictoryLines } from "../data/story.js";
 import { tr } from "../i18n.js";
 import { playBgm } from "../music.js";
-import { BattleFeedback } from "../systems/battleFeedback.js";
+import { drawBattleBackground } from "../backgrounds.js";
+import { motionTime, drawWorldAtmosphere, drawHitFeedback } from "../presentation.js";
 
 function effectivenessMessage(game, eff) {
   if (eff === 0) return tr(game, "こうかが ないようだ…", "It doesn't seem to be effective...");
@@ -38,29 +41,52 @@ function statusLabel(game, status) {
 
 const COMMANDS_JA = ["こうげき", "スキル", "なかまにさそう", "どうぐ", "こうかん", "にげる", "ぼうぎょ"];
 const COMMANDS_EN = ["Attack", "Skill", "Scout", "Item", "Switch", "Flee", "Guard"];
-const COMMAND_COLS = [[0, 2, 4, 6], [1, 3, 5]];
-const COMMAND_POS = [
-  [70, 398], [330, 398],
-  [70, 418], [330, 418],
-  [70, 438], [330, 438],
-  [70, 458],
+const COMMAND_GRID = [[0, 1, 2, 3], [4, 5, 6]];
+const COMMAND_RECTS = [
+  [26, 390, 136, 30], [176, 390, 136, 30], [326, 390, 136, 30], [476, 390, 136, 30],
+  [102, 428, 136, 30], [252, 428, 136, 30], [402, 428, 136, 30],
 ];
-const SCROLL_VISIBLE_ROWS = 3;
 const GUARD_DAMAGE_RATIO = 0.4;
 const REFERENCE_RECRUIT_EASE = 0.15;
 
-function contains(x, y, left, top, width, height) {
-  return x >= left && x <= left + width && y >= top && y <= top + height;
-}
-
-// スクロールリストの先頭に表示する行番号(カーソルが常に見えるように追従する)
-function scrollOffset(length, cursor) {
-  const maxScroll = Math.max(0, length - SCROLL_VISIBLE_ROWS);
-  return Math.min(maxScroll, Math.max(0, cursor - (SCROLL_VISIBLE_ROWS - 1)));
-}
-
 // 全滅時に失う「重要でない」回復アイテム。安価なポーションから優先して失う
 const UNIMPORTANT_HEAL_ITEMS = ["potionS", "potionM"];
+
+function commandGridPosition(index) {
+  for (let row = 0; row < COMMAND_GRID.length; row++) {
+    const col = COMMAND_GRID[row].indexOf(index);
+    if (col >= 0) return { row, col };
+  }
+  return { row: 0, col: 0 };
+}
+
+function drawCommandCard(ctx, rect, label, selected, recruit) {
+  const [x, y, w, h] = rect;
+  const lift = selected ? 2 : 0;
+  ctx.save();
+  ctx.shadowColor = selected ? "rgba(42, 43, 70, 0.25)" : "rgba(42, 43, 70, 0.08)";
+  ctx.shadowBlur = selected ? 7 : 3;
+  ctx.shadowOffsetY = selected ? 5 : 2;
+  ctx.beginPath();
+  ctx.roundRect(x, y - lift, w, h, 10);
+  ctx.fillStyle = selected ? "#22664c" : "#e8f2db";
+  ctx.fill();
+  ctx.shadowColor = "transparent";
+  ctx.strokeStyle = selected ? "#efbe65" : "#92ab83";
+  ctx.lineWidth = selected ? 3 : 1.5;
+  ctx.stroke();
+  if (selected) {
+    ctx.fillStyle = recruit ? "#ed7b62" : "#d89d2f";
+    ctx.beginPath();
+    ctx.roundRect(x + 7, y + 4 - lift, 5, h - 8, 3);
+    ctx.fill();
+  }
+  ctx.fillStyle = selected ? "#f7f6dc" : recruit ? "#754c31" : "#16392f";
+  ctx.font = 'bold 13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+  ctx.textAlign = "center";
+  ctx.fillText(label, x + w / 2 + (selected ? 3 : 0), y + 20 - lift);
+  ctx.restore();
+}
 
 function loseUnimportantItems(game, count) {
   let remaining = count;
@@ -95,12 +121,15 @@ export class BattleScene {
     this.skillCursor = 0;
     this.switchCursor = 0;
     this.shownHp = { ally: this.ally.hp, enemy: enemy.hp };
-    this.feedback = new BattleFeedback();
+    this.visualAlly = this.ally;
+    this.visualHp = { ally: this.ally.hp, enemy: enemy.hp };
+    this.hitFx = { ally: 0, enemy: 0 };
+    this.hitAmount = { ally: 0, enemy: 0 };
     this.phase = "message";
     this.after = "command";
     this.recruitedMonster = null;
     this.rosterChoice = null;
-    this.victoryBgmAt = null;
+    this.evolveFx = 0;
     const enemyName = monsterName(enemy, game.lang);
     this.queue = [
       this.isBoss
@@ -112,17 +141,8 @@ export class BattleScene {
 
   say(messages, after) {
     this.queue = messages;
-    this.feedback.begin(messages);
     this.after = after;
     this.phase = "message";
-    this.playMessageBgm();
-  }
-
-  // 「たおした！」のメッセージが表示された瞬間に勝利BGMへ切り替える
-  playMessageBgm() {
-    if (this.victoryBgmAt !== this.feedback.index) return;
-    this.victoryBgmAt = null;
-    playBgm("victory", { loop: false });
   }
 
   enterNext() {
@@ -205,24 +225,45 @@ export class BattleScene {
 
   update(dt) {
     this.time += dt;
-    this.feedback.update(dt);
-    // HPバー・数値は、そのダメージのメッセージが表示されてから動かす
+    if (this.evolveFx > 0) this.evolveFx = Math.max(0, this.evolveFx - dt);
+    if (this.visualAlly !== this.ally) {
+      this.visualAlly = this.ally;
+      this.visualHp.ally = this.ally.hp;
+      this.hitFx.ally = 0;
+    }
+    for (const side of ["ally", "enemy"]) {
+      this.hitFx[side] = Math.max(0, this.hitFx[side] - dt);
+      const hp = this[side].hp;
+      if (hp < this.visualHp[side]) {
+        this.hitAmount[side] = this.visualHp[side] - hp;
+        this.hitFx[side] = 0.42;
+      }
+      this.visualHp[side] = hp;
+    }
     const follow = Math.min(1, dt * 8);
-    this.shownHp.ally += (this.feedback.displayHp(this.ally) - this.shownHp.ally) * follow;
-    this.shownHp.enemy += (this.feedback.displayHp(this.enemy) - this.shownHp.enemy) * follow;
+    this.shownHp.ally += (this.ally.hp - this.shownHp.ally) * follow;
+    this.shownHp.enemy += (this.enemy.hp - this.shownHp.enemy) * follow;
 
     const input = this.game.input;
     if (this.phase === "message") {
-      if (input.wasPressed("ok")) this.advanceMessage();
+      if (input.wasPressed("ok")) {
+        this.queue.shift();
+        if (this.queue.length === 0) this.enterNext();
+      }
     } else if (this.phase === "command") {
-      const col = COMMAND_COLS[0].includes(this.cursor) ? 0 : 1;
-      const colList = COMMAND_COLS[col];
-      const idx = colList.indexOf(this.cursor);
-      if (input.wasPressed("up")) this.cursor = colList[(idx + colList.length - 1) % colList.length];
-      if (input.wasPressed("down")) this.cursor = colList[(idx + 1) % colList.length];
-      if (input.wasPressed("left") || input.wasPressed("right")) {
-        const otherList = COMMAND_COLS[1 - col];
-        this.cursor = otherList[Math.min(idx, otherList.length - 1)];
+      const { row, col } = commandGridPosition(this.cursor);
+      if (input.wasPressed("up") || input.wasPressed("down")) {
+        const nextRow = row === 0 ? 1 : 0;
+        const rowItems = COMMAND_GRID[nextRow];
+        this.cursor = rowItems[Math.min(col, rowItems.length - 1)];
+      }
+      if (input.wasPressed("left")) {
+        const rowItems = COMMAND_GRID[row];
+        this.cursor = rowItems[(col + rowItems.length - 1) % rowItems.length];
+      }
+      if (input.wasPressed("right")) {
+        const rowItems = COMMAND_GRID[row];
+        this.cursor = rowItems[(col + 1) % rowItems.length];
       }
       if (input.wasPressed("ok")) this.chooseCommand(this.cursor);
     } else if (this.phase === "skill") {
@@ -230,7 +271,15 @@ export class BattleScene {
       if (input.wasPressed("up")) this.skillCursor = (this.skillCursor + skills.length - 1) % skills.length;
       if (input.wasPressed("down")) this.skillCursor = (this.skillCursor + 1) % skills.length;
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; }
-      else if (input.wasPressed("ok")) this.chooseSkill(this.skillCursor);
+      else if (input.wasPressed("ok")) {
+        const skillId = skills[this.skillCursor];
+        if ((this.ally.mp || 0) < SKILLS[skillId].mpCost) {
+          sfxCancel();
+          this.say([tr(this.game, "MPが たりない！", "Not enough MP!")], "command");
+        } else {
+          this.resolveTurn({ type: "skill", skillId });
+        }
+      }
     } else if (this.phase === "item") {
       const owned = this.ownedItemIds();
       if (input.wasPressed("cancel")) { sfxCancel(); this.phase = "command"; return; }
@@ -253,60 +302,6 @@ export class BattleScene {
       if (input.wasPressed("up")) this.switchCursor = (this.switchCursor + entries.length - 1) % entries.length;
       if (input.wasPressed("down")) this.switchCursor = (this.switchCursor + 1) % entries.length;
       if (input.wasPressed("ok")) this.resolveTurn({ type: "switch", index: entries[this.switchCursor].i });
-    }
-  }
-
-  advanceMessage() {
-    this.queue.shift();
-    this.feedback.advance();
-    this.playMessageBgm();
-    if (this.queue.length === 0) this.enterNext();
-  }
-
-  chooseSkill(index) {
-    const skillId = this.ally.skills[index];
-    if ((this.ally.mp || 0) < SKILLS[skillId].mpCost) {
-      sfxCancel();
-      this.say([tr(this.game, "MPが たりない！", "Not enough MP!")], "command");
-    } else {
-      this.resolveTurn({ type: "skill", skillId });
-    }
-  }
-
-  // タップ/クリックでコマンド・スキル・どうぐ・こうかん・いれさきを選んで決定する
-  // (当たり判定は draw() の各行の位置に合わせる)
-  handlePointer(x, y) {
-    if (this.game.scene !== this) return;
-    // メッセージ中は画面のどこをタップしても Z と同じく次へ進む(スマホで決定ボタンまで指を運ばなくてよい)
-    if (this.phase === "message") {
-      this.advanceMessage();
-    } else if (this.phase === "command") {
-      const index = COMMAND_POS.findIndex(([cx, cy]) => contains(x, y, cx - 28, cy - 16, 232, 20));
-      if (index === -1) return;
-      this.cursor = index;
-      this.chooseCommand(index);
-    } else if (this.phase === "skill") {
-      const index = this.scrollListIndexAt(this.ally.skills.length, this.skillCursor, x, y);
-      if (index === -1) return;
-      this.skillCursor = index;
-      this.chooseSkill(index);
-    } else if (this.phase === "item") {
-      const owned = this.ownedItemIds();
-      const index = this.scrollListIndexAt(owned.length, this.itemCursor, x, y);
-      if (index === -1) return;
-      this.itemCursor = index;
-      this.useItem(owned[index]);
-    } else if (this.phase === "switch") {
-      const entries = this.switchableEntries();
-      const index = entries.findIndex((_, i) => contains(x, y, 40, 400 + i * 24 - 18, 560, 24));
-      if (index === -1) return;
-      this.switchCursor = index;
-      this.resolveTurn({ type: "switch", index: entries[index].i });
-    } else if (this.phase === "chooseRoster") {
-      if (contains(x, y, 40, 384, 560, 26)) this.rosterChoice = "party";
-      else if (contains(x, y, 40, 410, 560, 26)) this.rosterChoice = "ranch";
-      else return;
-      this.confirmRosterChoice();
     }
   }
 
@@ -375,9 +370,22 @@ export class BattleScene {
 
   useItem(itemId) {
     const item = ITEMS[itemId];
-    this.game.items[itemId]--;
     const allyName = monsterName(this.ally, this.game.lang);
     const iName = itemName(this.game, item);
+
+    // 満タンに使うと、道具もターンも失って「かいふく 0」とだけ出ていた。
+    // 状態異常を治せる道具は、満タンでも使う意味があるので通す。
+    if (item.kind === "heal" && this.ally.hp >= this.ally.maxHp && !(item.cureStatus && this.ally.status)) {
+      this.say([tr(this.game, `${allyName} の HPは まんたんだ！`, `${allyName}'s HP is already full!`)], "command");
+      return;
+    }
+    if (item.kind === "mp_heal" && (this.ally.mp || 0) >= (this.ally.maxMp || 0)) {
+      this.say([tr(this.game, `${allyName} の MPは まんたんだ！`, `${allyName}'s MP is already full!`)], "command");
+      return;
+    }
+
+    this.game.items[itemId]--;
+    const questMessages = questClearMessages(this.game, addQuestProgress(this.game, "item"));
     if (item.kind === "heal") {
       const before = this.ally.hp;
       this.ally.hp = Math.min(this.ally.maxHp, this.ally.hp + item.value);
@@ -386,11 +394,11 @@ export class BattleScene {
         tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
         tr(this.game, `HPが ${healed} かいふくした！`, `Restored ${healed} HP!`),
       ];
-      this.feedback.record(messages, { monster: this.ally, amount: healed, hpBefore: before, heal: true });
       if (item.cureStatus && this.ally.status) {
         messages.push(tr(this.game, `${allyName} の じょうたいいじょうが なおった！`, `${allyName}'s status ailment was cured!`));
         clearStatus(this.ally);
       }
+      messages.push(...questMessages);
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "mp_heal") {
@@ -401,6 +409,7 @@ export class BattleScene {
         tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
         tr(this.game, `MPが ${healed} かいふくした！`, `Restored ${healed} MP!`),
       ];
+      messages.push(...questMessages);
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "bait") {
@@ -410,6 +419,7 @@ export class BattleScene {
         tr(this.game, `${iName}を なげた！`, `Threw ${iName}!`),
         tr(this.game, `${enemyName}が きょうみを しめしている…`, `${enemyName} looks interested...`),
       ];
+      messages.push(...questMessages);
       this.enemyAct(messages);
       this.finishTurn(messages);
     } else if (item.kind === "stat_boost") {
@@ -423,6 +433,7 @@ export class BattleScene {
         tr(this.game, `${allyName} に ${iName}を つかった！`, `Used ${iName} on ${allyName}!`),
         tr(this.game, `${label}が ${item.value} あがった！`, `${label} rose by ${item.value}!`),
       ];
+      messages.push(...questMessages);
       this.enemyAct(messages);
       this.finishTurn(messages);
     }
@@ -453,14 +464,12 @@ export class BattleScene {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
       messages.push(tr(this.game, `${targetName} は ぼうぎょで こうげきを うけながした！`, `${targetName} guarded and softened the blow!`));
     }
-    const hpBefore = target.hp;
     target.hp = Math.max(0, target.hp - damage);
     if (target === this.enemy) {
       this.totalDamageDealt += damage;
       if (this.bossState.charging) this.bossState.chargeDamage += damage;
     }
     messages.push(tr(this.game, `${targetName} に ${damage} の ダメージ！`, `${damage} damage to ${targetName}!`));
-    this.feedback.record(messages, { monster: target, amount: damage, hpBefore, strong: eff > 1 || damage >= target.maxHp * 0.3 });
     const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (target.hp <= 0) sfxFaint();
@@ -536,10 +545,8 @@ export class BattleScene {
       damage = Math.max(eff === 0 ? 0 : 1, Math.round(damage * GUARD_DAMAGE_RATIO));
       messages.push(tr(this.game, `${allyName} は ぼうぎょで なんとか こらえた！`, `${allyName} managed to endure it by guarding!`));
     }
-    const hpBefore = this.ally.hp;
     this.ally.hp = Math.max(0, this.ally.hp - damage);
     messages.push(tr(this.game, `${allyName} に ${damage} の ダメージ！`, `${damage} damage to ${allyName}!`));
-    this.feedback.record(messages, { monster: this.ally, amount: damage, hpBefore, strong: true });
     const effMsg = effectivenessMessage(this.game, eff);
     if (effMsg) messages.push(effMsg);
     if (this.ally.hp <= 0) sfxFaint();
@@ -586,12 +593,8 @@ export class BattleScene {
       }
     }
     this.allyGuarding = false;
-    for (const monster of [this.ally, this.enemy]) {
-      if (monster.hp <= 0) continue;
-      const hpBefore = monster.hp;
-      applyEndOfTurnStatus(monster, messages, this.game);
-      this.feedback.record(messages, { monster, amount: hpBefore - monster.hp, hpBefore });
-    }
+    if (this.ally.hp > 0) applyEndOfTurnStatus(this.ally, messages, this.game);
+    if (this.enemy.hp > 0) applyEndOfTurnStatus(this.enemy, messages, this.game);
     this.finishTurn(messages);
   }
 
@@ -620,8 +623,7 @@ export class BattleScene {
   }
 
   victory(messages) {
-    // 勝利BGMは「たおした！」の表示に合わせて playMessageBgm で鳴らす
-    this.victoryBgmAt = messages.length;
+    playBgm("victory", { loop: false });
     const enemySpecies = SPECIES[this.enemy.speciesId];
     const exp = enemySpecies.exp * this.enemy.level;
     const money = Math.max(3, Math.round(enemySpecies.exp * this.enemy.level * 0.4));
@@ -640,6 +642,7 @@ export class BattleScene {
         messages.push(tr(this.game, `${fromName} は ${toName} に しんかした！`, `${fromName} evolved into ${toName}!`));
         markCaught(this.game, event.speciesId);
         sfxEvolve();
+        this.evolveFx = 1.8;
         continue;
       }
       const levelupName = tr(this.game, event.name, SPECIES[event.speciesId]?.nameEn || event.name);
@@ -687,6 +690,10 @@ export class BattleScene {
       }
     }
 
+    if (this.game.stats) this.game.stats.wins = (this.game.stats.wins || 0) + 1;
+    messages.push(...questClearMessages(this.game, addQuestProgress(this.game, "win")));
+    messages.push(...achievementMessages(this.game, checkAchievements(this.game)));
+
     if (this.isBoss) {
       if (!this.game.flags.stageClearedFlags) {
         this.game.flags.stageClearedFlags = {};
@@ -701,12 +708,27 @@ export class BattleScene {
     }
   }
 
+  previewRecruitChance(baitMultiplier = this.pendingBaitBonus || 1) {
+    if (this.isBoss) {
+      const damageRatio = Math.min(1, this.totalDamageDealt / this.enemy.maxHp);
+      return Math.min(0.2, 0.03 + damageRatio * 0.17);
+    }
+    const species = SPECIES[this.enemy.speciesId];
+    const rarityMultiplier = species.recruitEase / REFERENCE_RECRUIT_EASE;
+    const ownedCount = [...this.game.party, ...(this.game.ranch || [])]
+      .filter((m) => m.speciesId === this.enemy.speciesId).length;
+    const powerRate = (this.ally.atk / this.enemy.atk) * 50;
+    const damageRate = (this.totalDamageDealt / this.enemy.maxHp) * 50;
+    return Math.max(0, Math.min(1,
+      ((powerRate + damageRate) * baitMultiplier * rarityMultiplier) / 100 / (ownedCount + 1)
+    ));
+  }
+
   tryRecruit() {
     if (this.isBoss) {
       this.tryRecruitBoss();
       return;
     }
-    const species = SPECIES[this.enemy.speciesId];
     const baitMultiplier = this.pendingBaitBonus || 1;
     this.pendingBaitBonus = 0;
     // なかまにさそう率(%) = { (こうげき力比率 × 50) + (累計ダメージ ÷ 敵の最大HP × 50) } × 肉ボーナス × レア度倍率 ÷ (所持数+1)
@@ -714,14 +736,8 @@ export class BattleScene {
     // そこに、実際に与えたダメージの分だけ上乗せがつく。少しでもダメージを与えるほど成功率が上がる。
     // レア度倍率は recruitEase を基準値(0.15)で正規化したもの。
     // 同じ種族を既に持っているほど成功率が下がり、図鑑コンプリートへの意欲を保つ
-    const rarityMultiplier = species.recruitEase / REFERENCE_RECRUIT_EASE;
-    const ownedCount = [...this.game.party, ...(this.game.ranch || [])]
-      .filter((m) => m.speciesId === this.enemy.speciesId).length;
-    const powerRate = (this.ally.atk / this.enemy.atk) * 50;
-    const damageRate = (this.totalDamageDealt / this.enemy.maxHp) * 50;
-    const chance = Math.max(0, Math.min(1,
-      ((powerRate + damageRate) * baitMultiplier * rarityMultiplier) / 100 / (ownedCount + 1)
-    ));
+    const species = SPECIES[this.enemy.speciesId];
+    const chance = this.previewRecruitChance(baitMultiplier);
     const percentage = Math.round(chance * 100);
     const allyName = monsterName(this.ally, this.game.lang);
     const enemyName = monsterName(this.enemy, this.game.lang);
@@ -730,13 +746,31 @@ export class BattleScene {
       tr(this.game, `せいこうりつ ${percentage}%`, `Success rate ${percentage}%`),
     ];
     if (Math.random() < chance) {
+      const isNewSpecies = !(this.game.dex?.caught || []).includes(this.enemy.speciesId);
+      const rank = getRank(species);
       this.enemy.hp = this.enemy.maxHp;
       clearStatus(this.enemy);
       markCaught(this.game, this.enemy.speciesId);
+      if (this.game.stats) {
+        this.game.stats.catches = (this.game.stats.catches || 0) + 1;
+        if (this.enemy.shiny) this.game.stats.shinyCatches = (this.game.stats.shinyCatches || 0) + 1;
+      }
+      this.catchCelebration = { rank, shiny: !!this.enemy.shiny, isNew: isNewSpecies };
       messages.push(
         tr(this.game, `${enemyName} は うれしそうに ちかづいてきた！`, `${enemyName} approached happily!`),
         tr(this.game, `${enemyName} が なかまに くわわった！`, `${enemyName} joined your team!`)
       );
+      if (rank === "S" || rank === "A") {
+        messages.push(tr(this.game, `なんと [${rank}]ランクの とてもレアな なかまだ！`, `Incredible! It's a super-rare [${rank}]-rank friend!`));
+      }
+      if (this.enemy.shiny) {
+        messages.push(tr(this.game, "しかも いろちがいだ！ きせきの であいだ！", "And it's a shiny! A miraculous encounter!"));
+      }
+      if (isNewSpecies) {
+        messages.push(tr(this.game, "ずかんに あたらしく とうろくされた！", "Registered as a new species!"));
+      }
+      messages.push(...questClearMessages(this.game, addQuestProgress(this.game, "catch")));
+      messages.push(...achievementMessages(this.game, checkAchievements(this.game)));
       this.recruitedMonster = this.enemy;
       sfxCatchSuccess();
       this.say(messages, "chooseRoster");
@@ -766,9 +800,11 @@ export class BattleScene {
       this.recruitedMonster.legend = true;
       this.legendCapture = true;
       markCaught(this.game, this.enemy.speciesId);
+      if (this.game.stats) this.game.stats.catches = (this.game.stats.catches || 0) + 1;
       messages.push(
         tr(this.game, `${enemyName} は ちからを みとめ、なかまに なった！`, `${enemyName} acknowledged your strength and joined you!`)
       );
+      messages.push(...questClearMessages(this.game, addQuestProgress(this.game, "catch")));
       sfxCatchSuccess();
       this.enemy.hp = 0;
       this.victory(messages);
@@ -792,110 +828,101 @@ export class BattleScene {
   }
 
   draw(ctx) {
-    const bg = ctx.createLinearGradient(0, 0, 0, 480);
-    bg.addColorStop(0, this.isBoss ? "#d3d8ec" : "#d7eee9");
-    bg.addColorStop(0.65, "#f2f3d9");
-    bg.addColorStop(1, "#c4d4a3");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 640, 480);
-    ctx.fillStyle = "rgba(90, 134, 107, 0.13)";
-    ctx.beginPath();
-    ctx.ellipse(370, 310, 430, 160, -0.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#aebf8f";
+    const artTime = motionTime(this.game, this.time);
+    const hasScenery = drawBattleBackground(ctx, this.game.field?.world);
+    if (!hasScenery) {
+      const bg = ctx.createLinearGradient(0, 0, 0, 480);
+      bg.addColorStop(0, "#bfdde0");
+      bg.addColorStop(0.58, "#dce8c4");
+      bg.addColorStop(1, "#84aa78");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 640, 480);
+      const light = ctx.createRadialGradient(470, 120, 8, 470, 120, 210);
+      light.addColorStop(0, "rgba(255, 252, 214, 0.72)");
+      light.addColorStop(1, "rgba(255, 252, 214, 0)");
+      ctx.fillStyle = light;
+      ctx.fillRect(250, 0, 390, 330);
+    }
+    drawWorldAtmosphere(ctx, this.game.field?.world, artTime, this.game.reducedMotion);
+    // 緑の足場は草原前提の色なので、砂浜や城の床の上では色味のない影にする
+    ctx.fillStyle = hasScenery ? "rgba(20, 16, 30, 0.22)" : "rgba(110, 155, 100, 0.42)";
     ctx.beginPath();
     ctx.ellipse(470, 208, 115, 26, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#d4dfb1";
     ctx.beginPath();
-    ctx.ellipse(470, 202, 115, 22, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#aebf8f";
-    ctx.beginPath();
-    ctx.ellipse(170, 348, 112, 24, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#d4dfb1";
-    ctx.beginPath();
-    ctx.ellipse(170, 342, 112, 20, 0, 0, Math.PI * 2);
+    ctx.ellipse(170, 348, 100, 24, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    const enemyHit = this.feedback.visualFor(this.enemy, this.game.reduceMotion);
-    const allyHit = this.feedback.visualFor(this.ally, this.game.reduceMotion);
-
-    if (this.enemy.hp > 0 || this.shownHp.enemy > 0.5 || enemyHit || this.feedback.hasPending(this.enemy)) {
-      drawMonster(ctx, this.enemy.speciesId, 470 + (enemyHit?.offsetX || 0), 150, 1.6, this.time, this.enemy.shiny ? SHINY_HUE : 0);
+    if (this.enemy.hp > 0 || this.shownHp.enemy > 0.5) {
+      drawMonster(ctx, this.enemy.speciesId, 470 + (this.game.reducedMotion ? 0 : Math.sin(this.hitFx.enemy * 70) * Math.min(1, this.hitFx.enemy / 0.2) * 4), 150, 1.6, artTime, this.enemy.shiny ? SHINY_HUE : 0);
     }
-    drawMonster(ctx, this.ally.speciesId, 170 + (allyHit?.offsetX || 0), 305, 1.3, this.time + 1.7, this.ally.shiny ? SHINY_HUE : (this.ally.tintHue || 0));
-    this.drawHitFeedback(ctx, enemyHit, 470, 150);
-    this.drawHitFeedback(ctx, allyHit, 170, 305);
+    drawMonster(ctx, this.ally.speciesId, 170 + (this.game.reducedMotion ? 0 : Math.sin(this.hitFx.ally * 70) * Math.min(1, this.hitFx.ally / 0.2) * 4), 305, 1.3, artTime + 1.7, this.ally.shiny ? SHINY_HUE : (this.ally.tintHue || 0));
+    drawHitFeedback(ctx, 470, 150, this.hitAmount.enemy, this.hitFx.enemy, this.game.reducedMotion);
+    drawHitFeedback(ctx, 170, 305, this.hitAmount.ally, this.hitFx.ally, this.game.reducedMotion);
     if (this.phase === "message" && ((this.queue[0] || "").includes("しんかした") || (this.queue[0] || "").includes("evolved into"))) {
       this.drawEvolveSparkle(ctx, 170, 305);
+    }
+    if (this.evolveFx > 0) {
+      const alpha = Math.min(0.32, this.evolveFx * 0.22);
+      ctx.fillStyle = `rgba(255, 249, 190, ${alpha})`;
+      ctx.fillRect(0, 0, 640, 480);
     }
     if (this.legendCapture && this.phase === "message" && ((this.queue[0] || "").includes("なかまに なった") || (this.queue[0] || "").includes("joined you"))) {
       this.drawLegendSparkle(ctx, 470, 150);
     }
+    if (this.catchCelebration && this.recruitedMonster) {
+      this.drawCatchCelebration(ctx, 470, 150);
+    }
 
-    panel(ctx, 16, 14, 284, 100);
-    ctx.fillStyle = "#3a3a52";
-    ctx.font = FONT_BOLD;
+    panel(ctx, 16, 14, 258, 66);
+    ctx.fillStyle = "#56835c";
+    ctx.font = 'bold 10px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
     ctx.textAlign = "left";
+    ctx.fillText(tr(this.game, "出会ったモンスター", "WILD ENCOUNTER"), 30, 30);
+    ctx.fillStyle = "#292b46";
+    ctx.font = FONT_BOLD;
     const rareLabel = SPECIES[this.enemy.speciesId].rare ? tr(this.game, "  ★レア", "  ★Rare") : "";
     const rank = getRank(SPECIES[this.enemy.speciesId]);
     const enemyType = tr(this.game, typeOf(this.enemy.speciesId), typeNameEn(typeOf(this.enemy.speciesId)));
     const enemyStatus = this.enemy.status ? `  [${statusLabel(this.game, this.enemy.status)}]` : "";
     const ownedLabel = (this.game.dex?.caught || []).includes(this.enemy.speciesId) ? tr(this.game, "  ✓なかまずみ", "  ✓Caught") : "";
     const shinyLabel = this.enemy.shiny ? "✨" : "";
-    ctx.fillText(`${shinyLabel}${monsterName(this.enemy, this.game.lang)}  Lv.${this.enemy.level}`, 30, 39, 254);
-    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillStyle = "#58674d";
-    ctx.fillText(`[${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 60, 254);
-    hpBar(ctx, 30, 72, 254, 11, this.shownHp.enemy / this.enemy.maxHp);
-    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.enemy))} / ${this.enemy.maxHp}`, 30, 101);
+    fitText(ctx, `${shinyLabel}${monsterName(this.enemy, this.game.lang)}  Lv.${this.enemy.level}  [${rank}] ${enemyType}${rareLabel}${enemyStatus}${ownedLabel}`, 30, 49, 230, 10);
+    hpBar(ctx, 30, 58, 230, 10, this.shownHp.enemy / this.enemy.maxHp);
 
-    panel(ctx, 354, 210, 270, 126);
+    panel(ctx, 372, 234, 252, 108);
     ctx.fillStyle = "#3a3a52";
     ctx.font = FONT_BOLD;
     const allyStatus = this.ally.status ? `  [${statusLabel(this.game, this.ally.status)}]` : "";
     const allyType = tr(this.game, typeOf(this.ally.speciesId), typeNameEn(typeOf(this.ally.speciesId)));
-    ctx.fillText(`${monsterName(this.ally, this.game.lang)}  Lv.${this.ally.level}`, 370, 236, 238);
-    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillStyle = "#58674d";
-    ctx.fillText(`${allyType}${allyStatus}`, 370, 255, 238);
-    hpBar(ctx, 370, 266, 238, 12, this.shownHp.ally / this.ally.maxHp);
-    ctx.font = '14px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
-    ctx.fillStyle = "#3a3a52";
-    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))}/${this.ally.maxHp}    MP ${this.ally.mp || 0}/${this.ally.maxMp || 0}`, 370, 298, 238);
+    ctx.fillText(`${monsterName(this.ally, this.game.lang)}  Lv.${this.ally.level}  ${allyType}${allyStatus}`, 388, 262);
+    hpBar(ctx, 388, 274, 220, 14, this.shownHp.ally / this.ally.maxHp);
+    ctx.font = FONT;
+    ctx.fillText(`HP ${Math.max(0, Math.round(this.shownHp.ally))}/${this.ally.maxHp}  MP ${this.ally.mp || 0}/${this.ally.maxMp || 0}`, 388, 310);
     ctx.fillText(
       this.ally.level >= MAX_LEVEL
         ? tr(this.game, "レベル MAX", "Level MAX")
         : tr(this.game, `つぎのレベルまで あと ${expToNext(this.ally.level) - this.ally.exp}`, `${expToNext(this.ally.level) - this.ally.exp} EXP to next level`),
-      370, 321, 238
+      388, 332
     );
+
+    if (this.phase === "command" && this.cursor === 2) this.drawRecruitPreview(ctx);
 
     panel(ctx, 12, 344, 616, 128);
     ctx.fillStyle = "#3a3a52";
     if (this.phase === "message") {
       ctx.font = FONT_BOLD;
       const text = this.queue[0] || "";
-      this.drawWrapped(ctx, text, 36, 384, this.game.lang === "en" ? 50 : 34);
-      if (Math.sin(this.time * 6) > 0) {
+      this.drawWrapped(ctx, text, 36, 384);
+      if (this.game.reducedMotion || Math.sin(this.time * 6) > 0) {
         ctx.fillText("▼", 596, 452);
       }
     } else if (this.phase === "command") {
-      ctx.font = FONT;
-      ctx.fillText(tr(this.game, `${monsterName(this.ally, this.game.lang)} は どうする？`, `What will ${monsterName(this.ally, this.game.lang)} do?`), 36, 374);
-      ctx.font = FONT_BOLD;
+      ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+      ctx.fillText(tr(this.game, `${monsterName(this.ally, this.game.lang)}はどうする？`, `What will ${monsterName(this.ally, this.game.lang)} do?`), 28, 374);
       const commands = tr(this.game, COMMANDS_JA, COMMANDS_EN);
       commands.forEach((command, i) => {
-        if (this.cursor === i) {
-          ctx.fillStyle = "#e4edcf";
-          ctx.beginPath();
-          ctx.roundRect(COMMAND_POS[i][0] - 28, COMMAND_POS[i][1] - 16, 232, 20, 5);
-          ctx.fill();
-        }
-        ctx.fillStyle = this.cursor === i ? "#295541" : "#3a3a52";
-        ctx.fillText(command, COMMAND_POS[i][0], COMMAND_POS[i][1]);
-        if (this.cursor === i) ctx.fillText("▶", COMMAND_POS[i][0] - 26, COMMAND_POS[i][1]);
+        drawCommandCard(ctx, COMMAND_RECTS[i], command, this.cursor === i, i === 2);
       });
     } else if (this.phase === "skill") {
       ctx.font = FONT;
@@ -945,37 +972,50 @@ export class BattleScene {
     }
   }
 
-  drawHitFeedback(ctx, hit, x, y) {
-    if (!hit) return;
+  drawRecruitPreview(ctx) {
+    const chance = this.previewRecruitChance();
+    const x = 320;
+    const y = 238;
+    const r = 32;
     ctx.save();
-    if (hit.glow > 0) {
-      ctx.fillStyle = hit.heal ? `rgba(172, 241, 177, ${hit.glow})` : `rgba(255, 232, 175, ${hit.glow})`;
-      ctx.beginPath();
-      ctx.ellipse(x, y, 56, 48, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = hit.alpha;
+    ctx.fillStyle = "rgba(255, 249, 232, 0.94)";
+    ctx.beginPath();
+    ctx.arc(x, y, r + 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(41, 43, 70, 0.22)";
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.arc(x, y, r, -Math.PI / 2, Math.PI * 1.5);
+    ctx.stroke();
+    ctx.strokeStyle = "#ed7b62";
+    ctx.lineWidth = 8;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * chance);
+    ctx.stroke();
+    ctx.fillStyle = "#292b46";
     ctx.textAlign = "center";
-    ctx.font = `bold ${hit.strong ? 30 : 25}px "Yu Gothic", sans-serif`;
-    const label = `${hit.heal ? "+" : "−"}${hit.amount}`;
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "#fffdf5";
-    ctx.strokeText(label, x, y - 46 - hit.rise);
-    ctx.fillStyle = hit.heal ? "#277943" : hit.strong ? "#b6532d" : "#51403c";
-    ctx.fillText(label, x, y - 46 - hit.rise);
+    ctx.font = 'bold 14px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillText(`${Math.round(chance * 100)}%`, x, y + 5);
+    ctx.font = 'bold 9px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.fillStyle = "#a84e4c";
+    ctx.fillText(tr(this.game, "なかまの気配", "FRIEND CHANCE"), x, y + 53);
     ctx.restore();
   }
 
-  drawWrapped(ctx, text, x, y, maxChars) {
-    for (let i = 0, line = 0; i < text.length; i += maxChars, line++) {
-      ctx.fillText(text.slice(i, i + maxChars), x, y + line * 28);
-    }
+  // 文字数で切ると「ほう/び」のように語の途中で折れるため、実測幅で折る。
+  // メッセージ枠は x:12 幅616、左右に24pxずつ余白を取る。
+  drawWrapped(ctx, text, x, y) {
+    wrapText(ctx, text, 616 - (x - 12) - 24).forEach((line, i) => {
+      ctx.fillText(line, x, y + i * 28);
+    });
   }
 
   // コマンド欄(y:402〜472)に収まる件数だけ表示し、カーソルに追従してスクロールする
   drawScrollList(ctx, list, cursor, drawRow) {
-    const visibleRows = SCROLL_VISIBLE_ROWS;
-    const scroll = scrollOffset(list.length, cursor);
+    const visibleRows = 3;
+    const maxScroll = Math.max(0, list.length - visibleRows);
+    const scroll = Math.min(maxScroll, Math.max(0, cursor - (visibleRows - 1)));
     list.slice(scroll, scroll + visibleRows).forEach((entry, i) => {
       const y = 402 + i * 26;
       drawRow(entry, 70, y);
@@ -985,13 +1025,65 @@ export class BattleScene {
     if (scroll + visibleRows < list.length) ctx.fillText("▼", 340, 460);
   }
 
-  // drawScrollList で表示中の行のうち、(x, y) にある行の list 上の番号を返す(なければ -1)
-  scrollListIndexAt(length, cursor, x, y) {
-    const scroll = scrollOffset(length, cursor);
-    for (let i = 0; i < Math.min(SCROLL_VISIBLE_ROWS, length - scroll); i++) {
-      if (contains(x, y, 40, 402 + i * 26 - 19, 560, 26)) return scroll + i;
+  // なかまにした瞬間、ランクが高いほど派手なオーラで演出する
+  drawCatchCelebration(ctx, x, y) {
+    const { rank, shiny, isNew } = this.catchCelebration;
+    const style = {
+      S: { glow: "rgba(255,224,120,0.6)", colors: ["#ffd75e", "#fff7d6"], radius: 130, orbit: 80, count: 12, size: 4.5 },
+      A: { glow: "rgba(214,140,196,0.55)", colors: ["#e08ad0", "#ffe6fa"], radius: 115, orbit: 72, count: 10, size: 4 },
+      B: { glow: "rgba(120,180,235,0.5)", colors: ["#7cb8ec", "#e0f1ff"], radius: 100, orbit: 64, count: 8, size: 3.5 },
+      C: { glow: "rgba(130,205,140,0.45)", colors: ["#84cf8c", "#e4ffe8"], radius: 90, orbit: 58, count: 7, size: 3 },
+      D: { glow: "rgba(235,235,245,0.4)", colors: ["#e8e8f4", "#ffffff"], radius: 80, orbit: 52, count: 5, size: 2.5 },
+      E: { glow: "rgba(235,235,245,0.35)", colors: ["#e8e8f4", "#ffffff"], radius: 70, orbit: 48, count: 4, size: 2.5 },
+    }[rank] || {};
+    const t = motionTime(this.game, this.time);
+    ctx.save();
+    const glow = ctx.createRadialGradient(x, y, 6, x, y, style.radius);
+    glow.addColorStop(0, style.glow);
+    glow.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, style.radius, 0, Math.PI * 2);
+    ctx.fill();
+    for (let i = 0; i < style.count; i++) {
+      const angle = t * 1.2 + (i / style.count) * Math.PI * 2;
+      const r = style.orbit + Math.sin(t * 4 + i) * 10;
+      const sx = x + Math.cos(angle) * r;
+      const sy = y + Math.sin(angle) * r * 0.6;
+      ctx.fillStyle = style.colors[i % style.colors.length];
+      ctx.beginPath();
+      ctx.fillRect(Math.round(sx), Math.round(sy), style.size, style.size);
     }
-    return -1;
+    if (shiny) {
+      for (let i = 0; i < 6; i++) {
+        const angle = -t * 2 + (i / 6) * Math.PI * 2;
+        const sx = x + Math.cos(angle) * 40;
+        const sy = y + Math.sin(angle) * 26;
+        ctx.fillStyle = "#9be8ff";
+        ctx.beginPath();
+        ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    const badgeY = y - 96 + Math.sin(t * 3) * 3;
+    ctx.fillStyle = RANK_COLOR[rank] || "#6a6a7a";
+    ctx.beginPath();
+    ctx.arc(x, badgeY, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#fffdf5";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = "#fffdf5";
+    ctx.font = 'bold 22px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.textAlign = "center";
+    ctx.fillText(rank, x, badgeY + 8);
+    if (isNew) {
+      ctx.fillStyle = "#e8563f";
+      ctx.font = FONT_BOLD;
+      ctx.fillText("NEW!", x + 52, badgeY + 4 + Math.sin(t * 5) * 2);
+    }
+    ctx.textAlign = "left";
+    ctx.restore();
   }
 
   // ヌシがなかまになった瞬間、金色のオーラで演出する

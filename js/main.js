@@ -1,70 +1,26 @@
-import { Input } from "./input.js";
+import { Input, bindTouchControls } from "./input.js";
+import { createRuntime } from "./runtime.js";
 import { createMonster, SPECIES, ensureUidAbove } from "./data/monsters.js";
 import { START_STAGE_ID, STAGES } from "./data/stages.js";
 import { FieldScene } from "./scenes/field.js";
 import { TitleScene } from "./scenes/title.js";
+import { BattleScene } from "./scenes/battle.js";
 import { saveGame, migrateMonster } from "./systems/save.js";
 import { markCaught } from "./systems/dex.js";
 import { toggleMute, isMuted } from "./audio.js";
 import { clearStatus } from "./systems/status.js";
 import { getStoredLang, setStoredLang } from "./i18n.js";
-import { setBgmMuted } from "./music.js";
+import { setBgmMuted, setBgmSuspended } from "./music.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+const runtimeStatus = document.getElementById("runtime-status");
+const motionPreference = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+ctx.imageSmoothingEnabled = false;
+const DEV = new URLSearchParams(window.location.search).get("dev") === "1";
 
 function setupTouchControls(input) {
-  document.querySelectorAll("#touch-controls [data-action]").forEach((btn) => {
-    const action = btn.dataset.action;
-    const start = (e) => {
-      e.preventDefault();
-      btn.setPointerCapture(e.pointerId);
-      btn.classList.add("is-held");
-      input.press(action, `pointer-${e.pointerId}`);
-    };
-    const end = (e) => {
-      e.preventDefault();
-      btn.classList.remove("is-held");
-      input.release(action, `pointer-${e.pointerId}`);
-    };
-    btn.addEventListener("pointerdown", start);
-    btn.addEventListener("pointerup", end);
-    btn.addEventListener("pointercancel", end);
-    btn.addEventListener("lostpointercapture", end);
-  });
-  document.querySelectorAll("#quick-actions [data-action]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      input.press(btn.dataset.action);
-      input.release(btn.dataset.action);
-    });
-  });
-}
-
-const sceneLabel = document.getElementById("scene-label");
-const saveStatus = document.getElementById("save-status");
-const motionButton = document.getElementById("motion-button");
-const soundButton = document.getElementById("sound-button");
-const fullscreenButton = document.getElementById("fullscreen-button");
-const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-let storedMotion = null;
-try { storedMotion = localStorage.getItem("montomo-reduce-motion"); } catch {}
-
-function updateSoundButton() {
-  soundButton.textContent = isMuted() ? "♪ おと OFF" : "♪ おと ON";
-  soundButton.setAttribute("aria-pressed", String(isMuted()));
-}
-
-function updateSceneChrome(scene) {
-  const field = scene === game.field;
-  sceneLabel.textContent = scene instanceof TitleScene ? "ぼうけんの はじまり" : field ? "なかまと ぼうけん中" : "ぼうけんの 手帳";
-  document.querySelectorAll("#quick-actions [data-action]").forEach((btn) => {
-    if (btn.dataset.action === "rename") {
-      btn.hidden = !["PartyScene", "PokedexScene", "ShopScene"].includes(scene.constructor.name);
-      btn.disabled = btn.hidden;
-      return;
-    }
-    btn.disabled = btn.dataset.action !== "lang" && !field;
-  });
+  bindTouchControls(document.getElementById("touch-controls"), input);
 }
 
 // 状態異常(やけど・まひ・こおり)は戦闘限定の仕組みで治療手段がないため、
@@ -118,22 +74,20 @@ const game = {
   money: 0,
   scene: null,
   field: null,
-  reduceMotion: storedMotion === null ? motionPreference.matches : storedMotion === "true",
   lang: getStoredLang(),
+  reducedMotion: Boolean(motionPreference?.matches),
+  sceneFade: 0,
   toggleLang() {
     this.lang = setStoredLang(this.lang === "en" ? "ja" : "en");
-    document.documentElement.lang = this.lang;
   },
   changeScene(scene) {
-    this.input.reset();
     this.scene = scene;
-    updateSceneChrome(scene);
+    this.sceneFade = this.reducedMotion ? 0 : 0.2;
   },
   save() {
     if (!this.field) return false;
-    const ok = saveGame(this, this.currentSlot);
-    saveStatus.textContent = ok ? "✓ ぼうけんを 記録しました" : "記録できませんでした。Sでもう一度";
-    return ok;
+    if (this.currentSlot == null) return true;
+    return saveGame(this, this.currentSlot);
   },
   startAdventure(save, slot = 0, playerName = "") {
     this.currentSlot = slot;
@@ -151,6 +105,13 @@ const game = {
     this.money = buildMoney(save);
     this.treasureState = (save && save.treasureState) || {};
     this.groundItemState = (save && save.groundItemState) || {};
+    this.stats = {
+      wins: 0, catches: 0, breeds: 0, steps: 0,
+      shinyCatches: 0, questClears: 0,
+      ...((save && save.stats) || {}),
+    };
+    this.achievements = { ...((save && save.achievements) || {}) };
+    this.daily = (save && save.daily) || null;
     let maxUid = 0;
     for (const m of [...this.party, ...this.ranch]) {
       if (typeof m.uid === "number" && m.uid > maxUid) maxUid = m.uid;
@@ -172,59 +133,219 @@ const game = {
     this.save();
   },
 };
+motionPreference?.addEventListener?.("change", (event) => {
+  game.reducedMotion = event.matches;
+  if (event.matches) game.sceneFade = 0;
+});
 
 game.changeScene(new TitleScene(game));
 window.__game = game;
 setupTouchControls(game.input);
-motionButton.setAttribute("aria-pressed", String(game.reduceMotion));
-motionButton.addEventListener("click", () => {
-  game.reduceMotion = !game.reduceMotion;
-  storedMotion = String(game.reduceMotion);
-  motionButton.setAttribute("aria-pressed", String(game.reduceMotion));
-  try { localStorage.setItem("montomo-reduce-motion", String(game.reduceMotion)); } catch {}
-});
-motionPreference.addEventListener("change", (event) => {
-  if (storedMotion !== null) return;
-  game.reduceMotion = event.matches;
-  motionButton.setAttribute("aria-pressed", String(game.reduceMotion));
-});
-soundButton.addEventListener("click", () => {
-  setBgmMuted(toggleMute());
-  updateSoundButton();
-});
-updateSoundButton();
-fullscreenButton.hidden = !document.querySelector(".play-column").requestFullscreen;
-fullscreenButton.addEventListener("click", async () => {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await document.querySelector(".play-column").requestFullscreen();
-  } catch {
-    saveStatus.textContent = "このブラウザでは全画面表示を使えません";
+
+function debugSnapshot() {
+  const scene = game.scene;
+  const snapshot = {
+    scene: scene?.constructor?.name || "Unknown",
+    lang: game.lang,
+    muted: isMuted(),
+    persisted: game.currentSlot != null,
+    partyCount: game.party.length,
+  };
+  if (game.field) {
+    snapshot.field = {
+      stageId: game.field.stageId,
+      x: game.field.player?.x,
+      y: game.field.player?.y,
+      facing: game.field.facing,
+      firstBushSeen: !!game.field.firstBushSeen,
+    };
   }
-});
-canvas.addEventListener("pointerdown", (event) => {
-  event.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  game.scene.handlePointer?.((event.clientX - rect.left) * canvas.width / rect.width, (event.clientY - rect.top) * canvas.height / rect.height);
-});
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && game.scene === game.field) game.save();
-});
+  if (scene?.enemy && scene?.ally) {
+    snapshot.battle = {
+      phase: scene.phase,
+      cursor: scene.cursor,
+      allyHp: scene.ally.hp,
+      enemyHp: scene.enemy.hp,
+      enemyMaxHp: scene.enemy.maxHp,
+      recruitChance: Math.round(scene.previewRecruitChance() * 100),
+    };
+  }
+  return snapshot;
+}
+
+if (DEV) {
+  window.__dbg = debugSnapshot;
+  window.__cheat = {
+    // 保存スロットを使わない検証用の冒険。ユーザーのセーブは上書きしない。
+    startFresh() {
+      game.startAdventure(null, null, game.lang === "en" ? "Tester" : "テスター");
+      return debugSnapshot();
+    },
+    placeNearBush() {
+      if (!game.field) return debugSnapshot();
+      const bush = game.field.nearestBushTile();
+      if (!bush) return debugSnapshot();
+      const candidates = [
+        { x: bush.x - 1, y: bush.y }, { x: bush.x + 1, y: bush.y },
+        { x: bush.x, y: bush.y - 1 }, { x: bush.x, y: bush.y + 1 },
+      ];
+      const spot = candidates.find((p) => game.field.tileAt(p.x, p.y) === 0) || candidates[0];
+      game.field.player = spot;
+      game.changeScene(game.field);
+      return { ...debugSnapshot(), bush };
+    },
+    startBattle(speciesId = "dogura", stageId = null) {
+      if (!game.field) this.startFresh();
+      if (stageId) game.field.setStage(stageId, "start", false);
+      const enemy = createMonster(SPECIES[speciesId] ? speciesId : "dogura", 3);
+      game.changeScene(new BattleScene(game, enemy, { stageId: game.field.stageId }));
+      return debugSnapshot();
+    },
+    command() {
+      if (game.scene instanceof BattleScene) {
+        game.scene.queue = [];
+        game.scene.after = "command";
+        game.scene.enterNext();
+      }
+      return debugSnapshot();
+    },
+    weakenEnemy() {
+      if (game.scene instanceof BattleScene) {
+        const hp = Math.max(1, Math.floor(game.scene.enemy.maxHp * 0.18));
+        game.scene.totalDamageDealt = Math.max(0, game.scene.enemy.maxHp - hp);
+        game.scene.enemy.hp = hp;
+        game.scene.shownHp.enemy = hp;
+        game.scene.cursor = 2;
+      }
+      return debugSnapshot();
+    },
+    returnField() {
+      if (game.field) game.changeScene(game.field);
+      return debugSnapshot();
+    },
+    title() {
+      game.changeScene(new TitleScene(game));
+      return debugSnapshot();
+    },
+  };
+  const devTools = document.getElementById("dev-tools");
+  if (devTools) {
+    devTools.hidden = false;
+    devTools.querySelectorAll("[data-dev-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.devAction;
+        window.__cheat[action]?.();
+      });
+    });
+  }
+}
 
 // フィールドに出ている間だけ、ページを閉じる直前に保存
-window.addEventListener("beforeunload", () => {
-  if (game.scene === game.field) game.save();
-});
+window.addEventListener("beforeunload", () => game.save());
 
-let last = 0;
-function loop(t) {
-  const dt = Math.min((t - last) / 1000, 0.05);
-  last = t;
-  if (game.input.wasPressed("mute")) { setBgmMuted(toggleMute()); updateSoundButton(); }
+const fpsState = { value: 0, frames: 0, sampledAt: performance.now() };
+
+
+function drawDevOverlay() {
+  const sceneName = game.scene?.constructor?.name?.replace("Scene", "") || "?";
+  ctx.save();
+  ctx.fillStyle = "rgba(23, 26, 49, 0.78)";
+  ctx.beginPath();
+  ctx.roundRect(8, 446, 146, 26, 8);
+  ctx.fill();
+  ctx.fillStyle = "#fff9e8";
+  ctx.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.textAlign = "left";
+  ctx.fillText(`DEV · ${sceneName} · ${fpsState.value}fps`, 16, 463);
+  ctx.restore();
+}
+
+function advanceFrame(dt) {
+  if (game.input.wasPressed("mute")) setBgmMuted(toggleMute());
   if (game.input.wasPressed("lang")) game.toggleLang();
   game.scene.update(dt);
-  game.scene.draw(ctx);
+  game.sceneFade = Math.max(0, game.sceneFade - dt);
   game.input.endFrame();
-  requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
+
+function drawFrame(now, paused) {
+  ctx.imageSmoothingEnabled = false;
+  game.scene.draw(ctx);
+  if (game.sceneFade > 0) {
+    ctx.save();
+    ctx.fillStyle = `rgba(22, 57, 47, ${game.sceneFade * 1.8})`;
+    ctx.fillRect(0, 0, 640, 480);
+    ctx.restore();
+  }
+  if (isMuted()) {
+    ctx.fillStyle = "#f0ead8";
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.textAlign = "right";
+    ctx.fillText(game.lang === "en" ? "♪ Muted (M)" : "♪ ミュート中 (M)", 630, 20);
+    ctx.textAlign = "left";
+  }
+  if (!(game.scene instanceof BattleScene)) {
+    ctx.fillStyle = "#f0ead8";
+    ctx.font = '13px "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif';
+    ctx.textAlign = "right";
+    ctx.fillText(game.lang === "en" ? "EN (L)" : "日本語 (L)", 630, 476);
+    ctx.textAlign = "left";
+  }
+  if (runtimeStatus) {
+    const text = game.lang === "en"
+      ? `English · ${isMuted() ? "Muted" : "Sound on"}`
+      : `日本語・${isMuted() ? "音なし" : "音あり"}`;
+    if (runtimeStatus.textContent !== text) runtimeStatus.textContent = text;
+  }
+  if (DEV) {
+    const snapshotText = JSON.stringify(debugSnapshot());
+    document.documentElement.dataset.devSnapshot = snapshotText;
+    const devState = document.getElementById("dev-state");
+    if (devState && devState.textContent !== snapshotText) devState.textContent = snapshotText;
+    fpsState.frames += 1;
+    if (now - fpsState.sampledAt >= 500) {
+      fpsState.value = Math.round((fpsState.frames * 1000) / (now - fpsState.sampledAt));
+      fpsState.frames = 0;
+      fpsState.sampledAt = now;
+    }
+    drawDevOverlay();
+  }
+  if (paused) {
+    ctx.fillStyle = "rgba(22, 57, 47, 0.6)";
+    ctx.fillRect(0, 0, 640, 480);
+    ctx.fillStyle = "#f7f6dc";
+    ctx.textAlign = "center";
+    ctx.font = 'bold 26px "Hiragino Maru Gothic ProN", sans-serif';
+    ctx.fillText(game.lang === "en" ? "Paused" : "一時停止", 320, 234);
+    ctx.font = '15px "Hiragino Maru Gothic ProN", sans-serif';
+    ctx.fillText(game.lang === "en" ? "Return to this window or press Resume." : "画面へ戻るか、再開ボタンを押してください。", 320, 267);
+    ctx.textAlign = "left";
+  }
+}
+
+const runtime = createRuntime({
+  update: advanceFrame,
+  draw: drawFrame,
+  onPause(paused) {
+    game.input.clear();
+    setBgmSuspended(paused);
+  },
+});
+const pauseButton = document.getElementById("pause-game");
+pauseButton?.addEventListener("click", () => {
+  const paused = pauseButton.getAttribute("aria-pressed") !== "true";
+  pauseButton.setAttribute("aria-pressed", String(paused));
+  pauseButton.textContent = paused ? "冒険を再開" : "一時停止";
+  runtime.setPaused(paused);
+});
+canvas.addEventListener("pointerup", (event) => {
+  if (!(game.scene instanceof TitleScene) || game.scene.phase !== "slots" || game.scene.renamingSlot !== null) return;
+  const box = canvas.getBoundingClientRect();
+  const x = (event.clientX - box.left) * 640 / box.width;
+  const y = (event.clientY - box.top) * 480 / box.height;
+  if (x < 76 || x > 564) return;
+  const slot = Math.floor((y - 292) / 53);
+  if (slot < 0 || slot >= 3 || (y - 292) % 53 > 44) return;
+  game.scene.cursor = slot;
+  game.scene.chooseSlot();
+});
